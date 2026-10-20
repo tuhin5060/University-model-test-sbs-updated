@@ -6,7 +6,7 @@ import { UNIVERSITIES } from '../../../data/universities.js';
 import { SITE, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
 import { esc, bn, today, safeURL } from '../lib/dom.js';
 import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
-import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
+import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, loadLiveLeaderboard, liveLeaderboard, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
 import { startSession, dailyIds } from '../quiz.js';
 
 function resumeBanner() {
@@ -113,6 +113,7 @@ export function render() {
     <span class="hero-credit">${credit(hero)}</span>
   </section>
   ${resumeBanner()}
+  ${liveLeaderboard()}
   ${daily()}
   ${modes()}
   <section class="container section">
@@ -139,6 +140,10 @@ export function render() {
 export function mount() {
   hydratePhotos();
   loadLeaderboards();
+  loadLiveLeaderboard();
+  // Keep the compact ticker fresh without reloading the page.
+  const liveTimer = window.setInterval(() => { if (location.hash === '' || location.hash === '#home') loadLiveLeaderboard(); }, 60000);
+  window.addEventListener('hashchange', () => window.clearInterval(liveTimer), { once: true });
 }
 
 export function onAction(action) {
