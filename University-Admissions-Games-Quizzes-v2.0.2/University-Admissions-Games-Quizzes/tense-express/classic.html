@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E4D3A">
+<title>Tense Express 🚂 · Lecture 01 MCQ</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚂</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;700;800&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#0E4D3A; --green-2:#156A50; --green-3:#1E8A68;
+  --signal:#F5C518; --signal-2:#FFE27A; --pink:#FF6FA8; --sky:#5CC8FF;
+  --paper:#F4F8F5; --card:#FFFFFF; --ink:#10231C; --muted:#5B6E66; --line:#D5E2DB;
+  --good:#2FA36B; --good-bg:#E3F5EB; --bad:#D9443A; --bad-bg:#FCE7E5;
+  --display:'Baloo Da 2','Hind Siliguri',system-ui,sans-serif;
+  --body:'Hind Siliguri','Noto Sans Bengali',system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{font-family:var(--body);color:var(--ink);background:var(--green);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--signal);outline-offset:3px}
+.screen{display:none;min-height:100vh;min-height:100dvh}
+.screen.on{display:flex;flex-direction:column}
+.wrap{width:100%;max-width:760px;margin:0 auto;padding:20px 18px 28px}
+.btn{border:0;border-radius:14px;padding:14px 20px;font-weight:700;font-size:17px;font-family:var(--display);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;transition:transform .08s}
+.btn:active{transform:scale(.96)}
+.btn-go{background:var(--signal);color:var(--ink);flex:1;box-shadow:0 5px 0 #B98F00}
+.btn-go:active{box-shadow:0 1px 0 #B98F00;transform:translateY(4px)}
+.btn-ghost{background:transparent;border:2px solid currentColor;flex:1}
+.btn-dark{background:var(--green);color:#fff;flex:1;box-shadow:0 5px 0 #062A1F}
+.btn-dark:active{box-shadow:0 1px 0 #062A1F;transform:translateY(4px)}
+.btn-soft{background:#fff;color:var(--ink);border:2px solid var(--line);flex:1}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ---------- Home ---------- */
+#home{position:relative;color:#fff;overflow:hidden;background:var(--green)}
+#home .wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;position:relative;z-index:1;padding-bottom:110px}
+.mute{position:absolute;right:14px;top:12px;z-index:5;width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.25);color:#fff;font-size:18px}
+.intro{display:flex;flex-direction:column;gap:14px;padding-top:34px}
+.brand{font-size:15px;color:var(--signal-2);padding-right:50px}
+.title{font-family:var(--display);font-weight:800;line-height:.92;margin:0;font-size:clamp(56px,15vw,112px);letter-spacing:-1px}
+.title .t2{color:var(--signal);display:inline-block;transform:rotate(-3deg)}
+.title small{display:block;font-size:.3em;font-weight:700;letter-spacing:0;color:#BFE3D2;margin-top:12px;line-height:1.2}
+.lede{margin:0;max-width:50ch;color:#D7E8E0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 12px;font-size:14px}
+.form{display:grid;gap:12px;background:#fff;color:var(--ink);border-radius:20px;padding:18px;box-shadow:0 10px 0 rgba(0,0,0,.18)}
+.field label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+.field input{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:12px;background:var(--paper);font-size:17px}
+.field input:focus{border-color:var(--green-3);outline:none;background:#fff}
+.avs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.av{aspect-ratio:1;border-radius:12px;border:2px solid var(--line);background:var(--paper);font-size:26px;display:grid;place-items:center;padding:0}
+.av.sel{border-color:var(--signal);background:#FFF6CF;transform:scale(1.08)}
+.err{color:var(--bad);font-size:14px;min-height:1.2em;margin:-4px 0 0}
+/* the one orchestrated motion: a train crossing the home screen */
+.railway{position:absolute;left:0;right:0;bottom:22px;height:70px;z-index:0;pointer-events:none}
+.railway::after{content:"";position:absolute;left:0;right:0;bottom:6px;height:10px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 30px);border-top:3px solid rgba(255,255,255,.25)}
+.choo{position:absolute;bottom:12px;font-size:44px;white-space:nowrap;animation:choo 9s linear infinite;transform:scaleX(-1)}
+.choo span{display:inline-block}
+@keyframes choo{from{left:-320px}to{left:110%}}
+.smoke{position:absolute;bottom:58px;font-size:22px;opacity:0;animation:puff 9s linear infinite}
+@keyframes puff{0%{left:-40px;opacity:0}10%{opacity:.8}100%{left:115%;opacity:0}}
+
+/* ---------- Countdown & banners ---------- */
+.overlay{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:rgba(14,77,58,.92);color:#fff;text-align:center}
+.overlay.on{display:grid}
+.cd{font-family:var(--display);font-weight:800;font-size:min(42vw,220px);line-height:1;color:var(--signal);animation:zoom .9s ease-out}
+.station{font-family:var(--display);animation:zoom .5s ease-out}
+.station .s1{font-size:20px;color:#BFE3D2}
+.station .s2{font-size:clamp(40px,11vw,72px);font-weight:800;color:var(--signal);line-height:1}
+.station .s3{font-size:18px;margin-top:8px}
+@keyframes zoom{from{transform:scale(.4);opacity:0}60%{transform:scale(1.1);opacity:1}}
+
+/* ---------- Quiz ---------- */
+#quiz{background:var(--paper)}
+.flash-good{animation:fg .5s}.flash-bad{animation:fb .5s}
+@keyframes fg{0%{box-shadow:inset 0 0 0 0 rgba(47,163,107,0)}30%{box-shadow:inset 0 0 0 14px rgba(47,163,107,.55)}}
+@keyframes fb{0%{box-shadow:inset 0 0 0 0 rgba(217,68,58,0)}30%{box-shadow:inset 0 0 0 14px rgba(217,68,58,.55)}}
+.qtop{background:var(--green);color:#fff;position:sticky;top:0;z-index:5}
+.qtop .wrap{padding:12px 18px 12px}
+.hud{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.me{display:flex;align-items:center;gap:8px;min-width:0}
+.me .face{font-size:34px;line-height:1;transition:transform .2s}
+.me .face.bounce{animation:bounce .5s}
+@keyframes bounce{40%{transform:translateY(-10px) rotate(-8deg) scale(1.15)}}
+.me .face.sad{animation:sad .5s}
+@keyframes sad{30%{transform:rotate(14deg)}60%{transform:rotate(-14deg)}}
+.stat{font-size:12.5px;color:#BFD8CD;line-height:1.1}
+.stat b{display:block;font-family:var(--display);font-size:23px;color:#fff}
+.mult{font-family:var(--display);font-weight:800;font-size:15px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;transition:all .2s}
+.mult.hot{background:var(--signal);color:var(--green);animation:pulse 1s infinite}
+.mult.fire{background:var(--pink);color:#fff;animation:pulse .6s infinite}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.timer{position:relative;width:52px;height:52px;flex:none}
+.timer svg{transform:rotate(-90deg)}
+.timer span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:19px}
+.timer.frozen span{color:var(--sky)}
+.track{position:relative;margin-top:12px;height:24px}
+.rail{position:absolute;left:0;right:0;top:11px;height:3px;background:rgba(255,255,255,.25);border-radius:2px}
+.stops{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center}
+.stop{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.35);flex:none}
+.stop.ok{background:var(--good)}.stop.no{background:var(--bad)}.stop.cur{background:var(--signal);box-shadow:0 0 0 4px rgba(245,197,24,.35)}
+.engine{position:absolute;top:-10px;font-size:22px;transform:translateX(-50%) scaleX(-1);transition:left .6s cubic-bezier(.5,1.6,.5,1)}
+
+.qbody{flex:1}
+.qmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin:4px 0 10px}
+.qmeta .src{background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 10px;white-space:nowrap}
+.life{display:flex;gap:8px}
+.lb{border:2px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-weight:700;font-size:14px;font-family:var(--display)}
+.lb:disabled{opacity:.35;text-decoration:line-through;cursor:default}
+.qtext{font-family:var(--display);font-weight:700;font-size:clamp(22px,5.6vw,30px);line-height:1.3;margin:0 0 18px}
+.blank{display:inline-block;min-width:3em;border-bottom:3px solid var(--signal);margin:0 2px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:var(--card);border:2px solid var(--line);border-bottom-width:5px;border-radius:14px;padding:12px 14px;font-size:18px;min-height:58px;transition:transform .1s,opacity .3s}
+.opt:active:not(:disabled){transform:translateY(3px);border-bottom-width:2px}
+.opt .k{flex:none;width:32px;height:32px;border-radius:9px;background:var(--paper);display:grid;place-items:center;font-family:var(--display);font-weight:800;color:var(--green)}
+.opt:hover:not(:disabled){border-color:var(--green-3)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--good);background:var(--good-bg)}.opt.right .k{background:var(--good);color:#fff}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}.opt.wrong .k{background:var(--bad);color:#fff}
+.opt.dim{opacity:.5}
+.opt.gone{opacity:.15;pointer-events:none;transform:scale(.96)}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.bubble{margin-top:16px;display:none;gap:12px;align-items:flex-start}
+.bubble.on{display:flex;animation:rise .3s ease-out}
+.bubble .who{font-size:42px;line-height:1;flex:none}
+.bubble .say{flex:1;border-radius:16px;border-top-left-radius:4px;padding:12px 15px}
+.bubble.good .say{background:var(--good-bg);border:2px solid var(--good)}
+.bubble.bad .say{background:var(--bad-bg);border:2px solid var(--bad)}
+.bubble h3{margin:0 0 4px;font-family:var(--display);font-size:20px;line-height:1.25}
+.bubble p{margin:0;font-size:15.5px}
+.bubble p b{color:var(--green)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.pop{position:fixed;left:50%;top:36%;font-family:var(--display);font-weight:800;font-size:46px;color:var(--good);pointer-events:none;z-index:30;animation:pop 1s ease-out forwards;text-shadow:0 3px 0 #fff}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-120%)}}
+.emojirain{position:fixed;top:-50px;font-size:30px;pointer-events:none;z-index:29;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(260deg)}}
+.qfoot{position:sticky;bottom:0;background:linear-gradient(transparent,var(--paper) 30%)}
+.qfoot .wrap{padding-top:14px;padding-bottom:16px}
+.qfoot .btn{width:100%}
+
+/* ---------- Result ---------- */
+#result{background:var(--green);color:#fff}
+#result .wrap{display:flex;flex-direction:column;gap:18px}
+.ticket{background:#fff;color:var(--ink);border-radius:20px;position:relative;overflow:hidden;margin-top:8px;animation:zoom .6s ease-out}
+.ticket .head{background:var(--signal);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-family:var(--display);font-weight:800}
+.ticket .main{padding:18px;display:flex;gap:14px;align-items:center}
+.ticket .bigface{font-size:64px;line-height:1}
+.ticket .who{font-family:var(--display);font-size:26px;font-weight:800;line-height:1.1}
+.ticket .roll{color:var(--muted);font-size:15px}
+.ticket .tt{padding:0 18px 16px}
+.ticket .title-badge{font-family:var(--display);font-weight:800;font-size:clamp(28px,7vw,40px);line-height:1.1;margin:0 0 2px;color:var(--green)}
+.ticket .quip{color:var(--muted);margin:0}
+.ticket .rank{display:inline-block;margin-top:10px;background:var(--green);color:#fff;border-radius:999px;padding:4px 12px;font-weight:600;font-size:15px}
+.perf{height:0;border-top:2px dashed var(--line);margin:0 18px;position:relative}
+.perf::before,.perf::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--green)}
+.perf::before{left:-30px}.perf::after{right:-30px}
+.stub{display:grid;grid-template-columns:repeat(4,1fr);padding:16px 10px;text-align:center}
+.stub div{font-size:13px;color:var(--muted);line-height:1.2}
+.stub b{display:block;font-family:var(--display);font-size:26px;color:var(--ink)}
+.save-state{font-size:15px;color:#D7E8E0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.save-state button{background:var(--signal);border:0;border-radius:8px;padding:4px 10px;font-weight:700}
+.sheet{background:#fff;color:var(--ink);border-radius:20px;padding:18px}
+.sheet h3{font-family:var(--display);font-size:26px;margin:0;line-height:1.1}
+.sheet .hint{color:var(--muted);font-size:14.5px;margin:2px 0 12px}
+.tabs{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.tab{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 14px;font-weight:700;font-family:var(--display);font-size:15px}
+.tab.on{background:var(--green);border-color:var(--green);color:#fff}
+.ans{list-style:none;margin:0;padding:0}
+.ai{display:grid;grid-template-columns:38px 1fr;gap:10px;padding:14px 0;border-bottom:1px solid var(--line)}
+.ai:last-child{border-bottom:0}
+.ai .n{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff}
+.ai.ok .n{background:var(--good)}.ai.no .n{background:var(--bad)}
+.ai .q{font-weight:600;line-height:1.4}
+.ai .src{font-size:12.5px;color:var(--muted);font-weight:500}
+.ai .a{font-size:15.5px;margin-top:5px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.ai .y{color:var(--bad)}
+.ai.ok .y{color:var(--good)}
+.ai .c{color:var(--good);font-weight:700}
+.ai .x{font-size:14.5px;color:var(--ink);margin-top:6px;background:var(--paper);border-radius:10px;padding:7px 10px}
+
+/* ---------- Leaderboard ---------- */
+#board{background:var(--paper)}
+.bhead{background:var(--green);color:#fff}
+.bhead .wrap{padding-bottom:0}
+.bhead h2{font-family:var(--display);font-size:clamp(34px,8vw,52px);margin:6px 0 0;line-height:1}
+.bhead p{margin:4px 0 0;color:#BFD8CD;font-size:15px}
+.back{background:none;border:0;color:var(--signal);font-weight:700;padding:6px 0;font-size:16px}
+.podium{max-width:520px;margin:20px auto 0;display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;align-items:end}
+.pd{text-align:center;color:#fff}
+.pd .fc{font-size:40px;line-height:1}
+.pd.p1 .fc{font-size:54px;animation:bounce 1.6s infinite}
+.pd .nm{font-family:var(--display);font-weight:700;font-size:16px;line-height:1.15;word-break:break-word;margin-top:4px}
+.pd .sc{font-size:13px;color:#BFD8CD}
+.pd .bar{margin-top:8px;border-radius:10px 10px 0 0;background:var(--green-2);display:grid;place-items:center;font-size:30px}
+.pd.p1 .bar{height:96px;background:var(--signal)}
+.pd.p2 .bar{height:70px}.pd.p3 .bar{height:54px}
+.tools{display:flex;gap:10px;margin:16px 0 12px;flex-wrap:wrap}
+.tools input{flex:1 1 200px;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;font-size:16px}
+.tools .btn{flex:0 0 auto;min-height:48px;padding:10px 16px;font-size:15px}
+.note{font-size:14px;color:var(--muted);margin:0 0 10px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.li{display:grid;grid-template-columns:34px 40px 1fr auto;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.li.mine{border:2px solid var(--signal);background:#FFFBEA}
+.li .rk{font-family:var(--display);font-weight:800;font-size:19px;color:var(--green);text-align:center}
+.li .fc{font-size:30px;text-align:center}
+.li .nm{font-weight:600;line-height:1.2}
+.li .sub{font-size:13.5px;color:var(--muted)}
+.li .pts{text-align:right;font-family:var(--display);font-weight:800;font-size:22px;line-height:1}
+.li .pts small{display:block;font-family:var(--body);font-weight:500;font-size:12.5px;color:var(--muted)}
+.empty{text-align:center;padding:36px 10px;color:var(--muted)}
+
+@media (min-width:960px){
+  .wrap{max-width:820px}
+  #home .wrap{max-width:1080px;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:48px}
+  #home .intro{gap:22px;padding-top:0}
+  #board .bwrap{max-width:1080px;display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start}
+  #board .bhead .wrap{max-width:1080px}
+  .bside{position:sticky;top:20px}
+  .opts{grid-template-columns:1fr 1fr}
+  #result .wrap{max-width:720px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="overlay" id="overlay"></div>
+
+<!-- HOME -->
+<section class="screen on" id="home">
+  <button class="mute" id="mute" aria-label="Sound on/off">🔊</button>
+  <div class="wrap">
+    <div class="intro">
+      <div class="brand">SBS Students' Association · Admission Coaching</div>
+      <h1 class="title">Tense<br><span class="t2">Express!</span><small>Lecture 01 · Tense &amp; Sequence of Tense</small></h1>
+      <p class="lede">২০টা স্টেশন, ২০টা MCQ। দ্রুত উত্তর দিলে বেশি পয়েন্ট, টানা ঠিক হলে পয়েন্ট ডাবল 🔥। শেষে সব উত্তর ব্যাখ্যাসহ, আর দেখবে ক্লাসে তুমি কত নম্বরে।</p>
+      <div class="chips"><span class="chip">⏱️ ৩০ সেকেন্ড/প্রশ্ন</span><span class="chip">🔥 x2 কম্বো</span><span class="chip">✂️ 50:50</span><span class="chip">🧊 টাইম ফ্রিজ</span></div>
+    </div>
+    <form class="form" id="startForm" novalidate>
+      <div class="field"><label>তোমার ক্যারেক্টার বাছো</label><div class="avs" id="avs"></div></div>
+      <div class="field"><label for="name">তোমার নাম</label><input id="name" autocomplete="name" maxlength="40" placeholder="যেমন: Nusrat Jahan"></div>
+      <div class="field"><label for="roll">রোল নম্বর</label><input id="roll" inputmode="numeric" maxlength="20" placeholder="যেমন: 2417"></div>
+      <p class="err" id="formErr" role="alert"></p>
+      <div class="row">
+        <button type="submit" class="btn btn-go">ট্রেনে ওঠো 🚂</button>
+        <button type="button" class="btn btn-soft" id="toBoard1">🏆 লিডারবোর্ড</button>
+      </div>
+    </form>
+  </div>
+  <div class="railway" aria-hidden="true"><div class="smoke">💨</div><div class="choo"><span>🚂</span><span>🚃</span><span>🚃</span><span>🚃</span></div></div>
+</section>
+
+<!-- QUIZ -->
+<section class="screen" id="quiz">
+  <div class="qtop"><div class="wrap">
+    <div class="hud">
+      <div class="me"><span class="face" id="face">🦁</span><div class="stat">স্টেশন<b id="hudQ">1/20</b></div></div>
+      <div class="stat">পয়েন্ট<b id="hudScore">0</b></div>
+      <span class="mult" id="mult">x1</span>
+      <div class="timer" id="timerBox">
+        <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="5"/>
+        <circle id="ring" cx="26" cy="26" r="22" fill="none" stroke="#F5C518" stroke-width="5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="0"/></svg>
+        <span id="timeNum">30</span>
+      </div>
+    </div>
+    <div class="track"><div class="rail"></div><div class="stops" id="stops"></div><div class="engine" id="engine">🚂</div></div>
+  </div></div>
+  <div class="qbody"><div class="wrap">
+    <div class="qmeta">
+      <span class="src" id="qSrc"></span>
+      <div class="life">
+        <button class="lb" id="fifty" title="দুইটা ভুল অপশন সরিয়ে দেয় (একবার)">✂️ 50:50</button>
+        <button class="lb" id="freeze" title="এই প্রশ্নের টাইমার থামিয়ে দেয় (একবার)">🧊 ফ্রিজ</button>
+      </div>
+    </div>
+    <h2 class="qtext" id="qText"></h2>
+    <div class="opts" id="opts"></div>
+    <div class="bubble" id="fb" aria-live="polite"><div class="who" id="fbFace">🦁</div><div class="say"><h3 id="fbH"></h3><p id="fbP"></p></div></div>
+  </div></div>
+  <div class="qfoot"><div class="wrap"><button class="btn btn-dark" id="nextBtn" style="visibility:hidden">পরের স্টেশন 🚂</button></div></div>
+</section>
+
+<!-- RESULT -->
+<section class="screen" id="result">
+  <div class="wrap">
+    <div class="ticket">
+      <div class="head"><span>🎫 Tense Express টিকিট</span><span id="tDate"></span></div>
+      <div class="main"><div class="bigface" id="tFace"></div><div><div class="who" id="tName"></div><div class="roll" id="tRoll"></div></div></div>
+      <div class="tt">
+        <div class="title-badge" id="tTitle"></div>
+        <p class="quip" id="tQuip"></p>
+        <span class="rank" id="tRank" hidden></span>
+      </div>
+      <div class="perf"></div>
+      <div class="stub">
+        <div><b id="tScore">0</b>পয়েন্ট</div>
+        <div><b id="tCorrect">0</b>সঠিক</div>
+        <div><b id="tAcc">0%</b>নির্ভুলতা</div>
+        <div><b id="tStreak">0</b>সেরা স্ট্রিক</div>
+      </div>
+    </div>
+    <div class="save-state" id="saveState">⏳ রেজাল্ট সেভ হচ্ছে…</div>
+    <div class="row">
+      <button class="btn btn-go" id="toBoard2">🏆 লিডারবোর্ড</button>
+      <button class="btn btn-ghost" id="again">🔁 আবার খেলো</button>
+    </div>
+    <div class="sheet">
+      <h3>উত্তরপত্র 📝</h3>
+      <p class="hint">২০টা প্রশ্নের সঠিক উত্তর আর ছোট ব্যাখ্যা। ভুলগুলো আগে দেখে নাও।</p>
+      <div class="tabs">
+        <button class="tab on" data-f="all">সব (<span id="cAll">0</span>)</button>
+        <button class="tab" data-f="no">❌ ভুল (<span id="cNo">0</span>)</button>
+        <button class="tab" data-f="ok">✅ ঠিক (<span id="cOk">0</span>)</button>
+      </div>
+      <ol class="ans" id="ans"></ol>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="screen" id="board">
+  <div class="bhead"><div class="wrap">
+    <button class="back" id="boardBack">← ফিরে যাও</button>
+    <h2>লিডারবোর্ড 🏆</h2>
+    <p>প্রত্যেক রোলের সেরা স্কোর</p>
+    <div class="podium" id="podium"></div>
+  </div></div>
+  <div class="wrap bwrap">
+    <div class="bside">
+      <div class="tools"><input id="search" type="search" placeholder="নাম বা রোল দিয়ে খোঁজো"></div>
+      <div class="tools">
+        <button class="btn btn-soft" id="refresh">🔄 রিফ্রেশ</button>
+        <button class="btn btn-soft" id="csv">⬇️ CSV</button>
+      </div>
+      <p class="note" id="boardNote"></p>
+    </div>
+    <ul class="list" id="list"></ul>
+  </div>
+</section>
+
+<script>
+const QUESTIONS = [
+ {s:'CU KA 16-17', q:'By the time the guests arrive, I ___ the room.', o:['will cleaning','will be cleaning','will have cleaned','will clean'], a:2,
+  e:'By the time + Present Indefinite থাকলে main clause-এ Future Perfect (will have + V3)।'},
+ {s:'CU G 15-16', q:'The man waiting to take the test was very nervous. He ___ it before.', o:["hasn't taken","didn't take","hadn't taken","wasn't taking"], a:2,
+  e:'nervous ছিল অতীতে; পরীক্ষার আগের কাজ আরও আগের → Past Perfect: hadn\'t taken।'},
+ {s:'CU F-1 15-16', q:'The man sitting beside the window on the plane was very nervous. He ___ before.', o:['not flew','not flown','not flying',"hadn't flown"], a:3,
+  e:'অতীতের একটা অবস্থার আগের অভিজ্ঞতা → Past Perfect: hadn\'t flown।'},
+ {s:'CU E 15-16', q:'An intensive search was conducted by the detective to locate those criminals, who ___.', o:['have escaped','had escaped','are escaping','have been escaping'], a:1,
+  e:'খোঁজ শুরুর আগেই অপরাধীরা পালিয়েছিল → আগের কাজ Past Perfect: had escaped।'},
+ {s:'CU B 14-15', q:'We prayed that she ___ able to return in time.', o:['will be','may be','would be','being'], a:2,
+  e:'Main clause Past (prayed) → subordinate clause-ও Past form: would be।'},
+ {s:'CU B 14-15', q:'He had been at the orphanage ___ he was four.', o:['only','since','due to','during'], a:1,
+  e:'সময়ের শুরু (he was four) বোঝাতে since।'},
+ {s:'CU C 14-15', q:'She hopes to get married before she ___ thirty.', o:['is','will be','has been','is being'], a:0,
+  e:'before-যুক্ত clause ভবিষ্যৎ বোঝালেও Present Indefinite হয়: before she is thirty।'},
+ {s:'CU E 14-15', q:'By the time I had reached the hilltop, I ___ extremely tired.', o:['feel','have felt','would have felt','felt'], a:3,
+  e:'By the time + Past Perfect-এর পরের অংশ Past Indefinite: felt।'},
+ {s:'CU C 00-01', q:'Jerry ___ at the orphanage since he was four.', o:['is','has been','is being','had been'], a:1,
+  e:'Present Perfect + since + Past Indefinite: has been … since he was four।'},
+ {s:'DU B 16-17', q:'By the middle of the twenty-first century, the computer ___ a necessity in every home.', o:['became','becoming','has become','will have become'], a:3,
+  e:'By + ভবিষ্যৎ সময় → Future Perfect: will have become।'},
+ {s:'DU C 14-15', q:'He told me that he ___ in Khulna in the previous year.', o:['had been working','has been working','has worked','is working'], a:0,
+  e:'Main clause Past (told) এবং আরও আগের সময় (previous year) → had been working।'},
+ {s:'DU C 12-13', q:'Choose the correct sentence:', o:['Why you have done this?','Why did you done this?','Why have you done this?','Why you had done this?'], a:2,
+  e:'Wh-question-এ auxiliary আগে আসে: Why + have + you + V3।'},
+ {s:'DU D 14-15', q:'Which of the following is correct?', o:['Where have you born?','Where are you born?','Where were you born?','Where had you born?'], a:2,
+  e:'জন্ম অতীতের নির্দিষ্ট ঘটনা, passive: Where were you born?'},
+ {s:'DU A 14-15', q:"I haven't been feeling very well ___.", o:['of late','not long ago','currently','by now'], a:0,
+  e:'of late = recently, Present Perfect (Continuous)-এর সাথে বসে।'},
+ {s:'JnU C 14-15', q:'He tried to make it appear that she ___ suicide.', o:['had committed','committed','was committing','would commit'], a:0,
+  e:'tried (অতীত)-এর আগেই ঘটনা ঘটেছে → had committed।'},
+ {s:'JnU C 13-14', q:"Jesmin has lost her passport again; it's the second time this ___.", o:['has happened','happens','happened','had happened'], a:0,
+  e:"It's the first/second time + Present Perfect: has happened।"},
+ {s:'JnU B 10-11', q:'I shall meet my friend when he ___.', o:['will come','came','comes','will have come'], a:2,
+  e:'Main clause Future হলে when-যুক্ত clause Present Indefinite: comes।'},
+ {s:'DU A 07-08', q:'He often ___ newspapers but he has never ___ a novel.', o:['reads, read','read, read','reads, reads','read, reads'], a:0,
+  e:'often → Present Indefinite (reads); has never + V3 → read।'},
+ {s:'Need', q:'You need not ___ there.', o:['to go','go','going','gone'], a:1,
+  e:'Modal need not + V1 (base form), to বসে না।'},
+ {s:'Need', q:'The room needs ___.', o:['clean','cleaning','cleaned','to cleaning'], a:1,
+  e:'Subject বস্তু হলে need + V-ing: needs cleaning (= needs to be cleaned)।'},
+ {s:'Since', q:'I have known him ___ he was a child.', o:['for','from','since','when'], a:2,
+  e:'Present Perfect + since + Past Indefinite।'},
+ {s:'Since', q:'It is ten years since he ___.', o:['dies','has died','died','had died'], a:2,
+  e:'It is … since + Past Indefinite: died।'},
+ {s:'Since', q:'It was many years since we ___.', o:['met','have met','had met','meet'], a:2,
+  e:'Past Indefinite + since + Past Perfect: had met।'},
+ {s:'Preposition', q:'He left the room without ___ a word.', o:['say','said','to say','saying'], a:3,
+  e:'Preposition (without)-এর পর verb এলে V-ing।'},
+ {s:'For', q:'They have been waiting ___ two hours.', o:['since','for','from','at'], a:1,
+  e:'সময়ের পরিমাণ (duration) → for; শুরুর সময় → since।'},
+ {s:'TOEFL', q:'Something ___ very good.', o:['is smelling','smells','smelled','has smelling'], a:1,
+  e:'smell (অনুভূতি অর্থে) stative verb, সাধারণত continuous হয় না: smells।'},
+ {s:'TOEFL', q:'Gene ___ dinner when his friend called.', o:['ate','has eaten','was eating','eats'], a:2,
+  e:'একটা কাজ চলছিল, তখন আরেকটা ঘটল → Past Continuous: was eating।'},
+ {s:'TOEFL', q:'Mr. Johnson ___ in the same place for thirty-five years, and he is not planning to retire yet.', o:['works','worked','has worked','had worked'], a:2,
+  e:'অতীতে শুরু, এখনো চলছে, for + সময়ের পরিমাণ → has worked।'},
+ {s:'TOEFL', q:'The policeman read the suspect his rights after he ___ him.', o:['arrested','has arrested','had arrested','was arresting'], a:2,
+  e:'after-এর পরে Past Perfect (আগের কাজ): had arrested।'},
+ {s:'CU E 13-14', q:'Hardly had he entered the office when he realized that he ___ his wallet.', o:['has forgotten','had forgotten','forgets','forgot'], a:1,
+  e:'realized (Past)-এর আগেই ভুলেছিল → had forgotten।'}
+];
+const PER_GAME = 20;
+const TIME = 30;
+const API = '/api/scores';
+const LOCAL_KEY = 'tenseExpress.scores';
+const AVATARS = ['🦁','🐯','🐼','🦊','🐸','🐵','🦄','🐧','🐙','🐨','🤖','👻'];
+const STATIONS = { 5:['Present নগর','৫টা পার! ট্রেন গরম হচ্ছে 🔥'], 10:['Past জংশন','অর্ধেক রাস্তা শেষ, চা-বিরতি নেই ☕'], 15:['Perfect বাজার','আর মাত্র ৫টা! শেষ স্টেশন সামনে 🏁'] };
+const LINES = {
+  good:['জোস! 🔥','একদম ঠিক! Grammar-এর বস 😎','বাহ! Examiner কান্না করবে 😂','ঠিক ঠিক ঠিক! 🎯','তুমি তো হাঁটা ডিকশনারি 📚','ক্লাসের টপার আসছে 👀','Perfect! এক্কেবারে Present Perfect 💯'],
+  streak3:['হ্যাট্রিক! 🎩 এখন পয়েন্ট x1.5','টানা ৩টা! ট্রেন স্পিড নিচ্ছে 🚄'],
+  streak5:['অন ফায়ার! থামানো যাচ্ছে না 🔥🔥 পয়েন্ট x2','মেশিন! পুরো ডাবল পয়েন্ট চলছে ⚡'],
+  bad:['উফফ! Tense দিল tension 😵','কাছাকাছি… কিন্তু ট্রেন মিস 🚉','ব্যাপার না, পরেরটায় ছক্কা 🏏','ভুল হইছে, শেখাও হইছে 😌','আরে! এইটা তো আগেরটার জমজ ভাই ছিল 🙃'],
+  late:['ঘুমায় গেছিলা নাকি? ⏰😴','সময় শেষ! ট্রেন ছেড়ে দিছে 🚂💨']
+};
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); window.scrollTo(0, 0); }
+function retrigger(el, cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+/* ---------- sound ---------- */
+let muted = store.get('tenseExpress.muted', false), actx;
+function syncMute(){ $('mute').textContent = muted ? '🔇' : '🔊'; }
+syncMute();
+$('mute').onclick = () => { muted = !muted; store.set('tenseExpress.muted', muted); syncMute(); };
+function beep(notes, type = 'triangle'){
+  if (muted) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    let t = actx.currentTime;
+    notes.forEach(([f, d]) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(.16, t); g.gain.exponentialRampToValueAtTime(.001, t + d);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d); t += d * .8;
+    });
+  } catch {}
+}
+const SFX = {
+  good:()=>beep([[660,.1],[880,.16]]), combo:()=>beep([[660,.08],[880,.08],[1175,.2]]),
+  bad:()=>beep([[300,.15],[200,.3]],'sawtooth'), tick:()=>beep([[1000,.04]],'square'),
+  go:()=>beep([[523,.15]]), win:()=>beep([[523,.12],[659,.12],[784,.12],[1046,.35]]),
+  whistle:()=>beep([[1400,.12],[1200,.25]],'sine'), magic:()=>beep([[900,.06],[1200,.06],[1500,.12]],'sine')
+};
+
+/* ---------- titles ---------- */
+function titleFor(acc){
+  if (acc === 100) return ['Tense সম্রাট 👑','একটাও মিস নেই! Admission hall তোমার জন্য অপেক্ষা করছে।'];
+  if (acc >= 90)  return ['Grammar গুরু 🧠','প্রায় নিখুঁত। আর একটা ঠিক হলেই মুকুট।'];
+  if (acc >= 75)  return ['Time Traveler ⏳','Past, Present, Future—সবখানে তোমার যাতায়াত।'];
+  if (acc >= 60)  return ['Rising Star ⭐','ভালো যাচ্ছে! নিচের ভুলগুলো একবার দেখে নাও।'];
+  if (acc >= 40)  return ['লোকাল ট্রেনের যাত্রী 🚃','পৌঁছাবে, তবে একটু দেরিতে। Perfect tense আরেকবার দেখো।'];
+  return ['Tense-এর সাথে যুদ্ধ চলছে 🥲','চিন্তা নেই, উত্তরপত্র পড়ে আবার খেলো—দ্বিতীয়বার সহজ লাগবে।'];
+}
+const badge = acc => titleFor(acc)[0].split(' ').pop();
+
+/* ---------- avatar picker ---------- */
+let avatar = store.get('tenseExpress.avatar', AVATARS[0]);
+function drawAvatars(){
+  $('avs').innerHTML = AVATARS.map(a => `<button type="button" class="av${a === avatar ? ' sel' : ''}" aria-label="${a}">${a}</button>`).join('');
+  $('avs').querySelectorAll('.av').forEach(b => b.onclick = () => { avatar = b.textContent; store.set('tenseExpress.avatar', avatar); SFX.tick(); drawAvatars(); });
+}
+drawAvatars();
+
+/* ---------- overlay ---------- */
+async function countdown(){
+  const ov = $('overlay'); ov.classList.add('on');
+  for (const n of ['3','2','1','চলো! 🚂']) {
+    ov.innerHTML = `<div class="cd" style="${n.length > 1 ? 'font-size:min(16vw,110px)' : ''}">${n}</div>`;
+    n.length > 1 ? SFX.whistle() : SFX.go();
+    await wait(n.length > 1 ? 700 : 650);
+  }
+  ov.classList.remove('on');
+}
+async function stationBanner(n){
+  const [name, line] = STATIONS[n];
+  const ov = $('overlay'); ov.classList.add('on');
+  ov.innerHTML = `<div class="station"><div class="s1">স্টেশন ${n}/${PER_GAME} পার</div><div class="s2">${name}</div><div class="s3">${line}</div></div>`;
+  SFX.whistle();
+  await wait(1500);
+  ov.classList.remove('on');
+}
+
+/* ---------- game ---------- */
+let G = null, timerId = null, qStart = 0, frozen = false, lastTick = 0;
+
+$('startForm').onsubmit = e => {
+  e.preventDefault();
+  const name = $('name').value.trim(), roll = $('roll').value.trim();
+  if (name.length < 2) { $('formErr').textContent = 'নাম লেখো (কমপক্ষে ২ অক্ষর)।'; $('name').focus(); return; }
+  if (!roll) { $('formErr').textContent = 'রোল নম্বর লেখো।'; $('roll').focus(); return; }
+  $('formErr').textContent = '';
+  store.set('tenseExpress.player', { name, roll });
+  startGame(name, roll);
+};
+(() => { const p = store.get('tenseExpress.player', null); if (p) { $('name').value = p.name; $('roll').value = p.roll; } })();
+
+const multFor = s => s >= 5 ? 2 : s >= 3 ? 1.5 : 1;
+
+async function startGame(name, roll){
+  const order = shuffle(QUESTIONS).slice(0, PER_GAME).map(q => {
+    const perm = shuffle([0,1,2,3]);
+    return { ...q, opts: perm.map(k => q.o[k]), ans: perm.indexOf(q.a) };
+  });
+  G = { name, roll, avatar, order, i:0, score:0, correct:0, streak:0, best:0, results:[], started:Date.now(), fifty:true, freeze:true };
+  $('stops').innerHTML = order.map(() => '<span class="stop"></span>').join('');
+  $('face').textContent = avatar; $('fbFace').textContent = avatar;
+  $('fifty').disabled = false; $('freeze').disabled = false;
+  show('quiz');
+  renderQ(false);
+  await countdown();
+  startTimer();
+}
+
+function renderQ(timer = true){
+  const q = G.order[G.i];
+  $('hudQ').textContent = `${G.i + 1}/${PER_GAME}`;
+  $('hudScore').textContent = G.score;
+  updateMult();
+  $('qSrc').textContent = q.s;
+  $('qText').innerHTML = esc(q.q).replace(/___/g, '<span class="blank"></span>');
+  $('opts').innerHTML = q.opts.map((o, k) =>
+    `<button class="opt" data-k="${k}"><span class="k">${'abcd'[k]}</span><span>${esc(o)}</span></button>`).join('');
+  $('opts').querySelectorAll('.opt').forEach(b => b.onclick = () => answer(+b.dataset.k));
+  $('fb').className = 'bubble';
+  $('nextBtn').style.visibility = 'hidden';
+  $('fifty').disabled = !G.fifty; $('freeze').disabled = !G.freeze;
+  [...$('stops').children].forEach((s, k) => s.className = 'stop' + (k < G.i ? (G.results[k].ok ? ' ok' : ' no') : k === G.i ? ' cur' : ''));
+  $('engine').style.left = `calc(5.5px + (100% - 11px) * ${G.i / (PER_GAME - 1)})`;
+  frozen = false; $('timerBox').classList.remove('frozen');
+  $('ring').style.strokeDashoffset = 0; $('timeNum').textContent = TIME;
+  if (timer) startTimer();
+}
+function updateMult(){
+  const m = multFor(G.streak), el = $('mult');
+  el.textContent = `${G.streak >= 3 ? '🔥 ' : ''}x${m}`;
+  el.className = 'mult' + (m === 2 ? ' fire' : m > 1 ? ' hot' : '');
+}
+
+function timeLeft(){ return Math.max(0, TIME - (performance.now() - qStart) / 1000); }
+function startTimer(){
+  stopTimer();
+  qStart = performance.now(); lastTick = TIME;
+  const ring = $('ring'), num = $('timeNum'), C = 138.2;
+  timerId = setInterval(() => {
+    if (frozen) return;
+    const left = timeLeft(), c = Math.ceil(left);
+    num.textContent = c;
+    ring.style.strokeDashoffset = C * (1 - left / TIME);
+    ring.style.stroke = left <= 8 ? '#D9443A' : '#F5C518';
+    if (c <= 5 && c < lastTick && c > 0) SFX.tick();
+    lastTick = c;
+    if (left <= 0) answer(-1);
+  }, 100);
+}
+function stopTimer(){ if (timerId) clearInterval(timerId); timerId = null; }
+
+$('fifty').onclick = () => {
+  if (!G.fifty || !timerId) return;
+  G.fifty = false; $('fifty').disabled = true; SFX.magic();
+  const q = G.order[G.i];
+  const wrongs = shuffle([0,1,2,3].filter(k => k !== q.ans)).slice(0, 2);
+  wrongs.forEach(k => $('opts').children[k].classList.add('gone'));
+};
+$('freeze').onclick = () => {
+  if (!G.freeze || !timerId) return;
+  G.freeze = false; $('freeze').disabled = true; SFX.magic();
+  frozen = true; G.frozenLeft = timeLeft();
+  $('timerBox').classList.add('frozen'); $('timeNum').textContent = '🧊';
+  $('ring').style.stroke = '#5CC8FF';
+};
+
+function answer(k){
+  if (!timerId) return;
+  const left = frozen ? (G.frozenLeft || TIME) : timeLeft();
+  stopTimer();
+  const q = G.order[G.i], ok = k === q.ans;
+  $('opts').querySelectorAll('.opt').forEach((b, j) => {
+    b.disabled = true;
+    if (j === q.ans) b.classList.add('right');
+    else if (j === k) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  let gained = 0, head;
+  if (ok) {
+    G.streak++; G.best = Math.max(G.best, G.streak); G.correct++;
+    const m = multFor(G.streak);
+    gained = Math.round((10 + Math.ceil(left / 3)) * m);
+    G.score += gained;
+    head = G.streak === 5 || (G.streak > 5 && G.streak % 3 === 0) ? pick(LINES.streak5) : G.streak === 3 ? pick(LINES.streak3) : pick(LINES.good);
+    popText(`+${gained}`);
+    G.streak >= 3 ? (SFX.combo(), emojiRain(G.streak >= 5 ? '🔥' : '⭐')) : SFX.good();
+    retrigger($('face'), 'bounce');
+    retrigger($('quiz'), 'flash-good');
+  } else {
+    G.streak = 0;
+    head = k === -1 ? pick(LINES.late) : pick(LINES.bad);
+    SFX.bad();
+    retrigger($('opts'), 'shake');
+    retrigger($('face'), 'sad');
+    retrigger($('quiz'), 'flash-bad');
+  }
+  G.results.push({ q, picked: k, ok, gained });
+  $('hudScore').textContent = G.score;
+  updateMult();
+  $('fb').className = 'bubble on ' + (ok ? 'good' : 'bad');
+  $('fbH').textContent = head;
+  $('fbP').innerHTML = `${ok ? '' : `সঠিক উত্তর: <b>${esc(q.opts[q.ans])}</b><br>`}${esc(q.e)}`;
+  const nb = $('nextBtn');
+  nb.textContent = G.i === PER_GAME - 1 ? 'টিকিট নাও 🎫' : 'পরের স্টেশন 🚂';
+  nb.style.visibility = 'visible';
+  nb.focus({ preventScroll: true });
+  $('fb').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+$('nextBtn').onclick = async () => {
+  $('nextBtn').style.visibility = 'hidden';
+  G.i++;
+  if (G.i >= PER_GAME) return finish();
+  if (STATIONS[G.i]) { renderQ(false); await stationBanner(G.i); startTimer(); }
+  else renderQ();
+};
+
+function popText(t){
+  const el = document.createElement('div'); el.className = 'pop'; el.textContent = t;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+}
+function emojiRain(e){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div'); el.className = 'emojirain'; el.textContent = e;
+    el.style.left = Math.random() * 100 + 'vw'; el.style.animationDelay = Math.random() * .4 + 's';
+    document.body.appendChild(el); setTimeout(() => el.remove(), 2200);
+  }
+}
+
+/* ---------- result ---------- */
+function countUp(el, to, suffix = ''){
+  const t0 = performance.now(), dur = 1200;
+  (function f(t){ const p = Math.min(1, (t - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + suffix; if (p < 1) requestAnimationFrame(f); })(t0);
+}
+async function finish(){
+  stopTimer();
+  const acc = Math.round(G.correct / PER_GAME * 100);
+  const [title, quip] = titleFor(acc);
+  const entry = { name:G.name, roll:G.roll, avatar:G.avatar, score:G.score, correct:G.correct, total:PER_GAME,
+                  bestStreak:G.best, timeSec:Math.round((Date.now() - G.started) / 1000), at:new Date().toISOString() };
+  $('tFace').textContent = G.avatar;
+  $('tName').textContent = G.name;
+  $('tRoll').textContent = `রোল: ${G.roll}`;
+  $('tDate').textContent = new Date().toLocaleDateString('en-GB');
+  $('tTitle').textContent = title;
+  $('tQuip').textContent = quip;
+  $('tRank').hidden = true;
+  $('tCorrect').textContent = `${G.correct}/${PER_GAME}`;
+  $('tStreak').textContent = G.best;
+  renderSheet('all');
+  show('result');
+  countUp($('tScore'), G.score); countUp($('tAcc'), acc, '%');
+  SFX.win(); confetti(acc >= 60 ? 220 : 90);
+  if (acc === 100) emojiRain('👑');
+  await saveEntry(entry);
+  const { rows } = await loadEntries();
+  const ranked = bestPerRoll(rows);
+  const pos = ranked.findIndex(e => String(e.roll).toLowerCase() === String(G.roll).toLowerCase());
+  if (pos >= 0) { $('tRank').hidden = false; $('tRank').textContent = `🏅 ক্লাসে তুমি #${pos + 1}, মোট ${ranked.length} জনের মধ্যে`; }
+}
+
+let sheetFilter = 'all';
+function renderSheet(f){
+  sheetFilter = f;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.f === f));
+  const okN = G.results.filter(r => r.ok).length;
+  $('cAll').textContent = G.results.length; $('cOk').textContent = okN; $('cNo').textContent = G.results.length - okN;
+  const items = G.results.map((r, i) => ({ ...r, n: i + 1 })).filter(r => f === 'all' || (f === 'ok') === r.ok);
+  $('ans').innerHTML = items.length ? items.map(r => {
+    const yours = r.picked === -1 ? 'সময় শেষ ⏰' : r.q.opts[r.picked];
+    return `<li class="ai ${r.ok ? 'ok' : 'no'}">
+      <span class="n">${r.n}</span>
+      <div>
+        <div class="q">${esc(r.q.q)} <span class="src">· ${esc(r.q.s)}</span></div>
+        <div class="a"><span class="y">${r.ok ? '✅' : '❌'} তোমার: ${esc(yours)}</span>${r.ok ? '' : `<span class="c">✔ সঠিক: ${esc(r.q.opts[r.q.ans])}</span>`}</div>
+        <div class="x">💡 ${esc(r.q.e)}</div>
+      </div></li>`;
+  }).join('') : `<li class="empty">${f === 'no' ? 'একটাও ভুল নেই! 🎉' : 'এখানে কিছু নেই।'}</li>`;
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => renderSheet(t.dataset.f));
+$('again').onclick = () => startGame(G.name, G.roll);
+
+/* ---------- save / load ---------- */
+async function saveEntry(entry){
+  const st = $('saveState');
+  st.innerHTML = '⏳ রেজাল্ট সেভ হচ্ছে…';
+  try {
+    const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) });
+    if (!r.ok) throw new Error(r.status);
+    st.innerHTML = '✅ রেজাল্ট সেভ হয়েছে, লিডারবোর্ডে সবাই দেখতে পাবে।';
+  } catch {
+    const local = store.get(LOCAL_KEY, []); local.push(entry); store.set(LOCAL_KEY, local);
+    st.innerHTML = '⚠️ সার্ভারে সেভ হয়নি, এই ডিভাইসে রাখা হয়েছে। <button id="retry">আবার চেষ্টা</button>';
+    $('retry').onclick = () => { store.set(LOCAL_KEY, store.get(LOCAL_KEY, []).filter(e => e.at !== entry.at)); saveEntry(entry); };
+  }
+}
+async function loadEntries(){
+  try {
+    const r = await fetch(API, { cache:'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    return { rows: d.rows || [], online: true };
+  } catch { return { rows: store.get(LOCAL_KEY, []), online: false }; }
+}
+function bestPerRoll(rows){
+  const m = new Map();
+  rows.forEach(e => {
+    const k = String(e.roll).trim().toLowerCase(), cur = m.get(k);
+    const attempts = (cur ? cur.attempts : 0) + 1;
+    if (!cur || e.score > cur.score || (e.score === cur.score && e.timeSec < cur.timeSec)) m.set(k, { ...e, attempts });
+    else cur.attempts = attempts;
+  });
+  return [...m.values()].sort((a, b) => b.score - a.score || b.correct - a.correct || a.timeSec - b.timeSec);
+}
+
+/* ---------- leaderboard ---------- */
+let boardRows = [], boardFrom = 'home';
+async function openBoard(from){
+  boardFrom = from; show('board');
+  $('list').innerHTML = '<li class="empty">লোড হচ্ছে… 🚂</li>'; $('podium').innerHTML = '';
+  const { rows, online } = await loadEntries();
+  boardRows = bestPerRoll(rows);
+  $('boardNote').textContent = online ? `মোট ${boardRows.length} জন যাত্রী, ${rows.length} বার খেলা হয়েছে।`
+    : 'অফলাইন মোড: শুধু এই ডিভাইসের রেজাল্ট। Vercel-এ deploy করলে সবার রেজাল্ট এখানে আসবে।';
+  renderBoard();
+}
+function renderBoard(){
+  const me = (store.get('tenseExpress.player', {}) || {}).roll;
+  const term = $('search').value.trim().toLowerCase();
+  const ranked = boardRows.map((e, i) => ({ ...e, rank: i + 1 }));
+  const medals = ['🥇','🥈','🥉'], top = ranked.slice(0, 3);
+  $('podium').innerHTML = top.length ? [top[1], top[0], top[2]].map(e => e ? `
+    <div class="pd p${e.rank}"><div class="fc">${esc(e.avatar || '🚂')}</div><div class="nm">${esc(e.name)}</div>
+    <div class="sc">${e.score} পয়েন্ট</div><div class="bar">${medals[e.rank - 1]}</div></div>` : '<div></div>').join('') : '';
+  const shown = ranked.filter(e => !term || e.name.toLowerCase().includes(term) || String(e.roll).toLowerCase().includes(term));
+  if (!shown.length) { $('list').innerHTML = `<li class="empty">${boardRows.length ? 'এই নামে বা রোলে কাউকে পাওয়া যায়নি।' : 'এখনো কেউ খেলেনি। প্রথম যাত্রী হয়ে যাও! 🚂'}</li>`; return; }
+  $('list').innerHTML = shown.map(e => {
+    const tot = e.total || PER_GAME, acc = Math.round(e.correct / tot * 100);
+    const mm = Math.floor(e.timeSec / 60), ss = String(e.timeSec % 60).padStart(2, '0');
+    return `<li class="li${me && String(e.roll).toLowerCase() === String(me).toLowerCase() ? ' mine' : ''}">
+      <span class="rk">${e.rank <= 3 ? medals[e.rank - 1] : e.rank}</span><span class="fc">${esc(e.avatar || '🚂')}</span>
+      <div><div class="nm">${esc(e.name)} ${badge(acc)}</div>
+      <div class="sub">রোল ${esc(e.roll)} · ${e.correct}/${tot} সঠিক · ${mm}:${ss}${e.attempts > 1 ? ` · ${e.attempts} বার` : ''}</div></div>
+      <div class="pts">${e.score}<small>পয়েন্ট</small></div></li>`;
+  }).join('');
+}
+$('search').oninput = renderBoard;
+$('refresh').onclick = () => openBoard(boardFrom);
+$('boardBack').onclick = () => show(boardFrom);
+$('toBoard1').onclick = () => openBoard('home');
+$('toBoard2').onclick = () => openBoard('result');
+$('csv').onclick = () => {
+  const head = ['Rank','Name','Roll','Score','Correct','Total','Accuracy %','Best Streak','Time (sec)','Attempts','Last Played'];
+  const lines = boardRows.map((e, i) => [i + 1, e.name, e.roll, e.score, e.correct, e.total || PER_GAME,
+    Math.round(e.correct / (e.total || PER_GAME) * 100), e.bestStreak, e.timeSec, e.attempts, e.at]
+    .map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+  const blob = new Blob(['\ufeff' + [head.join(','), ...lines].join('\n')], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tense-express-results.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+};
+
+/* ---------- confetti ---------- */
+function confetti(n = 160){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = $('confetti'), x = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const cols = ['#F5C518','#2FA36B','#FFFFFF','#FF6FA8','#5CC8FF'];
+  const P = Array.from({ length: n }, () => ({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * .6,
+    w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, vy: 2 + Math.random() * 3.5, vx: -1.5 + Math.random() * 3,
+    r: Math.random() * 6, vr: -.2 + Math.random() * .4, c: pick(cols) }));
+  let f = 0;
+  (function tick(){
+    x.clearRect(0, 0, c.width, c.height);
+    P.forEach(p => { p.y += p.vy; p.x += p.vx; p.r += p.vr;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore(); });
+    if (++f < 240) requestAnimationFrame(tick); else x.clearRect(0, 0, c.width, c.height);
+  })();
+}
+
+/* laptop shortcuts: a/b/c/d or 1-4 to answer, Enter = next */
+document.addEventListener('keydown', e => {
+  if (!$('quiz').classList.contains('on') || e.target.tagName === 'INPUT') return;
+  const k = 'abcd'.indexOf(e.key.toLowerCase()), n = '1234'.indexOf(e.key), idx = k >= 0 ? k : n;
+  if (idx >= 0 && timerId && !$('opts').children[idx].classList.contains('gone')) answer(idx);
+  else if (e.key === 'Enter' && $('nextBtn').style.visibility === 'visible') $('nextBtn').click();
+});
+</script>
+</body>
+</html>

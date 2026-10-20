@@ -1,0 +1,10 @@
+{
+  "name": "ক্যাম্পাস পথে · Admission Practice",
+  "short_name": "ক্যাম্পাস পথে",
+  "start_url": "/#home",
+  "display": "standalone",
+  "background_color": "#f6f5f0",
+  "theme_color": "#0f5c45",
+  "lang": "bn",
+  "icons": [{ "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
