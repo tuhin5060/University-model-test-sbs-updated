@@ -1,20 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/api/profile",
-      "destination": "/University-Admissions-Games-Quizzes-v2.0.2/University-Admissions-Games-Quizzes/api/profile"
-    },
-    {
-      "source": "/api/scores",
-      "destination": "/University-Admissions-Games-Quizzes-v2.0.2/University-Admissions-Games-Quizzes/api/scores"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/University-Admissions-Games-Quizzes-v2.0.2/University-Admissions-Games-Quizzes/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
