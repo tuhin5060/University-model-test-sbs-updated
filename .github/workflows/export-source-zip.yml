@@ -1,0 +1,28 @@
+name: Export full repository ZIP
+on:
+  push:
+    branches:
+      - export-source-zip
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create source ZIP
+        run: |
+          zip -r "$RUNNER_TEMP/University-model-test-sbs-updated.zip" . \
+            -x ".git/*" ".github/workflows/export-source-zip.yml"
+          sha256sum "$RUNNER_TEMP/University-model-test-sbs-updated.zip"
+      - name: Upload complete repository ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: university-model-test-sbs-updated-full-source
+          path: ${{ runner.temp }}/University-model-test-sbs-updated.zip
+          if-no-files-found: error
+          retention-days: 1
