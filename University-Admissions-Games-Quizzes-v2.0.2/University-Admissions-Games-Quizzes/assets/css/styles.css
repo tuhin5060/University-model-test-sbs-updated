@@ -229,8 +229,9 @@ body[data-route='play'] { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .hero { position: relative; isolation: isolate; color: #fff; min-height: min(78vh, 640px); display: flex; align-items: flex-end; overflow: hidden; background: #0d3b2c; }
 .hero.hero-sm { min-height: min(56vh, 460px); }
 .hero-media { position: absolute; inset: 0; z-index: -1; background: #0d3b2c center / cover no-repeat; }
-.hero-media img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.05); transform: scale(1.02); transition: filter .6s; }
-.hero-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4, 22, 15, .25) 0%, rgba(4, 22, 15, .35) 40%, rgba(4, 22, 15, .88) 100%); }
+.hero-media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.62) saturate(.82) contrast(1.06); transform: scale(1.02); transition: filter .6s; }
+/* Keep the campus photo atmospheric while protecting headline readability. */
+.hero-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3, 18, 13, .62) 0%, rgba(4, 22, 15, .42) 52%, rgba(4, 22, 15, .18) 100%), linear-gradient(180deg, rgba(4, 22, 15, .26) 0%, rgba(4, 22, 15, .38) 38%, rgba(4, 22, 15, .94) 100%); }
 .hero-inner { padding: 90px 0 36px; }
 .hero h1 { color: #fff; font-size: clamp(2rem, 7.5vw, 3.6rem); text-shadow: 0 2px 20px rgba(0, 0, 0, .3); }
 .hero p { font-size: clamp(1rem, 2.4vw, 1.2rem); max-width: 56ch; color: rgba(255, 255, 255, .92); }
