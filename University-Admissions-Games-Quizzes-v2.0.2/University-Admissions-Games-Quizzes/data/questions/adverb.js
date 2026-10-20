@@ -1,0 +1,792 @@
+// Topic-wise MCQs. Source labels retained from the supplied MCQ bank.
+export default {
+  "id": "adverb",
+  "title": "Adverb",
+  "bn": "Adverb বিষয়ক admission MCQ",
+  "icon": "💬",
+  "color": "#6d5bd0",
+  "subject": "English",
+  "tipBn": "বাক্যে adverb কী পরিবর্তন করছে তা শনাক্ত করো।",
+  "questions": [
+    {
+      "q": "What part of speech is “hard” in “My father works hard”?",
+      "options": [
+        "Pronoun",
+        "Adverb",
+        "Adjective",
+        "Noun"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "“Hard” এখানে works verb-কে modify করছে—কীভাবে কাজ করেন? পরিশ্রম করে। তাই এটি adverb; hardly হলে অর্থ হতো ‘প্রায় না’।",
+      "source": "DU-HEC 24-25"
+    },
+    {
+      "q": "Which sentence contains an adverb of manner?",
+      "options": [
+        "I was delighted to see them happy.",
+        "He told me that he was going on a tour.",
+        "I love slow-paced music.",
+        "They lived happily ever after."
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "“Happily” lived verb-এর manner বোঝায়। Happy adjective; slow-paced music-এ slow-paced-ও adjective।",
+      "source": "DU-B 22-23"
+    },
+    {
+      "q": "Which is the -ly adverb formed from “pretty”?",
+      "options": [
+        "Prettier",
+        "Prettiness",
+        "Prettily",
+        "Prettify"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Pretty-এর y বদলে i হয়ে -ly যুক্ত হয়: prettily। Pretty নিজেও ‘quite’ অর্থে adverb হতে পারে, তাই prompt-এ -ly form নির্দিষ্ট করা হয়েছে।",
+      "source": "DU-Humanities 23-24"
+    },
+    {
+      "q": "In “He stayed unusually long”, what does “unusually” modify?",
+      "options": [
+        "The adverb “long”",
+        "The pronoun “he”",
+        "An omitted noun",
+        "The article “the”"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Long এখানে কতক্ষণ stayed করেছে তা বোঝানো adverb। Unusually সেই long-এর মাত্রা বোঝায়—adverb অন্য adverb-ও modify করে।",
+      "source": "DU-B 21-22"
+    },
+    {
+      "q": "In which sentence is “fine” an adverb?",
+      "options": [
+        "A heavy fine was imposed.",
+        "This shirt suits me fine.",
+        "He had to pay a fine.",
+        "This house is fine."
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Suits me fine-এ fine মানে satisfactorily, যা suits verb-কে modify করে। Pay a fine-এ noun, house is fine-এ adjective।",
+      "source": "DU-C 21-22"
+    },
+    {
+      "q": "Helen learned to read and write quite ____ in her life.",
+      "options": [
+        "latter",
+        "latest",
+        "late",
+        "lately"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Late মানে দেরিতে; quite late in her life মানে জীবনের অনেক পরে। Lately অর্থ recently, latter অর্থ উল্লিখিত দুটির পরেরটি।",
+      "source": "DU-A 16-17"
+    },
+    {
+      "q": "____ did Kamal realize that he was in danger.",
+      "options": [
+        "After he had entered the bank",
+        "When he entered the bank",
+        "Upon entering the bank",
+        "Only after entering the bank"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "শুরুতে Only after + phrase থাকলে main clause-এ auxiliary আগে আসে: did Kamal realize। সাধারণ After/When clause একা এমন inversion ঘটায় না।",
+      "source": "DU-B 15-16"
+    },
+    {
+      "q": "Only after going ____ many novel things.",
+      "options": [
+        "to abroad I had learnt",
+        "abroad I learnt",
+        "abroad did I learn",
+        "to abroad I learned"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Abroad-এর আগে to লাগে না। Only after phrase সামনে থাকায় main clause-এ did I learn inversion লাগে।",
+      "source": "CU-C 22-23"
+    },
+    {
+      "q": "Only after ____ in life.",
+      "options": [
+        "working hardly can one success",
+        "work hard one can succeed",
+        "one can success",
+        "working hard can one succeed"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "After-এর পরে working; পরিশ্রম করে অর্থে hard। Only after সামনে থাকায় can one succeed। Success noun, succeed verb।",
+      "source": "CU-D 21-22"
+    },
+    {
+      "q": "Only after watering the saplings ____.",
+      "options": [
+        "Mina could had a magnificent garden",
+        "could Mina have a magnificent garden",
+        "Mina could have a magnificent garden",
+        "could Mina had a magnificent garden"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Only after সামনে থাকায় could Mina; modal could-এর পরে base form have, had নয়।",
+      "source": "CU-F2 15-16"
+    },
+    {
+      "q": "In “She sings well, and she is well today”, “well” is respectively a/an ____.",
+      "options": [
+        "adverb and adjective",
+        "adjective and adverb",
+        "noun and adverb",
+        "adverb and noun"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "প্রথম well sings-কে modify করছে, তাই adverb। দ্বিতীয় well সুস্থতা বোঝানো subject complement, তাই adjective।",
+      "source": "DU-B 14-15"
+    },
+    {
+      "q": "He has done ____ in the admission test.",
+      "options": [
+        "success",
+        "successful",
+        "well",
+        "good"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Has done verb phrase-কে modify করতে well লাগে। Good/successful adjective, success noun।",
+      "source": "RU-C 21-22"
+    },
+    {
+      "q": "____ so many people been out of work as today.",
+      "options": [
+        "Never before were",
+        "Never before have",
+        "Never before has",
+        "Never before did"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Never before সামনে এলে inversion: have + subject + been। People plural হওয়ায় have; been-এর সঙ্গে এখানে did/were চলবে না।",
+      "source": "DU-D 10-11"
+    },
+    {
+      "q": "Little ____ what he has caused others.",
+      "options": [
+        "he will know",
+        "does he know",
+        "he knows",
+        "he can know"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Little এখানে ‘প্রায় কিছুই না’ অর্থে negative adverb। শুরুতে বসায় does + he + know হয়েছে।",
+      "source": "CU-D1 24-25"
+    },
+    {
+      "q": "He speaks English ____.",
+      "options": [
+        "fluency",
+        "fluentness",
+        "fluently",
+        "fluent"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "কীভাবে speaks করে তা বোঝাতে adverb fluently প্রয়োজন। Fluent adjective, fluency noun।",
+      "source": "DU-7 Business 23-24"
+    },
+    {
+      "q": "What part of speech is “never” in “He had never been to China”?",
+      "options": [
+        "Pronoun",
+        "Adjective",
+        "Verb",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Never মানে কখনোই না; এটি negative frequency adverb। Had এবং been-এর মাঝখানে বসেছে।",
+      "source": "DU-7 Business 23-24"
+    },
+    {
+      "q": "Which sentence contains an adverb of frequency?",
+      "options": [
+        "He rarely visits his grandparents.",
+        "I will meet you tomorrow.",
+        "She quickly finished her homework.",
+        "She is reading a novel now."
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Rarely বোঝায় খুব কমবার—frequency। Tomorrow/now time এবং quickly manner বোঝায়।",
+      "source": "JnU-D 24-25"
+    },
+    {
+      "q": "What type of adverb is “frequently” in “Zaman comes here frequently”?",
+      "options": [
+        "Reason",
+        "Frequency",
+        "Manner",
+        "Place"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Frequently মানে প্রায়ই; কতবার comes তা বোঝায়। বইয়ের ব্যাখ্যায় manner বলা হলেও এখানে সঠিক classification frequency।",
+      "source": "JU-C 12-13"
+    },
+    {
+      "q": "What part of speech is “always” in “He always tells the truth”?",
+      "options": [
+        "Adverb",
+        "Pronoun",
+        "Noun",
+        "Adjective"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Always বলে কাজটি সব সময় ঘটে। এটি frequency adverb এবং main verb tells-এর আগে বসেছে।",
+      "source": "RU 14-15"
+    },
+    {
+      "q": "Which word is normally an adjective rather than an adverb?",
+      "options": [
+        "precisely",
+        "motherly",
+        "swiftly",
+        "hardly"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Motherly মানে মায়ের মতো স্নেহশীল—এটি adjective। শুধু -ly দেখেই adverb বলা যায় না।",
+      "source": "JnU-B 24-25"
+    },
+    {
+      "q": "So quickly ____ he arrived on time.",
+      "options": [
+        "did he ran that",
+        "he run that",
+        "did he run that",
+        "he ran that"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "So + adverb সামনে এনে emphasis দিলে did + subject + base verb হয়। তাই did he run that; did-এর পরে ran নয়।",
+      "source": "JnU 14-15"
+    },
+    {
+      "q": "What is “about” in “The children were rushing about”?",
+      "options": [
+        "Adjective",
+        "Pronoun",
+        "Article",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "এখানে about-এর পরে object নেই; চারদিকে ছুটোছুটি করার অর্থে verb phrase-কে modify করছে, তাই traditional classification-এ adverb।",
+      "source": "JU-A 22-23"
+    },
+    {
+      "q": "What is “about” in “Do not drop cigarette ash about”?",
+      "options": [
+        "Adverb",
+        "Adjective",
+        "Pronoun",
+        "Noun"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "About এখানে ‘এদিক-ওদিক’ অর্থে drop-কে modify করে। এর পরে prepositional object নেই।",
+      "source": "JU-A 22-23"
+    },
+    {
+      "q": "I spent ____ with the patient.",
+      "options": [
+        "some times",
+        "some time",
+        "sometimes",
+        "sometime"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Spend-এর object হিসেবে ‘কিছু সময়’ অর্থে two-word noun phrase some time লাগে। Sometimes = মাঝে মাঝে; sometime = অনির্দিষ্ট কোনো এক সময়ে।",
+      "source": "JU-B 21-22"
+    },
+    {
+      "q": "What part of speech is “quite” in “The dog is quite dead”?",
+      "options": [
+        "Adjective",
+        "Preposition",
+        "Adverb",
+        "Verb"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Quite এখানে dead adjective-কে intensify করছে; অর্থ completely। তাই degree adverb।",
+      "source": "JU-E 21-22"
+    },
+    {
+      "q": "What part of speech is “rather” in “I am rather busy”?",
+      "options": [
+        "Noun",
+        "Verb",
+        "Adjective",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Rather busy-তে rather, busy adjective-এর degree বোঝাচ্ছে। তাই adverb।",
+      "source": "JU-E 21-22"
+    },
+    {
+      "q": "In “Prices of necessities have increased substantially”, “substantially” is a/an ____.",
+      "options": [
+        "adjective",
+        "noun",
+        "gerund",
+        "adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Substantially মানে উল্লেখযোগ্য পরিমাণে। এটি have increased verb phrase-এর degree বোঝায়।",
+      "source": "CKRUET 21-22"
+    },
+    {
+      "q": "What part of speech is “little” in “He is little known”?",
+      "options": [
+        "Adverb",
+        "Pronoun",
+        "Verb",
+        "Adjective"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Little এখানে known-এর degree বোঝায়—তিনি খুব কম পরিচিত। তাই degree adverb।",
+      "source": "Unit B 13-14; প্রতিষ্ঠান অনুল্লিখিত"
+    },
+    {
+      "q": "In “Hena writes not only correctly but also neatly”, “correctly” and “neatly” are ____.",
+      "options": [
+        "adverbs",
+        "verbs",
+        "adjectives",
+        "nouns"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "দুটিই writes verb-এর manner বোঝায়—সঠিকভাবে ও সুন্দরভাবে। Parallel structure-এ একই ধরনের দুটি adverb আছে।",
+      "source": "JU-B 18-19"
+    },
+    {
+      "q": "What part of speech is “fast” in “He walked fast to catch the bus”?",
+      "options": [
+        "Adjective",
+        "Pronoun",
+        "Adverb",
+        "Noun"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Fast এখানে walked-কে modify করে। Adverb form-ও fast; fastly standard form নয়।",
+      "source": "RU-C 23-24"
+    },
+    {
+      "q": "Which word is an adverb? Choose from: Happy, Sad, Beautiful, Quickly.",
+      "options": [
+        "Happy",
+        "Sad",
+        "Beautiful",
+        "Quickly"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Quickly কাজ কীভাবে হয় তা বোঝায়। অন্য তিনটি সাধারণত adjective।",
+      "source": "RU-B 22-23"
+    },
+    {
+      "q": "What part of speech is “more” in “The more you read, the more you learn”?",
+      "options": [
+        "Adverb",
+        "Adjective",
+        "Noun",
+        "Conjunction"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "More এখানে read ও learn-এর পরিমাণ/মাত্রা modify করছে; কোনো noun-এর আগে adjective হিসেবে বসেনি।",
+      "source": "RU-B 21-22"
+    },
+    {
+      "q": "What part of speech is “there” in “What are you doing there?”",
+      "options": [
+        "Pronoun",
+        "Adverb",
+        "Noun",
+        "Adjective"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "There কাজটি কোথায় হচ্ছে তা বোঝায়। এখানে এটি adverb of place; existential there নয়।",
+      "source": "RU-C 21-22"
+    },
+    {
+      "q": "What part of speech is “home” in “Come on, it is time to go home”?",
+      "options": [
+        "Adjective",
+        "Adverb",
+        "Noun",
+        "Verb"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Go home-এ home গন্তব্য বোঝানো adverb হিসেবে ব্যবহৃত। তাই সাধারণত go to home বলা হয় না।",
+      "source": "41st BCS"
+    },
+    {
+      "q": "The word “obediently” is a/an ____.",
+      "options": [
+        "adjective",
+        "noun",
+        "verb",
+        "adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Obedient + ly = obediently, অর্থ অনুগতভাবে। এটি manner adverb।",
+      "source": "RU-B 20-21"
+    },
+    {
+      "q": "Which word is an adverb? Choose from: shyly, brave, beautiful, bold.",
+      "options": [
+        "shyly",
+        "brave",
+        "beautiful",
+        "bold"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Shyly অর্থ লাজুকভাবে। Brave, beautiful ও bold adjective।",
+      "source": "RU-B 20-21"
+    },
+    {
+      "q": "What part of speech is “online” in “The class was held online”?",
+      "options": [
+        "Noun",
+        "Adverb",
+        "Verb",
+        "Adjective"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Online এখানে class কীভাবে/কোন মাধ্যমে held হয়েছিল তা বোঝায়। Online class হলে noun-এর modifier হিসেবে adjective হতো।",
+      "source": "RU-C 20-21"
+    },
+    {
+      "q": "What part of speech is “late” in “The flight arrived late”?",
+      "options": [
+        "Adjective",
+        "Verb",
+        "Adverb",
+        "Noun"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Late এখানে arrived-কে modify করছে—দেরিতে পৌঁছেছে। A late flight-এ late adjective হতো।",
+      "source": "RU-B 16-17"
+    },
+    {
+      "q": "What part of speech is “overnight” in “He became rich overnight”?",
+      "options": [
+        "Noun",
+        "Adjective",
+        "Preposition",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Overnight এখানে খুব অল্প সময়ে/এক রাতেই পরিবর্তনটি ঘটেছে বোঝায়। এটি became rich-কে সময়ের দিক থেকে modify করে।",
+      "source": "GST-C 21-22"
+    },
+    {
+      "q": "What part of speech is “yesterday” in “The bill was passed yesterday”?",
+      "options": [
+        "Verb",
+        "Adverb",
+        "Pronoun",
+        "Adjective"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Yesterday এখানে কখন bill passed হয়েছিল তা বোঝায়। তাই sentence-এ এটি time adverb।",
+      "source": "Diploma Nursing 23-24"
+    },
+    {
+      "q": "Which word is an adverb? Choose from: dirty, ugly, holy, wisely.",
+      "options": [
+        "dirty",
+        "ugly",
+        "holy",
+        "wisely"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Wise থেকে wisely—বুদ্ধিমত্তার সঙ্গে। Dirty, ugly ও holy adjective; -y বা -ly ending একা classification ঠিক করে না।",
+      "source": "RU 14-15"
+    },
+    {
+      "q": "He did not write to me, nor ____.",
+      "options": [
+        "did he telephone",
+        "he telephoned",
+        "telephoned",
+        "had telephoned"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Negative continuation-এ nor + auxiliary + subject + base verb হয়। আগের past simple-এর সঙ্গে did he telephone সামঞ্জস্যপূর্ণ।",
+      "source": "CU-B1 18-19"
+    },
+    {
+      "q": "What part of speech is “hard” in “We were not working hard”?",
+      "options": [
+        "Noun",
+        "Preposition",
+        "Adverb",
+        "Adjective"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Hard working verb phrase-কে modify করছে—পরিশ্রম করে কাজ করা। Not থাকার কারণে hard-এর part of speech বদলায় না।",
+      "source": "KU-F 08-09"
+    },
+    {
+      "q": "What part of speech is “how” in “I cannot tell you how I did it”?",
+      "options": [
+        "Adjective",
+        "Verb",
+        "Pronoun",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "How embedded question-এ কাজটি কীভাবে করেছি তা বোঝায়। এটি interrogative adverb; did-এর manner নির্দেশ করে।",
+      "source": "CoU-C1 15-16"
+    },
+    {
+      "q": "What part of speech is “homeward” in “She turned and made her way homeward”?",
+      "options": [
+        "Adverb",
+        "Noun",
+        "Adjective",
+        "Preposition"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Homeward বোঝায় বাড়ির দিকে; verb phrase-এর direction নির্দেশ করছে। তাই directional adverb।",
+      "source": "GST-B 24-25"
+    },
+    {
+      "q": "In “He never comes first because he hardly works hard”, what part of speech is the final “hard”?",
+      "options": [
+        "Verb",
+        "Adverb",
+        "Pronoun",
+        "Adjective"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "শেষের hard works-কে modify করে। Hardly মানে প্রায় না, আর hard মানে পরিশ্রম করে—দুটিই adverb হলেও অর্থ আলাদা।",
+      "source": "GST-A 23-24"
+    },
+    {
+      "q": "What is the function of “extremely” in “I felt extremely sorry for my misdeeds”?",
+      "options": [
+        "Gerund",
+        "Participle",
+        "Intensifier",
+        "Infinitive"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Extremely, sorry adjective-এর তীব্রতা বাড়ায়; তাই intensifier বা degree adverb।",
+      "source": "GST-A 22-23"
+    },
+    {
+      "q": "What part of speech is “behind” in “The dog was running behind”?",
+      "options": [
+        "Adverb",
+        "Preposition",
+        "Adjective",
+        "Noun"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Behind-এর পরে object নেই; কোথায় running করছে তা বোঝায়। Traditional grammar অনুযায়ী এটি adverb।",
+      "source": "JKKNIU-AL 18-19"
+    },
+    {
+      "q": "When I was knocked down, only then ____.",
+      "options": [
+        "I overcome the crisis",
+        "did I understand the crisis",
+        "I have understood the crisis",
+        "I have overcome the crisis"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Only then-এর পরে main clause-এ inversion লাগে: did I understand। Did-এর পরে base form থাকে।",
+      "source": "BSMRSTU-F 18-19"
+    },
+    {
+      "q": "What part of speech is “right” in “She did it right”?",
+      "options": [
+        "Adjective",
+        "Pronoun",
+        "Adverb",
+        "Noun"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Right এখানে correctly অর্থে did-কে modify করে। তাই -ly ছাড়া adverb।",
+      "source": "BU-D 13-14"
+    },
+    {
+      "q": "What part of speech is “live” in “The programme was telecast live”?",
+      "options": [
+        "Noun",
+        "Verb",
+        "Adjective",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Live এখানে ‘সরাসরি’ অর্থে telecast-এর manner বোঝায়। A live programme-এ একই শব্দ adjective হতো।",
+      "source": "BSMRSTU-E 12-13"
+    },
+    {
+      "q": "What part of speech is “twice” in “The teacher has repeated herself twice”?",
+      "options": [
+        "Adverb",
+        "Noun",
+        "Adjective",
+        "Preposition"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Twice বলে কাজটি দুবার হয়েছে—frequency/count বোঝানো adverb।",
+      "source": "MBBS 21-22"
+    },
+    {
+      "q": "What part of speech is “extremely” in “The man is extremely tired”?",
+      "options": [
+        "Verb",
+        "Noun",
+        "Adverb",
+        "Adjective"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Extremely, tired adjective-এর degree বাড়াচ্ছে। Adverb শুধু verb নয়, adjective-ও modify করে।",
+      "source": "Diploma in Nursing 22-23"
+    },
+    {
+      "q": "What part of speech is “outside” in “A man is standing outside”?",
+      "options": [
+        "Adverb",
+        "Simple preposition",
+        "Adjective",
+        "Pronoun"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "Outside-এর পরে কোনো object নেই; standing-এর location বোঝায়। Outside the room হলে traditional grammar-এ preposition।",
+      "source": "CKRUET 21-22"
+    },
+    {
+      "q": "Only after I ____ home did I remember my doctor's appointment.",
+      "options": [
+        "go",
+        "gone",
+        "went",
+        "going"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "After I-এর পরে finite past verb went লাগে। Inversion মূল clause-এ did I remember; after-clause-এ I went স্বাভাবিক order থাকে।",
+      "source": "28th BCS"
+    },
+    {
+      "q": "What part of speech is “near” in “The day of my sister's marriage is drawing near”?",
+      "options": [
+        "Adjective",
+        "Verb",
+        "Conjunction",
+        "Adverb"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "Drawing near মানে এগিয়ে/কাছে আসছে। এখানে near verb phrase-কে modify করছে, কোনো noun-কে নয়।",
+      "source": "25th BCS"
+    },
+    {
+      "q": "What part of speech is “better” in “He knows English better than I do”?",
+      "options": [
+        "Adjective",
+        "Adverb",
+        "Verb",
+        "Noun"
+      ],
+      "answer": "B",
+      "explain": "",
+      "explainBn": "Better এখানে knows-কে modify করছে; well-এর comparative adverb। Better English হলে noun modifier হিসেবে adjective হতো।",
+      "source": "Practice Bank"
+    },
+    {
+      "q": "What part of speech is “still” in “Akbar still works in that office”?",
+      "options": [
+        "Preposition",
+        "Conjunction",
+        "Adverb",
+        "Adjective"
+      ],
+      "answer": "C",
+      "explain": "",
+      "explainBn": "Still মানে এখনো; কাজটি চলমান থাকার temporal meaning যোগ করে। এখানে still adjective নয়।",
+      "source": "Practice Bank"
+    },
+    {
+      "q": "I am not hungry. I have ____ eaten lunch.",
+      "options": [
+        "yet",
+        "ever",
+        "never",
+        "already"
+      ],
+      "answer": "D",
+      "explain": "",
+      "explainBn": "ইতোমধ্যে lunch খাওয়া হয়ে গেছে—এই context-এ already। Yet সাধারণত negative/question-এ ‘এখনো/এর মধ্যে’ বোঝায়।",
+      "source": "Practice Bank"
+    },
+    {
+      "q": "In “I sat down” and “Tears ran down her face”, “down” is respectively ____.",
+      "options": [
+        "adverb and preposition",
+        "verb and adverb",
+        "adverb and verb",
+        "preposition and adverb"
+      ],
+      "answer": "A",
+      "explain": "",
+      "explainBn": "প্রথম down-এর object নেই, তাই adverb। দ্বিতীয়টিতে her face object আছে, তাই traditional grammar-এ preposition।",
+      "source": "Practice Bank"
+    }
+  ]
+};
