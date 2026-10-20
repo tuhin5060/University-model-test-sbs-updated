@@ -2,15 +2,24 @@
 // working offline / on a static host and simply skips the leaderboard.
 
 async function call(url, options = {}) {
-  const res = await fetch(url, {
-    cache: 'no-store',
-    credentials: 'same-origin',
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-  });
+  let res;
+  try {
+    res = await fetch(url, {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      ...options,
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    });
+  } catch {
+    throw new Error('Network unavailable. Your local practice progress is still available.');
+  }
   let body = null;
   try { body = await res.json(); } catch { /* not JSON: API not deployed here */ }
-  if (!res.ok || !body?.ok) throw new Error(body?.error || `Request failed (${res.status})`);
+  if (!res.ok || !body?.ok) {
+    const message = body?.error || `Request failed (${res.status})`;
+    if (res.status >= 500) throw new Error('Leaderboard service is not configured yet. You can continue practicing; your progress stays on this device.');
+    throw new Error(message);
+  }
   return body;
 }
 
