@@ -17,6 +17,10 @@ import gender from './gender.js';
 import conditionalSentences from './conditional-sentences.js';
 import hopeWish from './hope-wish.js';
 import mixedEnglish from './mixed-english.js';
+import adverb from './adverb.js';
+import modalVerb from './modal-verb.js';
+import causativeVerb from './causative-verb.js';
+import subjunctiveVerb from './subjunctive-verb.js';
 
 export const TOPICS_RAW = [
   tense,
@@ -28,6 +32,10 @@ export const TOPICS_RAW = [
   conditionalSentences,
   hopeWish,
   mixedEnglish,
+  adverb,
+  modalVerb,
+  causativeVerb,
+  subjunctiveVerb,
 ];
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
