@@ -3,11 +3,10 @@
 Paste this whole file (or its GitHub link) into a new Claude / coding-agent chat
 so it can continue without the old conversation. Keep it updated after each change.
 
-**Starting a new chat — say:** “Read HANDOFF.md in
-github.com/tuhin5060/University-model-test-sbs-updated (branch main) and continue
-from section 4. Push finished work to main.” In a Claude Code cloud session, the
-repo must be attached with push access first (add_repo tuhin5060 /
-University-model-test-sbs-updated).
+**How to work:** all updates go straight to the `main` branch of
+https://github.com/tuhin5060/University-model-test-sbs-updated — no side
+branches, no ZIP uploads. Pushing to `main` updates the live sites on Vercel and
+Cloudflare automatically.
 
 ## 1. What this is
 Bangla-first university-admission practice site: English MCQ **Fun Quiz** and
@@ -26,10 +25,10 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 - Neon: added through the Vercel Marketplace (free plan). Vercel env vars
   `DATABASE_URL` / `POSTGRES_URL` etc. come from it.
 - Unused: Cloudflare D1 `campus-admission-companion` (id `dfbfe817-73f6-4c5c-9023-38203fae39a6`, empty).
-- **Every push to `main` deploys both sites.** Other branches get preview URLs.
+- **Push every finished update directly to `main`** — that deploys both sites.
 
 ## 2. Hard rules
-1. Work from the latest `main`. **Never** push an old ZIP
+1. Work from the latest `main` and push back to `main`. **Never** push an old ZIP
    (e.g. `campus-pothe-website-source.zip`, v2.2.x) — it would wipe newer work.
 2. Secrets only in host settings, never in the repo or browser code:
    - Vercel → Settings → Environment Variables: `DATABASE_URL` (from the Neon integration).
