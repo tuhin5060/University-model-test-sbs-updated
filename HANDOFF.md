@@ -3,6 +3,12 @@
 Paste this whole file (or its GitHub link) into a new Claude / coding-agent chat
 so it can continue without the old conversation. Keep it updated after each change.
 
+**Starting a new chat — say:** “Read HANDOFF.md in
+github.com/tuhin5060/University-model-test-sbs-updated (branch main) and continue
+from section 4. Push finished work to main.” In a Claude Code cloud session, the
+repo must be attached with push access first (add_repo tuhin5060 /
+University-model-test-sbs-updated).
+
 ## 1. What this is
 Bangla-first university-admission practice site: English MCQ **Fun Quiz** and
 timed **Model Test** (Grammar + Memorising), Tips & Tricks, university pages,
@@ -11,9 +17,15 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 **Vercel** and **Cloudflare Pages** from the same repo.
 
 - GitHub (source of truth): https://github.com/tuhin5060/University-model-test-sbs-updated — branch **`main`**
-- Vercel: project `university-model-test-sbs-updated` (team “tuhin5060's projects”)
-  → https://sbs-university-admission-model-test.vercel.app
-- Cloudflare Pages: project `university-model-test-sbs-updated`, connected to the same repo.
+- Vercel: project `university-model-test-sbs-updated` (id `prj_HR80vU3NX3HvQlcjlVlykB45azj7`,
+  team “tuhin5060's projects”, `team_8dwiThmNlmMYmrLA0wli5BWp`)
+  → https://sbs-university-admission-model-test.vercel.app (the old
+  university-model-test-sbs-updated.vercel.app redirects here)
+- Cloudflare Pages: project `sbs-university-admission-model-test`, connected to the same repo
+  (URL is normally https://sbs-university-admission-model-test.pages.dev).
+- Neon: added through the Vercel Marketplace (free plan). Vercel env vars
+  `DATABASE_URL` / `POSTGRES_URL` etc. come from it.
+- Unused: Cloudflare D1 `campus-admission-companion` (id `dfbfe817-73f6-4c5c-9023-38203fae39a6`, empty).
 - **Every push to `main` deploys both sites.** Other branches get preview URLs.
 
 ## 2. Hard rules
@@ -32,7 +44,9 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
    `npm install` (empty build command), so any import from `node_modules` breaks the
    Cloudflare build. Neon is reached with plain `fetch` (`server/neon-http.js`).
 8. After a push, check both builds: the GitHub commit shows a “Vercel” status and a
-   “Cloudflare Pages” check. Both must be green.
+   “Cloudflare Pages” check. Both must be green. (Without a GitHub token:
+   `curl https://api.github.com/repos/tuhin5060/University-model-test-sbs-updated/commits/<sha>/check-runs`.)
+9. Never decrypt or print secret values; never commit them.
 
 ## 3. Where things are
 | What | File |
@@ -61,9 +75,25 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 - `main` = **v2.4.0**: 2079 questions in 19 topics (Grammar 624 in 13 topics;
   Memorising 1455 in 6 topics), 1049-word list, roll numbers, Score page with
   rank, top-score popup, Neon database, DU & CoU pages, phone hero gradient.
-- Old MongoDB data (only test scores) was not migrated. MongoDB env vars on
-  Vercel are unused and can be deleted.
-- Cloudflare needs `DATABASE_URL` added once (see rule 2) for the leaderboard there.
+- Builds: Vercel ✅ and Cloudflare Pages ✅ on the latest main (Cloudflare failed
+  before because of an npm import — see rule 7).
+- Old MongoDB data (only test scores) was not migrated.
+
+**Waiting on the owner (dashboard clicks, no code):**
+1. Cloudflare → Workers & Pages → `sbs-university-admission-model-test` → Settings →
+   Variables and Secrets → add `DATABASE_URL` (Secret, Production + Preview, same
+   value as Vercel’s Neon `DATABASE_URL`) → redeploy. Until then the Cloudflare site
+   works but hides leaderboard/rolls/visitor count (API answers 503).
+2. Vercel → Settings → Environment Variables → delete `MONGODB_URI`, `MONGODB_DB`;
+   Vercel → Integrations → MongoDB Atlas → Uninstall.
+
+**Known gaps / not verified:**
+- Live writes (POST profile/scores) against the real Neon were not exercised from the
+  agent sandbox; reads work live, and tests run the same SQL with text parameters
+  as Neon does. First real sign-up on the site is the final check — look at Vercel
+  runtime logs if a save fails.
+- DU / CoU photos load from Wikimedia Commons and could not be opened from the
+  sandbox; a photo that fails to load hides itself. CoU motto left out (unverified).
 - Decision (owner): stay on **Neon** for now (~100 visits/day fits the free plan:
   1 GB storage, 100 CU-hours/month). MongoDB is retired: its URI value on Vercel
   was blanked; the owner deletes `MONGODB_URI`/`MONGODB_DB` and uninstalls the
@@ -86,3 +116,5 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 - Feedback goes to WhatsApp (link in `data/site.js`).
 - Long-term free hosting: Cloudflare Pages (commercial use allowed, generous
   free limits) + Neon free tier; Vercel Hobby kept as a second deployment.
+- Wants short, organised Bangla summaries of what changed after each round, and
+  every message considered (not only the latest).
