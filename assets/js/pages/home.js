@@ -1,6 +1,7 @@
 // Home page.
 
 import { TOPICS, QUESTIONS } from '../../../data/questions/index.js';
+import VOCAB from '../../../data/vocabulary.js';
 import { POSTS, QUICK_TIPS } from '../../../data/posts.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
 import { SITE, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
@@ -65,6 +66,18 @@ function modes() {
   </section>`;
 }
 
+function memorising() {
+  const list = TOPICS.filter(t => t.group === 'memorising');
+  if (!list.length) return '';
+  return `<section class="container section">
+    <div class="section-head"><div><h2>🧠 Memorising</h2><p>Vocabulary, Synonym-Antonym আর Appropriate Preposition—মুখস্থের অংশ, খেলতে খেলতে।</p></div><a class="text-link" href="#vocab">শব্দতালিকা →</a></div>
+    <div class="topic-grid">
+      <a class="topic-card" href="#vocab" style="--tone:#7a5af8"><span class="topic-icon" aria-hidden="true">📖</span><span class="topic-text"><b>শব্দতালিকা</b><small>বাংলা অর্থ, Synonym ও Antonym—খুঁজে দেখো</small></span><span class="topic-meta"><span>${bn(VOCAB.length)}টি শব্দ</span></span></a>
+      ${list.map(t => topicCard(t)).join('')}
+    </div>
+  </section>`;
+}
+
 function cuSpotlight() {
   const cu = UNIVERSITIES.find(u => u.id === 'cu');
   const facts = cu?.campusStory?.facts || [];
@@ -113,9 +126,10 @@ export function render() {
   ${daily()}
   ${modes()}
   <section class="container section">
-    <div class="section-head"><div><h2>Topic ধরে প্রস্তুতি</h2><p>যে topic-এ দুর্বল, সেখান থেকে শুরু করো।</p></div></div>
-    <div class="topic-grid">${TOPICS.map(t => topicCard(t)).join('')}</div>
+    <div class="section-head"><div><h2>📘 Grammar</h2><p>যে topic-এ দুর্বল, সেখান থেকে শুরু করো।</p></div></div>
+    <div class="topic-grid">${TOPICS.filter(t => t.group === 'grammar').map(t => topicCard(t)).join('')}</div>
   </section>
+  ${memorising()}
   ${cuSpotlight()}
   <section class="container section">
     <div class="section-head"><div><h2>Tips & Tricks</h2><p>কী পড়বে, কীভাবে পড়বে, পরীক্ষার হলে কী করবে।</p></div><a class="text-link" href="#tips">সব লেখা →</a></div>

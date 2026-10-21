@@ -1,6 +1,6 @@
 // Leaderboard, About and 404 pages.
 
-import { TOPICS, QUESTIONS } from '../../../data/questions/index.js';
+import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { UNIVERSITIES, CONTENT_UPDATED } from '../../../data/universities.js';
 import { SITE, CU_PHOTOS } from '../../../data/site.js';
 import { esc, bn, bnDate, duration, ext, $ } from '../lib/dom.js';
@@ -45,7 +45,7 @@ export const leaderboardPage = {
       <section class="section-tight">
         <h2 class="h3">Leaderboard</h2>
         <div class="field"><label class="label" for="lb-topic">Topic</label>
-          <select id="lb-topic"><option value="all">সব topic</option>${TOPICS.map(t => `<option value="${esc(t.id)}" ${lbTopic === t.id ? 'selected' : ''}>${esc(t.title)}</option>`).join('')}</select></div>
+          <select id="lb-topic"><option value="all">সব topic</option>${Object.values(GROUPS).map(g => `<optgroup label="${esc(g.short)}"><option value="${g.id}" ${lbTopic === g.id ? 'selected' : ''}>${esc(g.title)}</option>${TOPICS.filter(t => t.group === g.id).map(t => `<option value="${esc(t.id)}" ${lbTopic === t.id ? 'selected' : ''}>${esc(t.title)}</option>`).join('')}</optgroup>`).join('')}</select></div>
         ${leaderboard({ mode: lbMode, topic: lbTopic, limit: 50, tabs: true })}
         <p class="muted small">প্রত্যেকের সেরা score দেখানো হয়। Fun Quiz-এ points, Model Test-এ শতকরা নম্বর (প্রতি ভুলে −০.২৫)। নাম দিয়ে শুরু করা Fun Quiz ও Model Test-এর score এখানে আসে।</p>
       </section>

@@ -40,8 +40,8 @@ for (const t of TOPICS_RAW) {
     const idx = Number.isInteger(q.answer) ? q.answer : 'ABCD'.indexOf(String(q.answer).toUpperCase());
     if (idx < 0 || idx >= q.options.length) err(`${at}: answer "${q.answer}" is not one of A–${'ABCD'[q.options.length - 1]}`);
     if (!q.explain && !q.explainBn) err(`${at}: no explanation (add explain or explainBn)`);
-    const META = /the source (item|question|distinguishes)|\bprompt\b|answer key|\bsupplied\b|\bscan\b|cross-check|Source-এ|Source-এর/i;
-    if (META.test(`${q.explain || ''} ${q.explainBn || ''}`)) warn(`${at}: explanation mentions the source/answer key — write it for students`);
+    const META = /the source (item|question|distinguishes)|answer key|\bsupplied\b|cross-check|Source-এ|Source-এর|tanvir|youtube|\.com\b|01[3-9]\d{8}/i;
+    if (META.test(`${q.q} ${q.options.join(" ")} ${q.explain || ''} ${q.explainBn || ''}`)) warn(`${at}: mentions a source, name, website or answer key — write it for students`);
     if (/Choose from:/.test(q.q)) warn(`${at}: question repeats its options ("Choose from: …")`);
     // Near-duplicate check: ignore blank length, punctuation and case.
     const norm = s => String(s).toLowerCase().replace(/_+/g, '_').replace(/[^a-z0-9_\u0980-\u09ff]+/g, ' ').trim();

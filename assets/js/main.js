@@ -15,6 +15,8 @@ import * as result from './pages/result.js';
 import * as tips from './pages/tips.js';
 import * as universities from './pages/universities.js';
 import * as progress from './pages/progress.js';
+import * as vocab from './pages/vocab.js';
+import VOCAB from '../../data/vocabulary.js';
 import { leaderboardPage, aboutPage, notFound, switchBoardMode } from './pages/misc.js';
 import { loadLeaderboards } from './components.js';
 
@@ -27,6 +29,7 @@ const ROUTES = {
   universities,
   university: universities,
   progress,
+  vocab,
   leaderboard: leaderboardPage,
   score: leaderboardPage,
   about: aboutPage,
@@ -144,6 +147,8 @@ const INDEX = [
   { title: 'Fun Quiz', sub: 'Timer, points, streak, lifeline', href: '#start/fun', type: 'Mode', text: 'fun quiz game খেলা' },
   { title: 'Model Test', sub: 'ভর্তি পরীক্ষার মতো timed test', href: '#start/exam', type: 'Mode', text: 'model test exam পরীক্ষা timer negative' },
   { title: 'আমার অগ্রগতি', sub: 'ফলাফল, ভুল, backup', href: '#progress', type: 'Page', text: 'progress history backup ভুল mistakes' },
+  { title: 'শব্দতালিকা (Vocabulary)', sub: 'বাংলা অর্থ, Synonym, Antonym', href: '#vocab', type: 'Page', text: 'vocabulary vocab word শব্দ synonym antonym শব্দতালিকা memorising' },
+  ...VOCAB.map(v => ({ title: v.w, sub: v.bn, href: `#vocab/${encodeURIComponent(v.w)}`, type: 'শব্দ', text: `${v.w} ${v.bn}` })),
 ];
 
 function openSearch() {

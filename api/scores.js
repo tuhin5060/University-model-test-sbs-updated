@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { getDatabase } from '../lib/mongodb.js';
 import { readCookie, ID_RE, parseBody, clean, sendJSON } from '../lib/http.js';
-import { QUESTION_MAP, TOPICS } from '../data/questions/index.js';
+import { QUESTION_MAP, TOPICS, GROUPS, inTopic } from '../data/questions/index.js';
 import { scoreAttempt, MAX_QUESTIONS, FUN_LIMIT, EXAM_NEGATIVE, EXAM_PACE } from '../assets/js/shared/scoring.js';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 20; // submissions per student per window
-const TOPIC_IDS = new Set(['all', ...TOPICS.map(t => t.id)]);
+const TOPIC_IDS = new Set(['all', ...Object.keys(GROUPS), ...TOPICS.map(t => t.id)]);
 
 /** Validate the submitted answer sheet. Returns an error string or null. */
 export function validateSubmission(body) {
@@ -21,7 +21,7 @@ export function validateSubmission(body) {
     if (!q) return 'Unknown question in answer sheet.';
     if (seen.has(a.id)) return 'Duplicate question in answer sheet.';
     seen.add(a.id);
-    if (body.topic !== 'all' && q.topicId !== body.topic) return 'Question does not belong to this topic.';
+    if (!inTopic(q, body.topic)) return 'Question does not belong to this topic.';
     if (!Number.isInteger(a.choice) || a.choice < -1 || a.choice >= q.o.length) return 'Invalid answer choice.';
     if (body.mode === 'fun' && a.sec !== undefined && !(Number(a.sec) >= 0 && Number(a.sec) <= limit)) return 'Invalid answer time.';
   }

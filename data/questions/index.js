@@ -40,6 +40,18 @@ export const TOPICS_RAW = [
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
+// Topic groups. A topic file sets `group: 'memorising'` to appear under
+// "Memorising"; everything else is Grammar. Group ids can be picked like a topic.
+export const GROUPS = {
+  grammar: { id: 'grammar', title: 'সব Grammar', short: 'Grammar', icon: '📘', bn: 'Tense, Article, Conditional ইত্যাদি মিলিয়ে' },
+  memorising: { id: 'memorising', title: 'সব Memorising', short: 'Memorising', icon: '🧠', bn: 'Vocabulary, Synonym-Antonym ও Preposition মিলিয়ে' },
+};
+
+/** Does question q belong to the picked topic ('all', a group id or a topic id)? */
+export function inTopic(q, topic) {
+  return topic === 'all' || q.topicId === topic || (topic in GROUPS && q.group === topic);
+}
+
 /** Small, stable string hash (FNV-1a) so a question keeps its id when others are added or reordered. */
 export function hashText(text) {
   let h = 0x811c9dc5;
@@ -72,6 +84,7 @@ export function buildBank(rawTopics) {
       icon: t.icon || '📘',
       color: t.color || '#2f7d5b',
       subject: t.subject || 'English',
+      group: GROUPS[t.group] ? t.group : 'grammar',
       tipBn: t.tipBn || '',
       count: 0,
     };
@@ -84,6 +97,7 @@ export function buildBank(rawTopics) {
         id,
         topic: t.title,
         topicId: t.id,
+        group: topic.group,
         q: raw.q,
         o: raw.options,
         a: answerIndex(raw.answer),

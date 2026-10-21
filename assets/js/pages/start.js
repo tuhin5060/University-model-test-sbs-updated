@@ -2,7 +2,7 @@
 // Order on every screen: 1 name → 2 topic → 3 number of questions → one start button.
 // Timer and negative marking are fixed (see shared/scoring.js), so there is nothing else to pick.
 
-import { TOPICS, QUESTIONS } from '../../../data/questions/index.js';
+import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { AVATARS } from '../../../data/site.js';
 import { esc, bn, $, toast } from '../lib/dom.js';
 import { state, save, mistakeIds } from '../lib/store.js';
@@ -42,7 +42,7 @@ export function render([mode = 'fun', topic = 'all']) {
   const info = MODE_INFO[mode];
   const mistakes = mistakeIds().length;
   if (topic === 'mistakes' && !mistakes) topic = 'all';
-  if (topic !== 'all' && topic !== 'mistakes' && !TOPICS.some(t => t.id === topic)) topic = 'all';
+  if (topic !== 'all' && topic !== 'mistakes' && !GROUPS[topic] && !TOPICS.some(t => t.id === topic)) topic = 'all';
   const p = state.player || {};
   const prefs = state.prefs?.[mode] || {};
   const count = COUNTS[mode].includes(prefs.count) ? prefs.count : DEFAULT_COUNT[mode];
@@ -65,8 +65,17 @@ export function render([mode = 'fun', topic = 'all']) {
         <div class="picks">
           ${topicOption('all', 'সব topic (মিশ্র)', 'পুরো question bank থেকে', QUESTIONS.length, '🎲', topic === 'all')}
           ${mistakes ? topicOption('mistakes', 'আমার ভুলগুলো', 'আগে যেগুলো ভুল করেছ (leaderboard-এ যায় না)', mistakes, '🔁', topic === 'mistakes', '#d64545') : ''}
-          ${TOPICS.map(t => topicOption(t.id, t.title, t.bn, t.count, t.icon, topic === t.id, t.color)).join('')}
         </div>
+        ${Object.values(GROUPS).map(g => {
+          const list = TOPICS.filter(t => t.group === g.id);
+          if (!list.length) return '';
+          const total = list.reduce((n, t) => n + t.count, 0);
+          return `<h3 class="pick-group">${g.icon} ${esc(g.short)}</h3>
+          <div class="picks">
+            ${topicOption(g.id, g.title, g.bn, total, g.icon, topic === g.id)}
+            ${list.map(t => topicOption(t.id, t.title, t.bn, t.count, t.icon, topic === t.id, t.color)).join('')}
+          </div>`;
+        }).join('')}
       </section>
       <section class="setup-count card">
         <h2 class="step"><span>৩</span> কয়টি প্রশ্ন?</h2>

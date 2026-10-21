@@ -1,7 +1,7 @@
 // Quiz engine: creates sessions, records answers, runs timers and finishes
 // attempts for all three modes (fun / exam / practice). UI lives in pages/play.js.
 
-import { QUESTIONS, QUESTION_MAP } from '../../data/questions/index.js';
+import { QUESTIONS, QUESTION_MAP, inTopic } from '../../data/questions/index.js';
 import { scoreAttempt, funPoints, EXAM_PACE, FUN_LIMIT, EXAM_NEGATIVE, MAX_QUESTIONS } from './shared/scoring.js';
 import { state, save, recordAttempt, updateHistory, mistakeIds } from './lib/store.js';
 import { shuffle, seeded, today, uid, toast, navigate } from './lib/dom.js';
@@ -17,7 +17,7 @@ export const isDone = (s, id) => isAnswered(s, id) || (s.fun?.timeouts || []).in
 export function poolFor(topic) {
   if (topic === 'all') return QUESTIONS;
   if (topic === 'mistakes') return mistakeIds().map(id => QUESTION_MAP.get(id));
-  return QUESTIONS.filter(q => q.topicId === topic);
+  return QUESTIONS.filter(q => inTopic(q, topic));
 }
 
 export function dailyIds(n = 5) {

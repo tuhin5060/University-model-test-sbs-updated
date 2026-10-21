@@ -1,13 +1,13 @@
 // Reusable HTML snippets. Pages compose these; keep markup consistent here.
 
 import { esc, bn, safeURL, bnDate, $$ } from './lib/dom.js';
-import { TOPICS } from '../../data/questions/index.js';
+import { TOPICS, GROUPS } from '../../data/questions/index.js';
 import { state } from './lib/store.js';
 import { fetchLeaderboard } from './lib/api.js';
 
 export const topicById = id => TOPICS.find(t => t.id === id);
 export const topicTitle = id =>
-  id === 'all' ? 'সব topic (মিশ্র)' : id === 'mistakes' ? 'আমার ভুলগুলো' : id === 'daily' ? 'আজকের চ্যালেঞ্জ' : topicById(id)?.title || id;
+  id === 'all' ? 'সব topic (মিশ্র)' : id === 'mistakes' ? 'আমার ভুলগুলো' : id === 'daily' ? 'আজকের চ্যালেঞ্জ' : GROUPS[id]?.title || topicById(id)?.title || id;
 
 export const MODE_INFO = {
   fun: { icon: '🎮', label: 'Fun Quiz', bn: 'খেলতে খেলতে শেখা', color: 'fun' },
