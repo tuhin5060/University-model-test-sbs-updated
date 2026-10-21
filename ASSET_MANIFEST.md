@@ -5,7 +5,9 @@
 | `assets/img/cu-gate-{480,768,1113}.webp` | Main gate of the University of Chittagong — header (hero) photo on the home and CU pages. Original 109 KB WebP re-encoded at three widths (27 / 47 / 72 KB); browsers download only the size they need. A 24 px blurred preview is inlined in `data/site.js` for an instant first paint. | Supplied by the site owner (credited as "ছবি: সংগৃহীত"). Confirm you have permission to use it, and add the photographer's name to `CU_HERO.credit` in `data/site.js` if known. |
 | `assets/img/cu-cover.webp` | Aerial view of the hilly CU campus (480×270) | Extracted from the previous version of this site, where it was embedded as base64 and labelled "reference থেকে পুনর্নির্মিত" (re-created from a reference). Used as the always-available fallback. |
 | `assets/img/cu-buildings.webp` | Campus buildings among hills (480×270) | Same as above; shown as "Illustrative image". |
-| `assets/img/favicon.svg` | App icon | Original project asset. |
+| `assets/img/logo.svg`, `favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | ক্যাম্পাস পথে logo mark (CU gate, road, rising sun): header, favicon, home-screen icons | Original project asset, drawn for this site. |
+| `assets/img/campus-pothe-logo-{light,dark}.png` | Full logo (mark + name + tagline), 1200×420, for social media and print | Original project asset. |
+| `assets/img/developer-96.webp` | Developer photo in the footer | Supplied by the site owner. |
 
 ## Remote photos (Wikimedia Commons)
 

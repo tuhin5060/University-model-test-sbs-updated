@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1 — logo
+* New ক্যাম্পাস পথে logo: the CU main gate with a road leading through it
+  toward a rising sun. Used in the header, as the favicon and as the phone
+  home-screen icon (`assets/img/logo.svg`, `icon-192.png`, `icon-512.png`,
+  `apple-touch-icon.png`). Full logo images for social media:
+  `assets/img/campus-pothe-logo-light.png` / `-dark.png`.
+
 ## 2.3.0 — simpler start, fixed rules, Score tab
 * Only two modes on the start screen: Fun Quiz and Model Test (Practice is
   gone; "retry my mistakes" still works from a result).
