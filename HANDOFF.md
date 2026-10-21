@@ -64,6 +64,17 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 - Old MongoDB data (only test scores) was not migrated. MongoDB env vars on
   Vercel are unused and can be deleted.
 - Cloudflare needs `DATABASE_URL` added once (see rule 2) for the leaderboard there.
+- Decision (owner): stay on **Neon** for now (~100 visits/day fits the free plan:
+  1 GB storage, 100 CU-hours/month). MongoDB is retired: its URI value on Vercel
+  was blanked; the owner deletes `MONGODB_URI`/`MONGODB_DB` and uninstalls the
+  MongoDB Atlas integration in the Vercel dashboard.
+- If traffic grows (~500–1000+ visits/day) Neon free compute may run out. Plan:
+  move to Cloudflare D1 as the single database (5 GB, 5M reads/100k writes per
+  day, no compute-hour limit) — port `server/` SQL to SQLite (keep tables and
+  columns the same; add a best-score summary table so leaderboard reads stay
+  small), export Neon tables (students, score_attempts, progress) to CSV/SQL,
+  import with the D1 tools, make Cloudflare the main site and redirect the
+  Vercel URL there. Rolls and scores carry over unchanged.
 - Ideas not done yet: the owner mentioned an "advanced" feature to describe later.
 
 ## 5. Owner preferences
