@@ -8,7 +8,7 @@ export const SITE = {
   developer: { name: 'Misbahul Tuhin', url: 'https://web.facebook.com/misbahul.tuhin', photo: 'assets/img/developer-96.webp' },
   // Feedback goes straight to the developer's WhatsApp.
   feedback: 'https://wa.me/8801729894327',
-  url: 'https://university-admissions-games-and-qui.vercel.app/',
+  url: 'https://university-model-test-sbs-updated.vercel.app/',
 };
 
 const commons = (file, width = 1280) =>
