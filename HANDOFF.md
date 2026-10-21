@@ -12,7 +12,7 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 
 - GitHub (source of truth): https://github.com/tuhin5060/University-model-test-sbs-updated — branch **`main`**
 - Vercel: project `university-model-test-sbs-updated` (team “tuhin5060's projects”)
-  → https://university-model-test-sbs-updated.vercel.app
+  → https://sbs-university-admission-model-test.vercel.app
 - Cloudflare Pages: project `university-model-test-sbs-updated`, connected to the same repo.
 - **Every push to `main` deploys both sites.** Other branches get preview URLs.
 
