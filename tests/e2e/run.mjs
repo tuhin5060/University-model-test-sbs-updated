@@ -15,11 +15,11 @@ try { ({ chromium } = await import('playwright')); } catch {
 
 const PORT = 3999;
 const BASE = `http://localhost:${PORT}/`;
-const server = spawn(process.execPath, ['scripts/serve.mjs'], { env: { ...process.env, PORT: String(PORT), MONGODB_URI: '' }, stdio: 'pipe' });
+const server = spawn(process.execPath, ['scripts/serve.mjs'], { env: { ...process.env, PORT: String(PORT), DATABASE_URL: '', POSTGRES_URL: '' }, stdio: 'pipe' });
 await new Promise(r => server.stdout.on('data', d => String(d).includes('Open') && r()));
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-const ROUTES = ['home', 'start/fun', 'start/exam/article', 'start/practice', 'tips', 'tips/cu-english-roadmap', 'universities', 'university/cu', 'university/du', 'progress', 'leaderboard', 'about'];
+const ROUTES = ['home', 'start/fun', 'start/exam/article', 'start/practice', 'tips', 'tips/cu-english-roadmap', 'universities', 'university/cu', 'university/du', 'university/cou', 'vocab', 'start/fun/memorising', 'progress', 'score', 'about'];
 let failed = false;
 try {
   for (const viewport of [{ width: 390, height: 844 }, { width: 1366, height: 900 }]) {
@@ -66,8 +66,27 @@ try {
       await page.click('[data-action=next]');
     }
     await page.waitForSelector('.result-hero');
-    await page.goto(BASE + '#leaderboard');
+    await page.goto(BASE + '#score');
     await page.waitForSelector('.lb-list li');
+    await page.waitForSelector('.rank-card b');
+    const tag = await page.textContent('.my-name b');
+    assert.match(tag, new RegExp(`^Tester ${viewport.width}\\.\\d{3}$`), 'name shows with its roll');
+    // Same name + roll on a "new phone" brings the student back; a taken roll is refused.
+    const phone = await (await browser.newContext({ viewport })).newPage();
+    phone.on('pageerror', e => errors.push(e.message));
+    await phone.goto(BASE + '#start/fun/tense');
+    await phone.fill('#player-name', 'Someone Else');
+    await phone.fill('#player-roll', tag.split('.').pop());
+    await phone.locator('#setup-form button[type=submit]:visible').first().click();
+    await phone.waitForSelector('#roll-error:not([hidden])');
+    assert.equal(await phone.locator('.play-fun').count(), 0, 'a taken roll does not start the quiz');
+    await phone.fill('#player-name', tag.split('.')[0]);
+    await phone.locator('#setup-form button[type=submit]:visible').first().click();
+    await phone.waitForSelector('.play-fun');
+    await phone.goto(BASE + '#score');
+    await phone.waitForSelector('.rank-card b');
+    assert.equal(await phone.textContent('.my-name b'), tag, 'logged in as the same student');
+    await phone.context().close();
     assert.deepEqual(errors, [], 'no JavaScript errors');
     console.log(`✅ e2e passed at ${viewport.width}px`);
   }

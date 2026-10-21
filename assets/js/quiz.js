@@ -228,7 +228,7 @@ export async function sendScore(id) {
       timeSec: h.timeSec,
       answers: h.answers.map(({ id: qid, choice, sec, frozen }) => ({ id: qid, choice, sec, frozen })),
     });
-    updateHistory(id, { saved: 'saved', serverScore: res.entry?.score });
+    updateHistory(id, { saved: 'saved', serverScore: res.entry?.score, rank: res.rank || null, newTop: !!res.newTop });
     clearBoardCache();
   } catch (err) {
     updateHistory(id, { saved: 'local', saveError: String(err.message || err).slice(0, 140) });

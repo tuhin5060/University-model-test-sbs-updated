@@ -11,9 +11,9 @@ export const SITE = {
   url: 'https://university-model-test-sbs-updated.vercel.app/',
 };
 
-const commons = (file, width = 1280) =>
+export const commons = (file, width = 1280) =>
   `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
-const commonsPage = file => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, '_'))}`;
+export const commonsPage = file => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, '_'))}`;
 
 // Header (hero) photo for the home page and the CU page. Three sizes so phones
 // download the small one; `placeholder` is a tiny blurred preview shown instantly.

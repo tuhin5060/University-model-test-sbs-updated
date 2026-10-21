@@ -7,6 +7,7 @@ import { AVATARS } from '../../../data/site.js';
 import { esc, bn, $, toast } from '../lib/dom.js';
 import { state, save, mistakeIds } from '../lib/store.js';
 import { saveProfile } from '../lib/api.js';
+import { playerFrom, syncCloud } from '../lib/cloud.js';
 import { FUN_LIMIT, EXAM_SECONDS, EXAM_NEGATIVE } from '../shared/scoring.js';
 import { MODE_INFO, pageHead, topicAccuracy, topicTitle } from '../components.js';
 import { startSession } from '../quiz.js';
@@ -54,10 +55,15 @@ export function render([mode = 'fun', topic = 'all']) {
       .join('')}</nav>
     <form class="setup" id="setup-form" data-mode="${mode}" novalidate>
       <section class="setup-name card">
-        <h2 class="step"><span>১</span> তোমার নাম</h2>
-        <label class="label" for="player-name">পুরো নাম <small class="muted">(Leaderboard-এ নিজের score খুঁজে পেতে)</small></label>
+        <h2 class="step"><span>১</span> তোমার নাম ও Roll</h2>
+        <label class="label" for="player-name">পুরো নাম</label>
         <input id="player-name" name="name" maxlength="60" autocomplete="name" placeholder="যেমন: Rahim Uddin" value="${esc(p.name || '')}" required>
         <p class="field-error" id="name-error" hidden>Leaderboard-এর জন্য তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।</p>
+        <label class="label" for="player-roll">Roll <small class="muted">(প্রথমবার খালি রাখলে নতুন roll নিজে থেকেই পাবে)</small></label>
+        <input id="player-roll" name="roll" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="যেমন: 007" value="${p.roll ? rollText(p.roll) : ''}">
+        <p class="hint">🔑 নিজের roll ব্যবহার করো, প্রতিবার একই roll দিয়ো। অন্য phone-এ একই নাম + roll দিলে তোমার সব score ফিরে পাবে।</p>
+        <p class="field-error" id="roll-error" hidden></p>
+        <p class="tag-preview" id="tag-preview">${tagPreview(p.name, p.roll)}</p>
         <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
       </section>
       <section class="setup-topic">
@@ -89,18 +95,39 @@ export function render([mode = 'fun', topic = 'all']) {
   </div>`;
 }
 
-async function ensureProfile(name, avatar) {
+const rollText = n => String(n).padStart(3, '0');
+const cleanRoll = v => String(v || '').replace(/\D/g, '').slice(0, 5);
+function tagPreview(name, roll) {
+  const n = String(name || '').replace(/\s+/g, ' ').trim();
+  if (n.length < 2) return '';
+  return `Leaderboard-এ দেখাবে: <b>${esc(n)}.${roll ? rollText(roll) : '<span class="muted">নতুন roll</span>'}</b>`;
+}
+
+/**
+ * Save name + roll on the server. Returns the player, null (offline: play
+ * without the leaderboard) or false (fix the form first, e.g. roll taken).
+ */
+async function ensureProfile({ name, roll, avatar }, showRollError) {
   const p = state.player;
-  if (p?.playerId && p.name === name && p.avatar === avatar) return p;
+  if (p?.playerId && p.roll && p.name === name && rollText(p.roll) === (roll && rollText(roll)) && p.avatar === avatar) return p;
   try {
-    const saved = await Promise.race([
-      saveProfile({ playerId: p?.playerId, name, avatar }),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000)),
+    const res = await Promise.race([
+      saveProfile({ playerId: p?.playerId, name, roll, avatar }),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
     ]);
-    state.player = { playerId: saved.playerId, name: saved.name, avatar: saved.avatar };
+    state.player = playerFrom(res.player);
     save();
+    if (res.created) toast(`🎉 তোমার roll ${rollText(res.player.roll)}—পরের বার একই নাম আর roll দিয়ো।`);
+    if (res.restored) {
+      toast('✅ আবার স্বাগতম! তোমার আগের score ও অগ্রগতি আনা হলো।');
+      syncCloud({ profile: false });
+    }
     return state.player;
-  } catch {
+  } catch (err) {
+    if (err.status === 409 || err.status === 400) {
+      showRollError(err.body?.error || err.message, err.body?.suggest);
+      return false;
+    }
     toast('⚠️ Server-এ নাম save হয়নি—এবারের score শুধু এই device-এ থাকবে।');
     if (p?.playerId) return p; // keep the existing identity; "retry save" works later
     state.player = { name, avatar }; // remember the name for next time
@@ -127,8 +154,31 @@ export function mount() {
     }
     refresh();
   });
+  const rollInput = $('#player-roll');
+  const rollError = $('#roll-error');
+  const preview = () => { $('#tag-preview').innerHTML = tagPreview(nameInput.value, cleanRoll(rollInput.value)); };
+  const showRollError = (message, suggest) => {
+    rollError.innerHTML = `${esc(message)}${suggest ? ` <button type="button" class="link-btn" data-roll="${suggest}">Roll ${rollText(suggest)} নাও</button>` : ''}`;
+    rollError.hidden = false;
+    rollInput.setAttribute('aria-invalid', 'true');
+    rollInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  rollError.addEventListener('click', e => {
+    const b = e.target.closest('[data-roll]');
+    if (!b) return;
+    rollInput.value = rollText(b.dataset.roll);
+    rollError.hidden = true;
+    rollInput.removeAttribute('aria-invalid');
+    preview();
+  });
   nameInput.addEventListener('input', () => {
     if (cleanName().length >= 2) { nameError.hidden = true; nameInput.removeAttribute('aria-invalid'); }
+    preview();
+  });
+  rollInput.addEventListener('input', () => {
+    rollError.hidden = true;
+    rollInput.removeAttribute('aria-invalid');
+    preview();
   });
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -146,9 +196,10 @@ export function mount() {
     state.prefs = { ...state.prefs, [mode]: { count } };
     btn.disabled = true;
     btn.textContent = 'প্রস্তুত হচ্ছে…';
-    const player = await ensureProfile(name, String(fd.get('avatar') || '🚂'));
+    const player = await ensureProfile({ name, roll: cleanRoll(fd.get('roll')), avatar: String(fd.get('avatar') || '🚂') }, showRollError);
     btn.disabled = false;
     btn.textContent = 'শুরু করো →';
+    if (player === false) return;
     const topic = String(fd.get('topic') || 'all');
     const ok = startSession({ mode, topic, count, settings: {}, player, kind: topic === 'mistakes' ? 'mistakes' : 'topic' });
     if (!ok) btn.textContent = 'আবার চেষ্টা করো';

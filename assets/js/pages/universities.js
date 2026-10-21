@@ -1,7 +1,8 @@
 // University list (#universities) and profile (#university/<id>).
 
 import { UNIVERSITIES, ADMISSION_UPDATES, CHECKLIST, CONTENT_UPDATED } from '../../../data/universities.js';
-import { CU_PHOTOS, CU_HERO } from '../../../data/site.js';
+import { CU_PHOTOS, CU_HERO, commons, commonsPage } from '../../../data/site.js';
+import { PROFILES, PROFILES_CHECKED } from '../../../data/university-profiles.js';
 import { esc, bn, bnDate, ext, safeURL, toast } from '../lib/dom.js';
 import { state, save, toggleSaved } from '../lib/store.js';
 import { pageHead, uniCard, photo, credit, heroMedia, hydratePhotos, empty } from '../components.js';
@@ -113,10 +114,57 @@ function cuPage(u) {
     </div>`;
 }
 
+// Profile with facts, rankings and a photo gallery (data/university-profiles.js).
+function richPage(u, pr) {
+  const pics = pr.photos.map(p => ({
+    remote: commons(p.file, 1280),
+    alt: p.alt,
+    caption: p.caption,
+    credit: `${p.author} · ${p.license} · Wikimedia Commons`,
+    creditUrl: commonsPage(p.file),
+  }));
+  const [hero, ...rest] = pics;
+  const top = pr.facts.slice(0, 4);
+  const more = pr.facts.slice(4);
+  const sources = [...new Set([...pr.facts.map(f => f[2]), ...pr.rankings.map(r => r.source)])];
+  const host = url => new URL(url).hostname.replace(/^www\./, '');
+  const page = { ...u, admission: u.admission || pr.admission };
+  return `<section class="hero hero-sm">
+      <div class="container hero-grid">
+      <div class="hero-inner">
+        <nav class="crumbs light"><a href="#home">হোম</a> / <a href="#universities">বিশ্ববিদ্যালয়</a> / ${esc(u.short)}</nav>
+        <span class="eyebrow light">${esc(u.place)}</span>
+        <h1>${esc(u.name)}</h1>
+        <p lang="en">${esc(u.english)}</p>
+      </div>
+      ${hero ? heroMedia(hero) : ''}
+      </div>
+    </section>
+    <div class="container">
+      <div class="cu-facts lifted">${top.map(([h, t]) => `<div><small>${esc(h)}</small><b>${esc(t)}</b></div>`).join('')}</div>
+      ${links(page)}
+      <p class="lead">${esc(pr.intro)}</p>
+      <section class="section-tight">
+        <h2 class="h3">🏆 Ranking</h2>
+        <div class="rank-table">${pr.rankings.map(r => `<div class="rank-row ${r.ranked ? '' : 'unranked'}">
+          <span><b lang="en">${esc(r.name)}</b><small>${esc(r.edition)} · ${ext(r.source, host(r.source))}</small></span>
+          <strong>${esc(r.rank)}</strong></div>`).join('')}</div>
+        <p class="muted small">Ranking প্রতি বছর বদলায়; এখানে সর্বশেষ প্রকাশিত সংস্করণ দেওয়া হলো (যাচাই: ${bnDate(PROFILES_CHECKED)})। নিশ্চিত হওয়া যায়নি এমন ranking বাদ রাখা হয়েছে।</p>
+      </section>
+      ${rest.length ? `<div class="gallery" tabindex="0" aria-label="${esc(u.short)} ছবির গ্যালারি">${rest.map(p => `<figure>${photo(p, { sizes: '(min-width:900px) 30vw, 80vw' })}<figcaption>${esc(p.caption)} ${credit(p)}</figcaption></figure>`).join('')}</div>` : ''}
+      ${more.length ? `<section class="section-tight"><h2 class="h3">📌 এক নজরে</h2><dl class="facts">${more.map(([h, t]) => `<div><dt>${esc(h)}</dt><dd>${esc(t)}</dd></div>`).join('')}</dl></section>` : ''}
+      <h2 class="section-title">ভর্তির বিস্তারিত</h2>
+      ${details(page)}
+      <section class="section-tight"><h2 class="h3">🔗 তথ্যসূত্র</h2><ul class="small">${sources.map(s => `<li>${ext(s, host(s))}</li>`).join('')}</ul></section>
+      <div class="post-cta"><span aria-hidden="true">⏱️</span><div><b>English প্রস্তুতি যাচাই করো</b><small>Model Test: ভর্তি পরীক্ষার মতো timer</small></div><a class="btn small" href="#start/exam">Model Test →</a></div>
+    </div>`;
+}
+
 function single(id) {
   const u = UNIVERSITIES.find(x => x.id === id);
   if (!u) return `<div class="container narrow section">${empty('বিশ্ববিদ্যালয়টি পাওয়া যায়নি।', '<a class="btn" href="#universities">সব বিশ্ববিদ্যালয়</a>')}</div>`;
   if (u.campusStory) return cuPage(u);
+  if (PROFILES[u.id]) return richPage(u, PROFILES[u.id]);
   return `<div class="container">
     ${pageHead(u.name, u.english, `${u.short} · ${u.type}`, [['#universities', 'বিশ্ববিদ্যালয়'], [null, u.short]])}
     <p class="lead">${esc(u.text)}</p>

@@ -66,7 +66,7 @@ export function hydratePhotos(root = document) {
 
 /** Full-bleed header image with an instant blurred placeholder behind it. */
 export function heroMedia(p) {
-  return `<figure class="hero-photo" style="background-image:url('${p.placeholder}')">${photo(p, { eager: true, sizes: '(min-width: 900px) 560px, 100vw' })}${p.credit ? `<figcaption>${credit(p)}</figcaption>` : ''}</figure>`;
+  return `<figure class="hero-photo" ${p.placeholder ? `style="background-image:url('${p.placeholder}')"` : ''}>${photo(p, { eager: true, sizes: '(min-width: 900px) 560px, 100vw' })}${p.credit ? `<figcaption>${credit(p)}</figcaption>` : ''}</figure>`;
 }
 
 export function credit(p) {
@@ -123,7 +123,7 @@ export async function loadLeaderboards(root = document, fresh = false) {
             .map((r, i) => `<li class="${r.me ? 'me' : ''}">
               <span class="lb-rank">${['🥇', '🥈', '🥉'][i] || bn(i + 1)}</span>
               <span class="lb-avatar" aria-hidden="true">${esc(r.avatar || '🚂')}</span>
-              <span class="lb-name"><b>${esc(r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${bn(r.correct)}/${bn(r.total)} সঠিক · ${bn(r.attempts || 1)} বার</small></span>
+              <span class="lb-name"><b>${esc(r.tag || r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${bn(r.correct)}/${bn(r.total)} সঠিক · ${bn(r.attempts || 1)} বার</small></span>
               <span class="lb-score">${mode === 'fun' ? bn(r.score) : `${bn(r.score)}%`}</span></li>`)
             .join('')}</ol>`
         : `<p class="empty">এখনো কেউ score করেনি—প্রথম হওয়ার সুযোগ তোমার! 🏁</p>`;

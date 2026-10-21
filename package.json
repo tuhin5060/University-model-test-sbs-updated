@@ -1,9 +1,9 @@
 {
   "name": "campus-companion",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "private": true,
   "type": "module",
-  "description": "ক্যাম্পাস পথে — Bangla-first university admission practice: Fun Quiz, timed Model Test, tips blog, university links, MongoDB leaderboard",
+  "description": "ক্যাম্পাস পথে — Bangla-first university admission practice: Fun Quiz, timed Model Test, tips blog, university links, Neon leaderboard",
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "check": "node tests/check-content.mjs && node --test tests/*.test.mjs",
@@ -11,11 +11,13 @@
     "test:e2e": "node tests/e2e/run.mjs"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/functions": "^3.10.1",
-    "mongodb": "^7.7.0"
+    "@neondatabase/serverless": "^1.2.0",
+    "@vercel/analytics": "^2.0.1"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11"
   }
 }

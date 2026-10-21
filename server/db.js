@@ -1,0 +1,78 @@
+// Neon Postgres access over HTTPS (works on Vercel Node functions and
+// Cloudflare Pages Functions alike). The connection string comes only from the
+// host's environment settings: DATABASE_URL (set by the Vercel ↔ Neon
+// integration) or POSTGRES_URL. It never reaches the browser.
+import { neon } from '@neondatabase/serverless';
+
+export class NotConfigured extends Error {}
+
+// Every statement is idempotent, so running them on each cold start is safe.
+export const SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS students (
+    id uuid PRIMARY KEY,
+    name text NOT NULL,
+    name_key text NOT NULL,
+    roll integer NOT NULL UNIQUE CHECK (roll BETWEEN 1 AND 99999),
+    avatar text NOT NULL DEFAULT '🚂',
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    last_seen_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  `CREATE TABLE IF NOT EXISTS score_attempts (
+    attempt_id text PRIMARY KEY,
+    player_id uuid NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    topic text NOT NULL,
+    mode text NOT NULL CHECK (mode IN ('fun', 'exam')),
+    score real NOT NULL,
+    correct integer NOT NULL,
+    wrong integer NOT NULL,
+    total integer NOT NULL,
+    best_streak integer NOT NULL DEFAULT 0,
+    time_sec integer NOT NULL DEFAULT 0,
+    at timestamptz NOT NULL DEFAULT now()
+  )`,
+  'CREATE INDEX IF NOT EXISTS score_attempts_board ON score_attempts (mode, topic, score DESC)',
+  'CREATE INDEX IF NOT EXISTS score_attempts_player ON score_attempts (player_id, at DESC)',
+  'CREATE TABLE IF NOT EXISTS presence (sid text PRIMARY KEY, at timestamptz NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS progress (id uuid PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL)',
+  `CREATE TABLE IF NOT EXISTS events (
+    id bigserial PRIMARY KEY,
+    kind text NOT NULL,
+    payload jsonb NOT NULL,
+    at timestamptz NOT NULL DEFAULT now()
+  )`,
+];
+
+let injected = null;
+const pool = new Map();
+
+/** Tests pass an object with query(text, params) → rows and batch([[text, params]]). */
+export function useDatabase(db) {
+  injected = db;
+}
+
+export const databaseUrl = env => env?.DATABASE_URL || env?.POSTGRES_URL || '';
+
+function neonDb(url) {
+  const sql = neon(url);
+  return {
+    query: (text, params = []) => sql.query(text, params),
+    batch: list => sql.transaction(list.map(([text, params = []]) => sql.query(text, params))),
+  };
+}
+
+/** A ready-to-use database for this request's environment (schema created once per instance). */
+export async function getDb(env) {
+  if (injected) return injected;
+  const url = databaseUrl(env);
+  if (!url) throw new NotConfigured('DATABASE_URL is not set');
+  let entry = pool.get(url);
+  if (!entry) {
+    const db = neonDb(url);
+    entry = { db, ready: db.batch(SCHEMA.map(text => [text])) };
+    entry.ready.catch(() => pool.delete(url)); // retry on the next request
+    pool.set(url, entry);
+  }
+  await entry.ready;
+  return entry.db;
+}

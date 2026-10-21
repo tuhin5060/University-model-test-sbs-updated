@@ -1,47 +1,88 @@
-// API handler tests against the in-memory database (no MongoDB needed).
+// API tests against an in-memory Postgres (PGlite) — no Neon account needed.
+// The routes are called through both entry points (Vercel api/ and Cloudflare functions/).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { useDatabase } from '../lib/mongodb.js';
-import { createMemoryDb } from '../lib/memory-db.js';
-import profile from '../api/profile.js';
-import scores from '../api/scores.js';
+import { useDatabase } from '../server/db.js';
+import { createLocalDb } from '../server/local-db.js';
+import * as vercelProfile from '../api/profile.js';
+import * as vercelScores from '../api/scores.js';
+import { onRequest as cfVisitors } from '../functions/api/visitors.js';
+import { onRequest as cfProgress } from '../functions/api/progress.js';
 import { QUESTIONS } from '../data/questions/index.js';
 
-const db = createMemoryDb();
+const db = await createLocalDb();
 useDatabase(db);
+test.after(() => db.close());
+
+const vercel = mod => request => mod[request.method]?.(request) ?? new Response(null, { status: 405 });
+const cloudflare = onRequest => request => onRequest({ request, env: {} });
+const profile = vercel(vercelProfile);
+const scores = vercel(vercelScores);
+const visitors = cloudflare(cfVisitors);
+const progress = cloudflare(cfProgress);
 
 async function call(handler, { method = 'GET', query = {}, body, cookie } = {}) {
-  const res = { statusCode: 0, headers: {}, body: null };
-  res.setHeader = (k, v) => { res.headers[k.toLowerCase()] = v; };
-  res.status = code => { res.statusCode = code; return res; };
-  res.json = obj => { res.body = obj; return res; };
-  await handler({ method, query, body, headers: cookie ? { cookie: `campus_player=${cookie}` } : {} }, res);
-  return res;
+  const qs = new URLSearchParams(query).toString();
+  const request = new Request(`https://site.test/api/x${qs ? `?${qs}` : ''}`, {
+    method,
+    headers: { 'content-type': 'application/json', ...(cookie ? { cookie: cookie.includes('=') ? cookie : `campus_player=${cookie}` } : {}) },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const res = await handler(request);
+  return { statusCode: res.status, headers: Object.fromEntries(res.headers), body: await res.json().catch(() => null) };
 }
+const join = async body => (await call(profile, { method: 'POST', body })).body;
 
 const tense = QUESTIONS.filter(q => q.topicId === 'tense').slice(0, 5);
 const sheet = (pick = q => q.a) => tense.map(q => ({ id: q.id, choice: pick(q), sec: 3 }));
 
 let alice;
-test('profile: create, cookie, rename', async () => {
+test('profile: create with the first roll, cookie, validation', async () => {
   const r = await call(profile, { method: 'POST', body: { name: '  Alice   Rahman ', avatar: '🦊' } });
   assert.equal(r.statusCode, 201);
   alice = r.body.player.playerId;
   assert.equal(r.body.player.name, 'Alice Rahman');
+  assert.equal(r.body.player.roll, 1);
+  assert.equal(r.body.player.tag, 'Alice Rahman.001');
   assert.match(r.headers['set-cookie'], /campus_player=.*HttpOnly/);
-  const bad = await call(profile, { method: 'POST', body: { name: 'A' } });
-  assert.equal(bad.statusCode, 400);
-  const avatar = await call(profile, { method: 'POST', body: { name: 'Mallory', avatar: '<b>' } });
-  assert.equal(avatar.body.player.avatar, '🚂');
+  assert.equal((await call(profile, { method: 'POST', body: { name: 'A' } })).statusCode, 400);
+  assert.equal((await call(profile, { method: 'POST', body: { name: 'Roll Bad', roll: 'abc' } })).statusCode, 400);
+  const mallory = await join({ name: 'Mallory', avatar: '<b>' });
+  assert.equal(mallory.player.avatar, '🚂');
+  assert.equal(mallory.player.roll, 2, 'rolls are given in order');
 });
 
-test('profile: cookie wins over a different id in the body', async () => {
-  const other = (await call(profile, { method: 'POST', body: { name: 'Bob Ali' } })).body.player.playerId;
-  const r = await call(profile, { method: 'POST', body: { playerId: other, name: 'Hacker' }, cookie: alice });
+test('profile: rolls are unique; a taken roll gets a suggestion', async () => {
+  const taken = await call(profile, { method: 'POST', body: { name: 'Someone Else', roll: '001' } });
+  assert.equal(taken.statusCode, 409);
+  assert.equal(taken.body.code, 'roll_taken');
+  assert.equal(taken.body.suggest, 3);
+  const chosen = await join({ name: 'Rafi Hasan', roll: '050' });
+  assert.equal(chosen.player.roll, 50, 'a free roll can be chosen');
+  const next = await join({ name: 'Next Student' });
+  assert.equal(next.player.roll, 51, 'automatic rolls continue after the highest one');
+  const rolls = (await db.query('SELECT roll FROM students')).map(r => r.roll);
+  assert.equal(new Set(rolls).size, rolls.length);
+});
+
+test('profile: same name + roll on another device logs in to the same student', async () => {
+  const r = await call(profile, { method: 'POST', body: { name: 'alice rahman', roll: '1', avatar: '🦊' } });
+  assert.equal(r.statusCode, 200);
   assert.equal(r.body.player.playerId, alice);
-  const bob = await call(profile, { query: { playerId: other }, cookie: other });
-  assert.equal(bob.body.player.name, 'Bob Ali', 'Bob was not renamed');
-  await call(profile, { method: 'POST', body: { name: 'Alice Rahman', avatar: '🦊' }, cookie: alice });
+  assert.equal(r.body.restored, true);
+  const again = await call(profile, { query: { playerId: alice } });
+  assert.equal(again.body.player.tag, 'alice rahman.001');
+  await call(profile, { method: 'POST', body: { name: 'Alice Rahman', roll: 1, avatar: '🦊' }, cookie: alice }); // rename back
+});
+
+test('profile: cookie wins over a different id in the body; no roll + other name = new student', async () => {
+  const bob = (await join({ name: 'Bob Ali' })).player;
+  const r = await call(profile, { method: 'POST', body: { playerId: bob.playerId, name: 'Alice Rahman' }, cookie: alice });
+  assert.equal(r.body.player.playerId, alice);
+  const other = await call(profile, { method: 'POST', body: { name: 'Hacker' }, cookie: alice });
+  assert.notEqual(other.body.player.playerId, alice, 'a different name without the roll does not rename Alice');
+  const check = await call(profile, { query: { playerId: bob.playerId }, cookie: bob.playerId });
+  assert.equal(check.body.player.name, 'Bob Ali');
 });
 
 test('scores: server recomputes the score and ignores client values', async () => {
@@ -53,13 +94,15 @@ test('scores: server recomputes the score and ignores client values', async () =
   assert.equal(r.body.entry.correct, 4);
   assert.ok(r.body.entry.score < 200);
   assert.equal(r.body.entry.playerId, undefined, 'player ids are not exposed');
+  assert.deepEqual(r.body.rank, { rank: 1, players: 1 });
+  assert.equal(r.body.newTop, false, 'the first score on a board is not announced');
   const again = await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'a1', mode: 'fun', topic: 'tense', answers: sheet() } });
   assert.equal(again.statusCode, 200);
   assert.equal(again.body.duplicate, true);
 });
 
 test('scores: rejects foreign cookie, unknown questions, wrong topic, bad choices', async () => {
-  const bob = (await call(profile, { method: 'POST', body: { name: 'Bobby' } })).body.player.playerId;
+  const bob = (await join({ name: 'Bobby' })).player.playerId;
   const base = { playerId: alice, mode: 'exam', topic: 'tense', answers: sheet() };
   assert.equal((await call(scores, { method: 'POST', cookie: bob, body: { ...base, attemptId: 'x1' } })).statusCode, 403);
   assert.equal((await call(scores, { method: 'POST', cookie: alice, body: { ...base, attemptId: 'x2', answers: [{ id: 'nope', choice: 0 }] } })).statusCode, 400);
@@ -70,10 +113,20 @@ test('scores: rejects foreign cookie, unknown questions, wrong topic, bad choice
   assert.equal((await call(scores, { method: 'POST', body: { ...base, playerId: '11111111-1111-4111-8111-111111111111', attemptId: 'x6' } })).statusCode, 401);
 });
 
-test('leaderboard: best score per student, legacy "test" rows count as exam, "me" flag', async () => {
+test('scores: group topics (Grammar / Memorising) are accepted', async () => {
+  const groupQs = QUESTIONS.filter(q => q.group === 'grammar').slice(0, 3);
+  const r = await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'g1', mode: 'fun', topic: 'grammar', answers: groupQs.map(q => ({ id: q.id, choice: q.a, sec: 2 })) } });
+  assert.equal(r.statusCode, 201);
+  const memo = QUESTIONS.find(q => q.group === 'memorising');
+  if (memo) {
+    const bad = await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'g2', mode: 'fun', topic: 'grammar', answers: [{ id: memo.id, choice: 0 }] } });
+    assert.equal(bad.statusCode, 400, 'a Memorising question is not part of the Grammar group');
+  }
+});
+
+test('leaderboard: best score per student with roll tag and "me" flag', async () => {
   await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'e1', mode: 'exam', topic: 'tense', settings: { negative: 0 }, answers: sheet() } });
   await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'e2', mode: 'exam', topic: 'tense', answers: sheet(q => (q.a + 1) % 4) } });
-  await db.collection('scoreAttempts').insertOne({ attemptId: 'old', playerId: '22222222-2222-4222-8222-222222222222', name: 'Old Timer', mode: 'test', topic: 'Tense', score: 70, correct: 7, total: 10, timeSec: 50, at: '2026-01-01T00:00:00Z' });
   const r = await call(scores, { query: { mode: 'exam', topic: 'all' }, cookie: alice });
   assert.equal(r.statusCode, 200);
   const mine = r.body.rows.filter(x => x.name === 'Alice Rahman');
@@ -81,16 +134,47 @@ test('leaderboard: best score per student, legacy "test" rows count as exam, "me
   assert.equal(mine[0].score, 100);
   assert.equal(mine[0].attempts, 2);
   assert.equal(mine[0].me, true);
-  assert.ok(r.body.rows.some(x => x.name === 'Old Timer' && x.me === false));
-  assert.ok(r.body.rows.every(x => !('playerId' in x)));
-  const byTopic = await call(scores, { query: { mode: 'exam', topic: 'tense' } });
-  assert.ok(byTopic.body.rows.some(x => x.name === 'Old Timer'), 'v1 rows saved under the topic title are included');
+  assert.equal(mine[0].tag, 'Alice Rahman.001');
+  assert.ok(r.body.rows.every(x => !('playerId' in x) && !('player_id' in x)));
   const fun = await call(scores, { query: { mode: 'fun', topic: 'tense' } });
   assert.equal(fun.body.rows.length, 1);
 });
 
+test('scores: my stats show tests, marks and rank', async () => {
+  const r = await call(scores, { query: { me: '1' }, cookie: alice });
+  assert.equal(r.statusCode, 200);
+  assert.equal(r.body.stats.exam.tests, 2);
+  assert.equal(r.body.stats.exam.best, 100);
+  assert.equal(r.body.stats.exam.rank, 1);
+  assert.equal(r.body.stats.fun.tests, 2);
+  assert.ok(r.body.recent.length >= 4);
+  const anon = await call(scores, { query: { me: '1' } });
+  assert.equal(anon.body.stats, null);
+});
+
+test('new highest score creates one popup event for everyone', async () => {
+  const rafi = (await call(profile, { method: 'POST', body: { name: 'Rafi Hasan', roll: '050' } })).body.player.playerId;
+  const low = await call(scores, { method: 'POST', cookie: rafi, body: { playerId: rafi, attemptId: 't1', mode: 'fun', topic: 'tense', answers: sheet(q => (q.a + 1) % 4) } });
+  assert.equal(low.body.newTop, false);
+  const first = await call(visitors, { method: 'POST', body: { sid: 'c'.repeat(24) } });
+  assert.deepEqual(first.body.events, [], 'no old events on the first heartbeat');
+  const top = await call(scores, { method: 'POST', cookie: rafi, body: { playerId: rafi, attemptId: 't2', mode: 'fun', topic: 'tense', answers: sheet() } });
+  assert.equal(top.body.newTop, true);
+  assert.equal(top.body.rank.rank, 1);
+  const beat = await call(visitors, { method: 'POST', body: { sid: 'c'.repeat(24), since: first.body.lastEvent }, cookie: alice });
+  assert.equal(beat.body.events.length, 1);
+  const e = beat.body.events[0];
+  assert.equal(e.tag, 'Rafi Hasan.050');
+  assert.equal(e.mode, 'fun');
+  assert.equal(e.topic, 'tense');
+  assert.equal(e.mine, false);
+  assert.equal(e.playerId, undefined, 'player ids are not broadcast');
+  const own = await call(visitors, { method: 'POST', body: { sid: 'c'.repeat(24), since: first.body.lastEvent }, cookie: rafi });
+  assert.equal(own.body.events[0].mine, true);
+});
+
 test('scores: rate limit', async () => {
-  const p = (await call(profile, { method: 'POST', body: { name: 'Speedy' } })).body.player.playerId;
+  const p = (await join({ name: 'Speedy' })).player.playerId;
   let last;
   for (let i = 0; i < 21; i++) {
     last = await call(scores, { method: 'POST', cookie: p, body: { playerId: p, attemptId: `r${i}`, mode: 'fun', topic: 'tense', answers: sheet() } });
@@ -99,16 +183,32 @@ test('scores: rate limit', async () => {
 });
 
 test('visitors: counts distinct live browsers, leave removes, bad ids rejected', async () => {
-  const { default: visitors, ONLINE_MS } = await import('../api/visitors.js');
+  const { ONLINE_SEC } = await import('../server/routes/visitors.js');
+  await db.query('DELETE FROM presence');
   const a = 'a'.repeat(24), b = 'b'.repeat(24);
   assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.online, 1);
   assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.online, 1, 'same browser counted once');
   assert.equal((await call(visitors, { method: 'POST', body: { sid: b } })).body.online, 2);
-  db.collection('presence').docs.find(d => d._id === b).at = new Date(Date.now() - ONLINE_MS - 1000);
+  await db.query(`UPDATE presence SET at = now() - interval '${ONLINE_SEC + 5} seconds' WHERE sid = $1`, [b]);
   assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.online, 1, 'stale heartbeat not counted');
-  assert.equal((await call(visitors, { method: 'POST', body: { sid: a, leave: true } })).body.online, 0);
+  await call(visitors, { method: 'POST', body: { sid: a, leave: true } });
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM presence WHERE sid = $1', [a]))[0].n, 0);
   assert.equal((await call(visitors, { method: 'POST', body: { sid: '<x>' } })).statusCode, 400);
   assert.equal((await call(visitors, { method: 'GET' })).statusCode, 405);
+});
+
+test('progress: anonymous snapshot moves to the student and comes back on another device', async () => {
+  const first = await call(progress, { method: 'POST', body: { progress: { v: 2, history: [{ id: 'h1' }] } } });
+  assert.equal(first.statusCode, 200);
+  const anon = /campus_progress=([^;]+)/.exec(first.headers['set-cookie'])[1];
+  const moved = await call(progress, { cookie: `campus_progress=${anon}; campus_player=${alice}` });
+  assert.deepEqual(moved.body.progress.history, [{ id: 'h1' }]);
+  // New phone: log in with name + roll, then read progress with the returned cookie.
+  const login = await call(profile, { method: 'POST', body: { name: 'Alice Rahman', roll: '001' } });
+  const cookie = /campus_player=([^;]+)/.exec(login.headers['set-cookie'])[1];
+  const back = await call(progress, { cookie });
+  assert.deepEqual(back.body.progress.history, [{ id: 'h1' }]);
+  assert.equal((await call(progress, { method: 'POST', body: { progress: { v: 1 } } })).statusCode, 400);
 });
 
 test('scores: Model Test always deducts 0.25 per wrong answer', async () => {
@@ -119,4 +219,11 @@ test('scores: Model Test always deducts 0.25 per wrong answer', async () => {
   assert.equal(r.statusCode, 201);
   assert.equal(r.body.entry.correct, 4);
   assert.equal(r.body.entry.score, 75, '(4 − 0.25) / 5 = 75%');
+});
+
+test('no database configured → 503 with a clear message', async () => {
+  useDatabase(null);
+  const res = await cfVisitors({ request: new Request('https://site.test/api/visitors', { method: 'POST', body: JSON.stringify({ sid: 'd'.repeat(24) }) }), env: {} });
+  assert.equal(res.status, 503);
+  useDatabase(db);
 });

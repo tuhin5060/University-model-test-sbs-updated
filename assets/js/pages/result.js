@@ -19,7 +19,7 @@ function saveStatus(h) {
   }
   const map = {
     saving: '<p class="notice" id="save-status">⏳ Leaderboard-এ score পাঠানো হচ্ছে…</p>',
-    saved: '<p class="notice good" id="save-status">✅ Score leaderboard-এ save হয়েছে।</p>',
+    saved: `<p class="notice good" id="save-status">${h.newTop ? '🏆 নতুন সর্বোচ্চ score! ' : '✅ '}Leaderboard-এ save হয়েছে${h.rank?.rank ? ` · এই topic-এ তোমার অবস্থান <b>#${bn(h.rank.rank)}</b> (${bn(h.rank.players)} জনের মধ্যে)` : ''}। <a class="text-link" href="#score">আমার score →</a></p>`,
     local: `<p class="notice warn" id="save-status">⚠️ Server-এ save হয়নি (${esc(h.saveError || 'offline')})। <button class="link-btn" data-action="retry-save" data-id="${esc(h.id)}">আবার চেষ্টা করো</button></p>`,
   };
   return map[h.saved] || '';

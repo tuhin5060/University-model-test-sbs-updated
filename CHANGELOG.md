@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.4.0 — Memorising, roll numbers, Neon, Cloudflare + Vercel
+* New **Memorising** section next to Grammar (pick a single topic or "সব
+  Memorising"): Vocabulary Synonym (538), Antonym (330) and Word Meaning (122)
+  from the ~1000-word list, BCS 10th–40th Synonym & Antonym (67), Appropriate
+  Prepositions (200) and Phrase & Idioms (198). Every question has four options
+  and a Bangla explanation of the answer and of each wrong option. Wrong Bangla
+  meanings in the source lists were corrected; duplicates were removed.
+* New শব্দতালিকা page (`#vocab`): 1049 words with Bangla meaning, synonyms and
+  antonyms, search in English or Bangla, A–Z filter.
+* Roll numbers: every student gets a unique roll (001, 002 …) shown as
+  `Name.007`. The same name + roll on another phone restores scores and
+  progress. A taken roll is refused with a free roll suggested.
+* Score page: tests taken, best and average marks, correct/wrong totals and
+  leaderboard position (#rank of N) for Fun Quiz and Model Test. The result
+  page shows your position on that topic.
+* A popup at the top tells everyone online when someone sets a new highest
+  score ("🏆 Arman.007 Fun Quiz-এ Tense topic-এ সর্বোচ্চ …").
+* Database moved from MongoDB to **Neon Postgres** (faster, one shared
+  database). The same API code (`server/`) runs on Vercel (`api/`) and
+  Cloudflare Pages (`functions/`).
+* Dhaka University and Comilla University pages: key facts, latest QS / THE
+  rankings with sources, and Wikimedia Commons photos with credits.
+* Phones get the edge-to-edge header photo with the green fade again; desktop
+  keeps the framed picture.
+
 ## 2.3.1 — logo
 * New ক্যাম্পাস পথে logo: the CU main gate with a road leading through it
   toward a rising sun. Used in the header, as the favicon and as the phone

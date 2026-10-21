@@ -21,6 +21,13 @@ import adverb from './adverb.js';
 import modalVerb from './modal-verb.js';
 import causativeVerb from './causative-verb.js';
 import subjunctiveVerb from './subjunctive-verb.js';
+// Memorising
+import vocabSynonym from './vocab-synonym.js';
+import vocabAntonym from './vocab-antonym.js';
+import vocabMeaning from './vocab-meaning.js';
+import vocabBcs from './vocab-bcs.js';
+import phraseIdioms from './phrase-idioms.js';
+import appropriatePreposition from './appropriate-preposition.js';
 
 export const TOPICS_RAW = [
   tense,
@@ -36,6 +43,12 @@ export const TOPICS_RAW = [
   modalVerb,
   causativeVerb,
   subjunctiveVerb,
+  vocabSynonym,
+  vocabAntonym,
+  vocabMeaning,
+  vocabBcs,
+  phraseIdioms,
+  appropriatePreposition,
 ];
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];

@@ -5,6 +5,7 @@ import { UNIVERSITIES, CONTENT_UPDATED } from '../../../data/universities.js';
 import { SITE, CU_PHOTOS } from '../../../data/site.js';
 import { esc, bn, bnDate, duration, ext, $ } from '../lib/dom.js';
 import { state, dailyStreak } from '../lib/store.js';
+import { fetchMyStats } from '../lib/api.js';
 import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO } from '../components.js';
 
 let lbMode = 'fun';
@@ -13,15 +14,16 @@ let lbTopic = 'all';
 // "My score" block: personal bests and recent results from this browser.
 function myScores() {
   const ranked = state.history.filter(x => x.mode === 'fun' || x.mode === 'exam');
-  if (!ranked.length) {
+  if (!ranked.length && !state.player?.playerId) {
     return empty('এখনো কোনো test দাওনি। একটা দিলেই তোমার score এখানে দেখাবে।', '<a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a> <a class="btn" href="#start/exam">⏱️ Model Test</a>');
   }
   const best = mode => ranked.filter(x => x.mode === mode).reduce((m, x) => Math.max(m, mode === 'fun' ? x.score || 0 : x.percent || 0), -1);
   const fun = best('fun');
   const exam = best('exam');
   const p = state.player;
-  return `${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}</p>` : ''}
-    <div class="stat-grid">
+  return `${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}</p>` : ''}
+    <div id="my-stats">${p?.playerId ? '<div class="skeleton"></div>' : ''}</div>
+    <div class="stat-grid" id="local-stats">
       <div class="stat"><b>${fun < 0 ? '—' : bn(fun)}</b><small>Fun Quiz সেরা points</small></div>
       <div class="stat"><b>${exam < 0 ? '—' : `${bn(exam)}%`}</b><small>Model Test সেরা নম্বর</small></div>
       <div class="stat"><b>${bn(ranked.length)}</b><small>মোট test</small></div>
@@ -32,6 +34,36 @@ function myScores() {
       return `<a class="history-row" href="#result/${esc(x.id)}"><span class="h-icon" aria-hidden="true">${m.icon}</span><span><b>${esc(x.title)}</b><small>${esc(m.label)} · ${bnDate(x.finished)} · ${duration(x.timeSec)}</small></span><span class="h-score">${x.mode === 'fun' ? `${bn(x.score)} pts` : `${bn(x.percent ?? 0)}%`}${x.saved === 'saved' ? ' <small title="Leaderboard-এ save">🏆</small>' : ''}</span></a>`;
     }).join('')}</div>
     <p><a class="text-link" href="#progress">সব ফলাফল, ভুল ও topic অনুযায়ী অগ্রগতি →</a></p>`;
+}
+
+// Server stats: tests taken, marks and leaderboard position per mode.
+function rankCard(mode, s) {
+  const m = MODE_INFO[mode];
+  const unit = v => (mode === 'fun' ? `${bn(v)}` : `${bn(v)}%`);
+  if (!s) return `<div class="rank-card t-${m.color}"><span class="rank-mode">${m.icon} ${esc(m.label)}</span><b>—</b><small>এখনো দাওনি</small></div>`;
+  return `<div class="rank-card t-${m.color}">
+    <span class="rank-mode">${m.icon} ${esc(m.label)}</span>
+    <b>#${bn(s.rank)}</b><small>${bn(s.players)} জনের মধ্যে অবস্থান</small>
+    <dl>
+      <div><dt>মোট test</dt><dd>${bn(s.tests)}</dd></div>
+      <div><dt>সেরা</dt><dd>${unit(s.best)}</dd></div>
+      <div><dt>গড়</dt><dd>${unit(s.avg)}</dd></div>
+      <div><dt>সঠিক / ভুল</dt><dd>${bn(s.correct)} / ${bn(s.wrong)}</dd></div>
+    </dl>
+  </div>`;
+}
+
+async function loadMyStats() {
+  const box = $('#my-stats');
+  if (!box || !state.player?.playerId) return;
+  try {
+    const { stats } = await fetchMyStats();
+    if (!stats) { box.innerHTML = ''; return; }
+    box.innerHTML = `<div class="rank-cards">${rankCard('fun', stats.fun)}${rankCard('exam', stats.exam)}</div>`;
+    $('#local-stats')?.remove();
+  } catch {
+    box.innerHTML = '';
+  }
 }
 
 export const leaderboardPage = {
@@ -57,6 +89,7 @@ export const leaderboardPage = {
     </div>`;
   },
   mount() {
+    loadMyStats();
     loadLeaderboards();
     $('#lb-topic')?.addEventListener('change', e => {
       lbTopic = e.target.value;
@@ -87,7 +120,7 @@ export const aboutPage = {
         <h2>তথ্যের নির্ভরযোগ্যতা</h2>
         <p>Admission-এর তারিখ, fee, যোগ্যতা বা আসন সংখ্যার জন্য সংশ্লিষ্ট বিশ্ববিদ্যালয়ের বর্তমান official circular-ই চূড়ান্ত। এই site কোনো বিশ্ববিদ্যালয়ের official website নয়। Content সর্বশেষ যাচাই: ${bnDate(CONTENT_UPDATED)}।</p>
         <h2>Privacy</h2>
-        <p>তোমার practice history, ভুলের তালিকা ও checklist শুধু এই browser-এ থাকে। Leaderboard-এ অংশ নিলে শুধু নাম, avatar ও score server-এ (MongoDB) save হয়। কোনো password, roll বা phone number চাওয়া হয় না।</p>
+        <p>তোমার practice history, ভুলের তালিকা ও checklist এই browser-এ থাকে, আর একটা backup copy server-এ (Neon database) রাখা হয়। নাম + roll-ই তোমার পরিচয়—কোনো password বা phone number চাওয়া হয় না। তাই নিজের roll অন্যকে দিয়ো না।</p>
         <h2>Official links</h2>
         <ul>${UNIVERSITIES.map(u => `<li><b>${esc(u.short)}</b> — ${ext(u.site, 'Website')}${u.admission ? ` · ${ext(u.admission, 'Admission')}` : ''}</li>`).join('')}</ul>
         <h2>ছবির credit</h2>
