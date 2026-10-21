@@ -1,0 +1,10 @@
+name = "university-model-test-sbs-updated"
+pages_build_output_dir = "."
+compatibility_date = "2026-10-21"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "campus-admission-companion"
+database_id = "dfbfe817-73f6-4c5c-9023-38203fae39a6"
+preview_database_id = "DB"
