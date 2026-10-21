@@ -1,6 +1,6 @@
-// Noun — 32 questions.
-// To add a question, copy one block below, paste it at the end of the list and edit it.
-// answer: 'A' | 'B' | 'C' | 'D'. explainBn and units are optional. See CONTENT_GUIDE.md.
+// Noun — 42 questions.
+// To add a question, copy one { … } block, paste it at the end of the list and edit it.
+// answer: "A" | "B" | "C" | "D". explainBn / units are optional. See CONTENT_GUIDE.md.
 export default {
   id: "noun",
   title: "Noun",
@@ -14,13 +14,15 @@ export default {
       options: ["other than","any other","some other","a few others"],
       answer: "A",
       explain: "“Other than” means except for; it correctly introduces the exceptions to “no books”.",
+      explainBn: "No books other than ... মানে এগুলো ছাড়া অন্য কোনো বই নয়; other than = except।",
       source: "DU B Unit 2021–22",
     },
     {
       q: "The noun form of “waste” is ____.",
-      options: ["wasting","wastage","wasteful","waste"],
+      options: ["wasting","wastage","wasteful","wastely"],
       answer: "B",
-      explain: "The source distinguishes “wastage” (waste or loss) from “wasteful” (an adjective); for this noun-form question, “wastage” is the intended answer.",
+      explain: "“Wastage” is the noun (loss through waste); “wasteful” is an adjective and “wasting” is a verb form.",
+      explainBn: "Waste-এর noun form wastage (অপচয়); wasteful adjective, wasting verb-এর -ing রূপ।",
       source: "DU B Unit 2021–22",
     },
     {
@@ -28,6 +30,7 @@ export default {
       options: ["some","none","any","much"],
       answer: "C",
       explain: "In a negative sentence, “any update” is the natural choice.",
+      explainBn: "Negative বাক্যে (have not been given) সাধারণত any বসে: any update।",
       source: "DU B Unit 2019–20",
     },
     {
@@ -35,6 +38,7 @@ export default {
       options: ["Much as I","As much I","I also","So much as I"],
       answer: "A",
       explain: "“Much as I respect…” is a concessive structure meaning “although I respect…”.",
+      explainBn: "Much as I respect ... মানে although I respect ...; এটি concession বোঝানো নির্দিষ্ট গঠন।",
       source: "DU B Unit 2013–14",
     },
     {
@@ -42,6 +46,7 @@ export default {
       options: ["an","some","few","a piece"],
       answer: "B",
       explain: "“Information” is uncountable in standard usage, so “some information” is correct.",
+      explainBn: "Information uncountable, তাই an বা few বসে না; some information।",
       source: "DU A Unit 2012–13",
     },
     {
@@ -49,6 +54,7 @@ export default {
       options: ["too many traffic","very much traffics","too much traffic","few traffics"],
       answer: "C",
       explain: "“Traffic” is uncountable; use “too much traffic,” not “many traffics”.",
+      explainBn: "Traffic uncountable—traffics বা many traffic হয় না; too much traffic।",
       source: "DU B Unit 2005–06",
     },
     {
@@ -56,6 +62,7 @@ export default {
       options: ["She has great advice.","He drinks a lot of water.","There are five apples in the basket.","We need some information."],
       answer: "C",
       explain: "“Apples” is countable and takes a numeral plus a plural form.",
+      explainBn: "Apple countable, তাই সংখ্যা (five) ও plural (apples) বসে। Advice, water, information uncountable।",
       source: "BUP FASS 2024–25",
     },
     {
@@ -63,6 +70,7 @@ export default {
       options: ["furniture","money","news","headache"],
       answer: "D",
       explain: "“Headache” is a countable noun: a headache, two headaches.",
+      explainBn: "Headache countable—a headache, two headaches। Furniture, money, news uncountable।",
       source: "GST B Unit 2023–24",
     },
     {
@@ -70,6 +78,7 @@ export default {
       options: ["many","much","a few","several"],
       answer: "B",
       explain: "“Juice” is uncountable when referring to the liquid generally; “much” fits the options.",
+      explainBn: "Juice তরল হিসেবে uncountable; many/a few/several countable-এর জন্য, তাই much।",
       source: "JUC C Unit 2022–23",
     },
     {
@@ -77,6 +86,7 @@ export default {
       options: ["few","a little","a few","many"],
       answer: "B",
       explain: "“Milk” is uncountable; “a little” expresses a small quantity.",
+      explainBn: "Milk uncountable; অল্প পরিমাণ বোঝাতে a little milk। Few/a few countable-এর জন্য।",
       source: "JUC C Unit 2022–23",
     },
     {
@@ -84,6 +94,7 @@ export default {
       options: ["repetition","repeatation","repetitive","repeated"],
       answer: "A",
       explain: "The standard noun is “repetition”.",
+      explainBn: "Repeat-এর noun repetition (বানান লক্ষ করো: repe-ti-tion); repeatation ভুল বানান।",
       source: "CU D Unit 2020–21",
     },
     {
@@ -91,6 +102,7 @@ export default {
       options: ["little","many","much","few"],
       answer: "C",
       explain: "“Luggage” is uncountable. In this negative sentence, “much luggage” is the intended option.",
+      explainBn: "Luggage uncountable; negative বাক্যে much luggage। Many/few countable-এর জন্য।",
       source: "CU A Unit 2020–21",
     },
     {
@@ -98,6 +110,7 @@ export default {
       options: ["many","little","very","few"],
       answer: "B",
       explain: "“Hope” is uncountable here; “little hope” means there is not much hope.",
+      explainBn: "এখানে hope uncountable; little hope মানে আশা প্রায় নেই।",
       source: "RU A Unit 2018–19",
     },
     {
@@ -105,6 +118,7 @@ export default {
       options: ["less","lesser","little","fewer"],
       answer: "D",
       explain: "“Guests” is a countable plural noun, so the comparative determiner is “fewer”.",
+      explainBn: "Guests countable plural, তাই comparison-এ fewer; less uncountable-এর জন্য।",
       source: "JU D Unit 2017–18",
     },
     {
@@ -112,6 +126,7 @@ export default {
       options: ["some / any","a / none","no / some","any / them"],
       answer: "C",
       explain: "“No food” establishes the absence of food; “buy some” refers to an unspecified quantity.",
+      explainBn: "No food মানে খাবার নেই; তাই কিনতে হবে কিছু—buy some।",
       source: "CU A Unit 2016–17",
     },
     {
@@ -119,6 +134,7 @@ export default {
       options: ["more / less","fewer / fewer","a few / less","less / fewer"],
       answer: "D",
       explain: "“Traffic” is uncountable, so use “less traffic”; “accidents” is countable, so use “fewer accidents”.",
+      explainBn: "Traffic uncountable → less traffic; accidents countable → fewer accidents।",
       source: "CU E Unit 2016–17",
     },
     {
@@ -126,6 +142,7 @@ export default {
       options: ["the number of","a few","little","many"],
       answer: "C",
       explain: "“Make little difference” means have almost no effect; “difference” is singular and countable but this is a fixed expression.",
+      explainBn: "Make little difference মানে প্রায় কোনো প্রভাব ফেলে না—নির্দিষ্ট expression।",
       source: "CU E Unit 2016–17",
     },
     {
@@ -133,6 +150,7 @@ export default {
       options: ["They have no money at all.","They have almost no money.","They have yet some money.","They have quite some money."],
       answer: "B",
       explain: "“Little” with an uncountable noun carries a negative meaning: almost none.",
+      explainBn: "Little (a ছাড়া) নেতিবাচক অর্থ দেয়—প্রায় নেই; a little হলে অর্থ হতো কিছু আছে।",
       source: "JKKNIU D Unit 2018–19",
     },
     {
@@ -140,6 +158,7 @@ export default {
       options: ["a good advice","good advices","good advice","many good advices"],
       answer: "C",
       explain: "“Advice” is uncountable, so it does not normally take “a” or a plural -s.",
+      explainBn: "Advice uncountable—a advice বা advices হয় না; good advice।",
       source: "Practice bank",
     },
     {
@@ -147,6 +166,7 @@ export default {
       options: ["will","take","much","time"],
       answer: "C",
       explain: "“Much” quantifies the uncountable noun “time”.",
+      explainBn: "Much এখানে time-এর পরিমাণ বোঝাচ্ছে, তাই এটি determiner।",
       source: "BCS 35th",
     },
     {
@@ -154,6 +174,7 @@ export default {
       options: ["pair of jean","pairs of jean","pair of jeans","pairs of jeans"],
       answer: "D",
       explain: "“A pair of jeans” is one unit; two units are “two pairs of jeans”.",
+      explainBn: "Jeans সবসময় plural; এক জোড়া a pair of jeans, দুই জোড়া two pairs of jeans।",
       source: "BCS 42nd",
     },
     {
@@ -161,6 +182,7 @@ export default {
       options: ["poem","play","drama","works"],
       answer: "D",
       explain: "“Works” means the complete body of an author’s writings.",
+      explainBn: "Works of Shakespeare মানে শেক্সপিয়রের রচনাসমগ্র; এখানে works noun।",
       source: "BCS 42nd",
     },
     {
@@ -168,6 +190,7 @@ export default {
       options: ["two equipments","two equipment pieces","two pieces of equipment","two pieces of equipments"],
       answer: "C",
       explain: "“Equipment” is uncountable; count it with “pieces of equipment”.",
+      explainBn: "Equipment uncountable; গুনতে হলে pieces of equipment—equipments হয় না।",
       source: "Practice bank",
     },
     {
@@ -175,6 +198,7 @@ export default {
       options: ["information","pieces of information","items of information","item of information"],
       answer: "D",
       explain: "“Information” is uncountable; a single unit is “an item of information”.",
+      explainBn: "Information uncountable; একটি তথ্য বোঝাতে a single item of information।",
       source: "Practice bank",
     },
     {
@@ -182,13 +206,15 @@ export default {
       options: ["much","many","few","a few"],
       answer: "A",
       explain: "“Time” meaning duration is uncountable; “much” is correct in a negative sentence.",
-      source: "Existing game bank · countability practice",
+      explainBn: "Time (সময়) uncountable; negative বাক্যে much spare time।",
+      source: "Practice bank",
     },
     {
       q: "Only ____ of these are any good.",
       options: ["few","a few","one","little"],
       answer: "B",
       explain: "“A few” means a small number and is used with countable plural nouns.",
+      explainBn: "A few মানে কয়েকটি—countable plural-এর সঙ্গে বসে; only a few of these।",
       source: "Practice bank",
     },
     {
@@ -196,6 +222,7 @@ export default {
       options: ["a few","quite a few","many","a little"],
       answer: "D",
       explain: "“Money” is uncountable; “a little money” means a small amount remains.",
+      explainBn: "Money uncountable; a little money মানে অল্প কিছু টাকা আছে।",
       source: "BCS 38th",
     },
     {
@@ -203,6 +230,7 @@ export default {
       options: ["a little","little","less","the little"],
       answer: "A",
       explain: "“A little” signals that enough of a small amount is available; the sentence confirms that she could quench her thirst.",
+      explainBn: "A little মানে অল্প হলেও যথেষ্ট—পরের বাক্য বলছে তৃষ্ণা মিটেছে, তাই a little water।",
       source: "BCS 35th",
     },
     {
@@ -210,6 +238,7 @@ export default {
       options: ["comfortably","comfort","comfortable","none of these"],
       answer: "B",
       explain: "“Comfort” is the noun; “comfortable” is an adjective and “comfortably” is an adverb.",
+      explainBn: "Comfortable adjective, comfortably adverb; noun form comfort।",
       source: "Practice bank",
     },
     {
@@ -217,6 +246,7 @@ export default {
       options: ["laughing","laughable","laughter","laughingly"],
       answer: "C",
       explain: "“Laughter” is the noun form used for the act or sound of laughing.",
+      explainBn: "Laugh-এর noun laughter (হাসি); laughable adjective, laughingly adverb।",
       source: "BCS 43rd",
     },
     {
@@ -224,6 +254,7 @@ export default {
       options: ["object","verb","noun","determiner"],
       answer: "C",
       explain: "In “a sharp rise”, the article “a” and adjective “sharp” precede “rise”, which functions as a noun.",
+      explainBn: "A sharp rise—article ও adjective-এর পরে বসেছে, তাই rise এখানে noun।",
       source: "RU A Unit 2022–23",
     },
     {
@@ -231,7 +262,88 @@ export default {
       options: ["number","amount","many","few"],
       answer: "B",
       explain: "Use “amount” with uncountable nouns such as money.",
-      source: "Practice bank · revised countability set",
+      explainBn: "Money uncountable, তাই amount of money; number countable noun-এর জন্য।",
+      source: "Practice bank",
+    },
+    {
+      q: "In “The jury has reached its verdict,” the word “jury” is a ____ noun.",
+      options: ["collective","proper","material","abstract"],
+      answer: "A",
+      explain: "“Jury” names a group of people taken together as one unit, so it is a collective noun.",
+      explainBn: "Jury একদল মানুষকে একসাথে একটি একক হিসেবে বোঝায়, তাই এটি collective noun।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "Which of the following is an abstract noun?",
+      options: ["gold","honesty","Dhaka","army"],
+      answer: "B",
+      explain: "“Honesty” names a quality that cannot be seen or touched, so it is an abstract noun. Gold is a material noun, Dhaka a proper noun and army a collective noun.",
+      explainBn: "Honesty একটি গুণ, যা দেখা বা ছোঁয়া যায় না; তাই abstract noun। Gold material, Dhaka proper, army collective noun।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "In “This ring is made of gold,” the word “gold” is a ____ noun.",
+      options: ["proper","collective","material","abstract"],
+      answer: "C",
+      explain: "“Gold” names a substance from which things are made, so it is a material noun.",
+      explainBn: "Gold এমন একটি পদার্থ যা দিয়ে জিনিস তৈরি হয়, তাই এটি material noun।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "All the girls in the dormitory share one bathroom; it is the ____ bathroom.",
+      options: ["girl's","girls","girls's","girls'"],
+      answer: "D",
+      explain: "For a plural noun ending in -s, the possessive is formed by adding only an apostrophe: girls'.",
+      explainBn: "-s দিয়ে শেষ হওয়া plural noun-এর possessive করতে শুধু apostrophe বসে: girls'। এখানে অনেক মেয়ে, তাই girl's হবে না।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "All the women in the village joined the ____ association.",
+      options: ["women's","womens'","woman's","womens"],
+      answer: "A",
+      explain: "“Women” is an irregular plural that does not end in -s, so its possessive takes ’s: women's.",
+      explainBn: "Women একটি irregular plural যার শেষে s নেই, তাই possessive-এ 's বসে: women's।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "Which of the following is a proper noun?",
+      options: ["river","Padma","city","country"],
+      answer: "B",
+      explain: "“Padma” names one particular river, so it is a proper noun and starts with a capital letter. The others are common nouns.",
+      explainBn: "Padma একটি নির্দিষ্ট নদীর নাম, তাই proper noun এবং বড় হাতের অক্ষরে শুরু হয়। River, city, country সাধারণ নাম বা common noun।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "The noun form of “choose” is ____.",
+      options: ["chosen","chose","choice","choosy"],
+      answer: "C",
+      explain: "“Choice” is the noun form of “choose”. “Chose” and “chosen” are verb forms, and “choosy” is an adjective.",
+      explainBn: "Choose-এর noun form হলো choice। Chose ও chosen verb-এর রূপ, আর choosy একটি adjective।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "The noun form of “brave” is ____.",
+      options: ["bravely","braver","braved","bravery"],
+      answer: "D",
+      explain: "“Bravery” is the noun form of the adjective “brave”. “Bravely” is an adverb and “braver” is a comparative adjective.",
+      explainBn: "Brave (adjective)-এর noun form হলো bravery (সাহস)। Bravely adverb আর braver comparative adjective।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "A ____ of cattle was grazing in the field.",
+      options: ["herd","flock","swarm","pack"],
+      answer: "A",
+      explain: "The collective noun for cattle is “herd”. A flock is used for sheep or birds, a swarm for bees, and a pack for wolves.",
+      explainBn: "গরুর দলের collective noun হলো herd। Flock ভেড়া বা পাখির, swarm মৌমাছির, pack নেকড়ের দলের জন্য।",
+      source: "Practice (TOEFL-style)",
+    },
+    {
+      q: "The noun form of “succeed” is ____.",
+      options: ["successful","successfully","succeeding","success"],
+      answer: "D",
+      explain: "“Success” is the noun form of “succeed”. “Successful” is an adjective and “successfully” an adverb.",
+      explainBn: "Succeed (verb)-এর noun form হলো success। Successful adjective আর successfully adverb।",
+      source: "Practice (TOEFL-style)",
     },
   ],
 };

@@ -28,7 +28,7 @@ export function render() {
     <section class="section">
       <div class="section-head"><div><h2>🔁 আমার ভুলগুলো</h2><p>ভুল করা প্রশ্ন এখানে জমা হয়; পরপর দুবার ঠিক করলে সরে যায়।</p></div></div>
       ${mistakes
-        ? `<div class="card mistake-card"><b class="big-num">${bn(mistakes)}</b><span>টি প্রশ্ন আবার দেখার অপেক্ষায়</span><a class="btn" href="#start/practice/mistakes">Practice শুরু →</a><a class="btn ghost" href="#start/fun/mistakes">🎮 Fun mode-এ</a></div>`
+        ? `<div class="card mistake-card"><b class="big-num">${bn(mistakes)}</b><span>টি প্রশ্ন আবার দেখার অপেক্ষায়</span><a class="btn" href="#start/fun/mistakes">আবার চেষ্টা করো</a></div>`
         : empty('এখনো কোনো ভুল জমা নেই। একটা test দিয়ে দেখো!', '<a class="btn" href="#start/fun">🎮 Fun Quiz</a>')}
     </section>
 
@@ -37,7 +37,7 @@ export function render() {
       <div class="bars card">${TOPICS.map(t => {
         const a = topicAccuracy(t.id);
         const s = state.stats[t.id];
-        return `<div class="bar-row"><span lang="en">${esc(t.icon)} ${esc(t.title)}</span><span class="meter ${a === null ? 'none' : ''}"><i style="width:${a || 0}%"></i></span><b>${a === null ? '—' : `${bn(a)}%`}</b>${s ? `<small class="muted">${bn(s.seen)}টি</small>` : `<a class="small text-link" href="#start/practice/${esc(t.id)}">শুরু</a>`}</div>`;
+        return `<div class="bar-row"><a class="text-link" lang="en" href="#start/fun/${esc(t.id)}">${esc(t.icon)} ${esc(t.title)}</a><span class="meter ${a === null ? 'none' : ''}"><i style="width:${a || 0}%"></i></span><b>${a === null ? '—' : `${bn(a)}%`}</b><small class="muted">${s ? `${bn(s.seen)}টি` : ''}</small></div>`;
       }).join('')}</div>
     </section>
 

@@ -47,8 +47,8 @@ Open the topic file (e.g. `data/questions/tense.js`), go to the end of the
 | `q` | ✅ | Use `____` for the blank. |
 | `options` | ✅ | 2–4 options, all different. |
 | `answer` | ✅ | `"A"`, `"B"`, `"C"` or `"D"`. |
-| `explain` | recommended | English (or Bangla) explanation shown after answering. |
-| `explainBn` | optional | Simple Bangla note. If missing, the topic's `tipBn` is shown. |
+| `explain` | ✅ (or `explainBn`) | Why this answer is right — English or Bangla. Shown after answering and in the answer sheet. |
+| `explainBn` | optional | Extra simple Bangla note. `npm run check` fails if a question has neither `explain` nor `explainBn`. |
 | `source` | optional | e.g. `"CU A Unit 2016–17"`, `"DU-B: 19–20"`, `"Practice bank"`. |
 | `units` | optional | e.g. `["A", "B"]`. Leave it out for all units. |
 

@@ -202,7 +202,7 @@ Tense-এর বেশিরভাগ প্রশ্নে বাক্যে�
   {
     slug: 'how-to-use-this-site',
     title: 'Fun Quiz নাকি Model Test? কখন কোনটা দেবে',
-    category: 'শুরু করো',
+    category: 'শুরুর কথা',
     emoji: '🎯',
     date: '2026-10-20',
     minutes: 3,
@@ -233,7 +233,7 @@ Timer নেই। প্রতিটি উত্তরের পরেই ই�
   {
     slug: "where-to-start",
     title: "ভর্তি প্রস্তুতি শুরু করবে কোথা থেকে?",
-    category: "শুরু করো",
+    category: "শুরুর কথা",
     emoji: "🧭",
     date: '2026-10-16',
     minutes: 4,

@@ -11,14 +11,13 @@ async function call(url, options = {}) {
       headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     });
   } catch {
-    throw new Error('Network unavailable. Your local practice progress is still available.');
+    throw new Error('Network unavailable');
   }
   let body = null;
   try { body = await res.json(); } catch { /* not JSON: API not deployed here */ }
   if (!res.ok || !body?.ok) {
-    const message = body?.error || `Request failed (${res.status})`;
-    if (res.status >= 500) throw new Error('Leaderboard service is not configured yet. You can continue practicing; your progress stays on this device.');
-    throw new Error(message);
+    if (res.status >= 500 && !body?.error) throw new Error('Leaderboard service is not configured yet');
+    throw new Error(body?.error || `Request failed (${res.status})`);
   }
   return body;
 }

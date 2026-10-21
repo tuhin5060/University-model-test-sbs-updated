@@ -19,7 +19,7 @@ let apiReady = null;
 async function api() {
   apiReady ||= (async () => {
     const db = await import('../lib/mongodb.js');
-    if (!process.env.MONGODB_URI) {
+    if (!db.mongoUri()) {
       const { createMemoryDb } = await import('../lib/memory-db.js');
       db.useDatabase(createMemoryDb());
       console.log('ℹ️  MONGODB_URI not set — using an in-memory database (resets on restart).');
@@ -27,6 +27,7 @@ async function api() {
     return {
       '/api/profile': (await import('../api/profile.js')).default,
       '/api/scores': (await import('../api/scores.js')).default,
+      '/api/visitors': (await import('../api/visitors.js')).default,
     };
   })();
   return apiReady;

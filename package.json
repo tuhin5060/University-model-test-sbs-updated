@@ -1,6 +1,6 @@
 {
   "name": "campus-companion",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "private": true,
   "type": "module",
   "description": "ক্যাম্পাস পথে — Bangla-first university admission practice: Fun Quiz, timed Model Test, tips blog, university links, MongoDB leaderboard",

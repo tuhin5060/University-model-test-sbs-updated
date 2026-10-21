@@ -7,6 +7,7 @@ import { SITE } from '../../data/site.js';
 import { $, $$, esc } from './lib/dom.js';
 import { state, save } from './lib/store.js';
 import { fetchProfile } from './lib/api.js';
+import { startLive, paintLive } from './lib/live.js';
 import * as home from './pages/home.js';
 import * as start from './pages/start.js';
 import * as play from './pages/play.js';
@@ -15,6 +16,7 @@ import * as tips from './pages/tips.js';
 import * as universities from './pages/universities.js';
 import * as progress from './pages/progress.js';
 import { leaderboardPage, aboutPage, notFound, switchBoardMode } from './pages/misc.js';
+import { loadLeaderboards } from './components.js';
 
 const ROUTES = {
   home,
@@ -26,13 +28,14 @@ const ROUTES = {
   university: universities,
   progress,
   leaderboard: leaderboardPage,
+  score: leaderboardPage,
   about: aboutPage,
 };
 
 // Old links from the previous version keep working.
 const LEGACY = { practice: 'start/exam', session: 'play', saved: 'progress', updates: 'universities', more: 'home', exam: 'start/exam', fun: 'start/fun' };
 
-const NAV_GROUP = { start: 'start', play: 'start', result: 'start', university: 'universities' };
+const NAV_GROUP = { start: 'start', play: 'start', result: 'start', university: 'universities', score: 'leaderboard', progress: 'leaderboard' };
 
 let current = null;
 
@@ -66,6 +69,7 @@ function render(scroll = true) {
   });
   if (scroll) window.scrollTo({ top: 0 });
   page.mount?.(params);
+  paintLive();
 }
 
 window.addEventListener('hashchange', () => {
@@ -93,6 +97,7 @@ document.addEventListener('click', e => {
   const action = el.dataset.action;
   if (action === 'theme') return cycleTheme();
   if (action === 'search') return openSearch();
+  if (action === 'lb-retry') return loadLeaderboards(document, true);
   current?.onAction?.(action, el);
 });
 
@@ -171,3 +176,4 @@ async function syncProfile() {
 
 render(false);
 syncProfile();
+startLive();

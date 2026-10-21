@@ -8,13 +8,13 @@ exam, a Tips & Tricks blog, and official links for 18 universities.
 
 | | |
 |---|---|
-| 🎮 **Fun Quiz** | Per-question countdown (20/30 s), points, streak bonus (x1.5 / x2), 50:50 and Freeze lifelines, sounds + confetti, instant explanation, leaderboard. |
-| ⏱️ **Model Test** | One timer for the whole test (admission pace 36 s/question or relaxed 60 s), question palette, 🚩 flag for review, optional −0.25 negative marking, auto-submit on time-up, topic-wise report and full answer sheet. |
-| 📖 **Practice** | No timer, explanation after every answer. |
+| 🎮 **Fun Quiz** | 30 s countdown per question, points, streak bonus (x1.5 / x2), 50:50 and Freeze lifelines, sounds + confetti, instant explanation, leaderboard. |
+| ⏱️ **Model Test** | One timer for the whole test (36 s per question), question palette, 🚩 flag for review, −0.25 for every wrong answer, auto-submit on time-up, topic-wise report and full answer sheet. |
 | 🔁 **My mistakes** | Wrong answers are collected automatically; two correct answers later remove them. |
 | 📅 **Daily challenge** | The same 5 questions for everyone each day, with a 🔥 day streak. |
 | 💡 **Tips & Tricks** | 13 posts (CU English roadmap, MCQ strategy, Article & Tense cheat-sheets, routines, exam-day checklist …) with "practice this topic" buttons inside posts. |
 | 🏛️ **Universities** | CU spotlight with photo gallery, detailed profiles (CU, DU, RU, JU, CUET, BUET, KUET, RUET), 10 more universities, an official link directory, admission resources and a personal checklist. |
+| 🏆 **Score** | Your best Fun Quiz points and Model Test marks, recent results, the leaderboard and a WhatsApp feedback button. |
 | 📊 **Progress** | Accuracy per topic, history, results review, backup/import. Everything is stored in the browser. |
 
 Mobile first (bottom tab bar, big tap targets, sticky start button, bottom-sheet
@@ -38,13 +38,14 @@ assets/
     pages/                  One file per page: home, start, play, result,
                             tips, universities, progress, misc
 data/                       ← ALL CONTENT. See CONTENT_GUIDE.md
-  questions/*.js            One file per topic (354 questions, 9 topics)
+  questions/*.js            One file per topic (624 questions, 13 topics)
   posts.js                  Tips & Tricks posts
   universities.js           Universities, official links, resources
   site.js                   Site name, credits, CU photos
 api/
   profile.js                Student name/avatar (cookie-based identity)
   scores.js                 Leaderboard: validates answer sheet, recomputes score
+  visitors.js               Live visitor count (heartbeats, no estimates)
 lib/
   mongodb.js                MongoDB connection (Vercel pooled)
   http.js                   Cookie / JSON helpers
@@ -75,7 +76,9 @@ leaderboard works locally (it resets on restart). Set `MONGODB_URI` in a local
 * Framework preset: **Other**. Build command: *(empty)*. Output directory: `.`
 * Environment variables:
   * `MONGODB_URI` — MongoDB Atlas connection string (**Sensitive**, server only).
-  * `MONGODB_DB` — `admission_companion`.
+    Using the Vercel → MongoDB Atlas integration instead? Its `MONGODB_URL` /
+    `<PREFIX>_URL` variable is picked up automatically.
+  * `MONGODB_DB` — optional, defaults to `admission_companion`.
 * MongoDB Atlas → Network Access must allow Vercel.
 * Enable Web Analytics in the Vercel dashboard (the script tag is already in `index.html`).
 * Node.js 20 or newer.
@@ -95,6 +98,11 @@ automatically on first request.
   scores are ignored. Submissions are idempotent (`attemptId`) and rate-limited
   (20 per student per 10 minutes).
 * Leaderboard aggregation uses `$$ROOT` (the previous `$ROOT` bug returned empty rows).
+* Live visitors: each open, visible tab sends a heartbeat to `/api/visitors`
+  every 30 s with a random browser id (no name, no IP stored). The badge shows
+  how many different browsers sent one in the last 75 s; closing the tab removes
+  it at once. Rows expire after 10 minutes (TTL index on `presence.at`). If the
+  database is not configured the badge is simply hidden — no made-up numbers.
 * Only topic-based Fun Quiz and Model Test results are ranked; mistakes practice,
   retries and the daily challenge are personal.
 * Local progress (history, mistakes, checklist) never leaves the browser.

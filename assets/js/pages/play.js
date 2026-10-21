@@ -4,16 +4,19 @@ import { esc, bn, clock, $, $$, toast } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { beep, celebrate, shake, soundOn, setSound } from '../lib/fx.js';
 import { multiplier } from '../shared/scoring.js';
-import { MODE_INFO, topicById, empty } from '../components.js';
+import { MODE_INFO, empty } from '../components.js';
 import * as quiz from '../quiz.js';
 
 const L = 'ABCD';
 let timer = null;
 
-function explainBlock(q) {
-  const topic = topicById(q.topicId);
-  const bnText = q.bn || (/[ঀ-৿]/.test(q.e) ? '' : topic?.tipBn);
-  return `<div class="explain"><p lang="${/[ঀ-৿]/.test(q.e) ? 'bn' : 'en'}">${esc(q.e)}</p>${bnText ? `<p class="bn-note"><b>সহজ বাংলায়:</b> ${esc(bnText)}</p>` : ''}</div>`;
+/** Explanation shown after answering (and in the answer sheet). */
+export function explainBlock(q) {
+  const isBn = s => /[\u0980-\u09FF]/.test(s || '');
+  const parts = [];
+  if (q.e) parts.push(`<p ${isBn(q.e) ? '' : 'lang="en"'}>${esc(q.e)}</p>`);
+  if (q.bn) parts.push(`<p class="${q.e ? 'bn-note' : ''}">${esc(q.bn)}</p>`);
+  return `<div class="explain">${parts.join('')}</div>`;
 }
 
 function optionButtons(s, q) {
@@ -42,11 +45,12 @@ function feedback(s, q) {
   const timedOut = !quiz.isAnswered(s, q.id);
   const right = chosen === q.a;
   let head;
-  if (timedOut) head = '⏰ সময় শেষ! সঠিক উত্তর: ' + L[q.a];
+  const answer = `${L[q.a]}. ${esc(q.o[q.a])}`;
+  if (timedOut) head = `সময় শেষ — সঠিক উত্তর: ${answer}`;
   else if (right && s.mode === 'fun') {
     const st = s.fun.streak;
-    head = `${st >= 5 ? '🔥 অন ফায়ার!' : st >= 3 ? '⚡ দারুণ streak!' : '🎯 সঠিক!'} +${bn(s.fun.points[q.id] || 0)} points`;
-  } else head = right ? '🎯 একদম ঠিক!' : `😌 ভুল হয়েছে—সঠিক উত্তর ${L[q.a]}`;
+    head = `সঠিক! +${bn(s.fun.points[q.id] || 0)} points${st >= 3 ? ` · ${bn(st)}টি পরপর 🔥` : ''}`;
+  } else head = right ? 'সঠিক!' : `ভুল — সঠিক উত্তর: ${answer}`;
   return `<div class="feedback ${right ? 'good' : 'bad'}" role="status"><b>${head}</b>${explainBlock(q)}</div>`;
 }
 
@@ -101,11 +105,11 @@ export function render() {
   if (s.mode === 'exam') {
     nav = `<button class="btn ghost" data-action="prev" ${i === 0 ? 'disabled' : ''}>← আগের</button>
       <button class="btn ghost ${s.flags[q.id] ? 'on' : ''}" data-action="flag" aria-pressed="${!!s.flags[q.id]}">🚩 ${s.flags[q.id] ? 'Flagged' : 'Flag'}</button>
-      ${last ? '<button class="btn" data-action="submit">✅ Submit</button>' : '<button class="btn" data-action="next">পরের →</button>'}`;
+      ${last ? '<button class="btn only-mobile" data-action="submit">✅ Submit</button>' : '<button class="btn" data-action="next">পরের →</button>'}`;
   } else {
     nav = done
       ? `<button class="btn big" data-action="next" id="next-btn">${last ? '🏁 ফলাফল দেখো' : 'পরের প্রশ্ন →'}</button>`
-      : `<span class="muted small hint">${s.mode === 'fun' ? 'কিবোর্ডে A–D বা ১–৪ চাপতে পারো' : 'উত্তর বাছলেই ব্যাখ্যা দেখাবে'}</span>${s.mode === 'practice' ? `<button class="btn ghost" data-action="skip">${last ? 'শেষ করো' : 'এড়িয়ে যাও →'}</button>` : ''}`;
+      : `<span class="hint"></span>${s.mode === 'practice' ? `<button class="btn ghost" data-action="skip">${last ? 'শেষ করো' : 'এড়িয়ে যাও →'}</button>` : ''}`;
   }
 
   return `<div class="play play-${s.mode}">

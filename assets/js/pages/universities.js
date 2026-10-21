@@ -19,12 +19,13 @@ function directory() {
 }
 
 function list() {
-  const types = ['all', ...new Set(UNIVERSITIES.map(u => u.type))];
-  const shown = UNIVERSITIES.filter(u => typeFilter === 'all' || u.type === typeFilter);
+  const typeOf = u => String(u.type).normalize('NFC').trim();
+  const types = ['all', ...new Set(UNIVERSITIES.map(typeOf))];
+  const shown = UNIVERSITIES.filter(u => typeFilter === 'all' || typeOf(u) === typeFilter);
   return `<div class="container">
     ${pageHead('বিশ্ববিদ্যালয় ও Official links', 'প্রতিটি বিশ্ববিদ্যালয়ের official website ও admission portal এক জায়গায়। তারিখ, যোগ্যতা ও fee সবসময় official circular থেকে যাচাই করো।', 'FIND YOUR CAMPUS')}
-    <div class="chips scroll" role="group" aria-label="ধরন">${types
-      .map(t => `<button class="chip ${typeFilter === t ? 'active' : ''}" data-action="type" data-type="${esc(t)}">${t === 'all' ? 'সব' : esc(t)}</button>`)
+    <div class="chips" role="group" aria-label="ধরন">${types
+      .map(t => `<button class="chip ${typeFilter === t ? 'active' : ''}" data-action="type" data-type="${esc(t)}">${t === 'all' ? 'সব' : esc(t.replace(/\s*বিশ্ববিদ্যালয়$/, '') || t)}</button>`)
       .join('')}</div>
     <div class="uni-grid">${shown.map(uniCard).join('')}</div>
     <section class="section"><div class="section-head"><div><h2>🔗 Official link directory</h2><p>Link যাচাই: ${bnDate(CONTENT_UPDATED)}। Portal প্রতি session-এ বদলাতে পারে।</p></div></div>${directory()}</section>
@@ -88,14 +89,15 @@ function details(u) {
 function cuPage(u) {
   const story = u.campusStory;
   return `<section class="hero hero-sm">
-      ${heroMedia(CU_HERO)}
-      <div class="container hero-inner">
+      <div class="container hero-grid">
+      <div class="hero-inner">
         <nav class="crumbs light"><a href="#home">হোম</a> / <a href="#universities">বিশ্ববিদ্যালয়</a> / CU</nav>
         <span class="eyebrow light">তোমার পরের ঠিকানা</span>
         <h1>পাহাড়ের পাশে,<br>নতুন জীবনের শুরু।</h1>
         <p>${esc(u.name)} · <span lang="en">${esc(u.english)}</span></p>
       </div>
-      <span class="hero-credit">${credit(CU_HERO)}</span>
+      ${heroMedia(CU_HERO)}
+      </div>
     </section>
     <div class="container">
       <div class="cu-facts lifted">${story.facts.map(([h, t]) => `<div><small lang="en">${esc(h)}</small><b>${esc(t)}</b></div>`).join('')}</div>

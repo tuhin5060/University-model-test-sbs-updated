@@ -1,6 +1,6 @@
-// Mixed English — 50 questions.
-// To add a question, copy one block below, paste it at the end of the list and edit it.
-// answer: 'A' | 'B' | 'C' | 'D'. explainBn and units are optional. See CONTENT_GUIDE.md.
+// Mixed English — 49 questions.
+// To add a question, copy one { … } block, paste it at the end of the list and edit it.
+// answer: "A" | "B" | "C" | "D". explainBn / units are optional. See CONTENT_GUIDE.md.
 export default {
   id: "mixed-english",
   title: "Mixed English",
@@ -14,6 +14,7 @@ export default {
       options: ["She do not like tea.","She does not likes tea.","She does not like tea.","She not likes tea."],
       answer: "C",
       explain: "After does not, use the base verb: like.",
+      explainBn: "Does not-এর পরে verb-এর base form বসে: does not like (likes নয়)।",
       source: "Practice bank",
     },
     {
@@ -21,6 +22,7 @@ export default {
       options: ["in","at","on","for"],
       answer: "B",
       explain: "The usual collocation is good at a subject/skill.",
+      explainBn: "কোনো বিষয়ে দক্ষ বোঝাতে good at: good at mathematics।",
       source: "Practice bank",
     },
     {
@@ -28,6 +30,7 @@ export default {
       options: ["slow","swift","weak","late"],
       answer: "B",
       explain: "Rapid means fast or swift.",
+      explainBn: "Rapid মানে দ্রুত; synonym swift।",
       source: "Practice bank",
     },
     {
@@ -35,6 +38,7 @@ export default {
       options: ["rare","limited","abundant","small"],
       answer: "C",
       explain: "Scarce means insufficient or hard to find; abundant is the opposite.",
+      explainBn: "Scarce মানে দুর্লভ বা অপ্রতুল; বিপরীত abundant (প্রচুর)।",
       source: "Practice bank",
     },
     {
@@ -42,6 +46,7 @@ export default {
       options: ["were","are","was","have"],
       answer: "C",
       explain: "With neither…nor, the verb usually agrees with the nearer subject: teacher.",
+      explainBn: "Neither ... nor-এ verb কাছের subject অনুযায়ী বসে; teacher singular, তাই was।",
       source: "Practice bank",
     },
     {
@@ -49,6 +54,7 @@ export default {
       options: ["a","an","the","no article"],
       answer: "B",
       explain: "Honest begins with a vowel sound, so use an.",
+      explainBn: "Honest-এর h উচ্চারিত হয় না, শুরু vowel sound দিয়ে—তাই an honest man।",
       source: "Practice bank",
     },
     {
@@ -56,6 +62,7 @@ export default {
       options: ["was given","gave","is given","has give"],
       answer: "A",
       explain: "Past simple passive: was + past participle.",
+      explainBn: "বইটি দেওয়া হয়েছিল (yesterday)—past simple passive: was + V3 = was given।",
       source: "Practice bank",
     },
     {
@@ -63,6 +70,7 @@ export default {
       options: ["accomodation","accommodation","acommodation","accommadation"],
       answer: "B",
       explain: "Accommodation has double c and double m.",
+      explainBn: "Accommodation বানানে c দুটি এবং m দুটি।",
       source: "Practice bank",
     },
     {
@@ -70,6 +78,7 @@ export default {
       options: ["than","to","over than","from"],
       answer: "B",
       explain: "Prefer X to Y is the standard construction.",
+      explainBn: "Prefer A to B—prefer-এর সঙ্গে than নয়, to বসে।",
       source: "Practice bank",
     },
     {
@@ -77,6 +86,7 @@ export default {
       options: ["are","were","is","have"],
       answer: "C",
       explain: "News is grammatically singular.",
+      explainBn: "News দেখতে plural হলেও singular, তাই is।",
       source: "Practice bank",
     },
     {
@@ -84,6 +94,7 @@ export default {
       options: ["Could you tell me where is the station?","Could you tell me where the station is?","Could you tell where is station?","Could you tell me where was the station is?"],
       answer: "B",
       explain: "Indirect questions use statement word order.",
+      explainBn: "Indirect question-এ প্রশ্নের order থাকে না: where the station is।",
       source: "Practice bank",
     },
     {
@@ -91,6 +102,7 @@ export default {
       options: ["for","since","from","during"],
       answer: "B",
       explain: "Since marks the starting point in time.",
+      explainBn: "Monday থেকে শুরু করে এখন পর্যন্ত—শুরুর সময় বোঝাতে since।",
       source: "Practice bank",
     },
     {
@@ -98,6 +110,7 @@ export default {
       options: ["meet","met","meeting","have met"],
       answer: "C",
       explain: "In look forward to, to is a preposition followed by gerund.",
+      explainBn: "Look forward to-এর to preposition, তাই পরে gerund: meeting।",
       source: "Practice bank",
     },
     {
@@ -105,6 +118,7 @@ export default {
       options: ["but he continued","he continued","however but he continued","and but continued"],
       answer: "B",
       explain: "Although introduces a subordinate contrast; do not add but in the same clause structure.",
+      explainBn: "Although থাকলে একই বাক্যে আবার but বসে না: Although he was tired, he continued।",
       source: "Practice bank",
     },
     {
@@ -112,13 +126,7 @@ export default {
       options: ["more better","better","best than","gooder"],
       answer: "B",
       explain: "Better is the comparative form of good.",
-      source: "Practice bank",
-    },
-    {
-      q: "The plural of “criterion” is ____.",
-      options: ["criterions","criteria","criterias","criteriones"],
-      answer: "B",
-      explain: "Criterion is singular; criteria is plural.",
+      explainBn: "Good-এর comparative better; more better দ্বৈত comparative হওয়ায় ভুল।",
       source: "Practice bank",
     },
     {
@@ -126,6 +134,7 @@ export default {
       options: ["will we","shall we","do we","aren’t we"],
       answer: "B",
       explain: "Let’s suggestions take the tag shall we?",
+      explainBn: "Let's দিয়ে প্রস্তাবের tag question সবসময় shall we?",
       source: "Practice bank",
     },
     {
@@ -133,6 +142,7 @@ export default {
       options: ["because","because of","although","despite of"],
       answer: "B",
       explain: "Because of is followed by a noun/gerund phrase.",
+      explainBn: "Because of-এর পরে noun বা gerund বসে: because of working hard।",
       source: "Practice bank",
     },
     {
@@ -140,6 +150,7 @@ export default {
       options: ["affect","effect","effects to","effective"],
       answer: "B",
       explain: "Effect is the noun meaning result.",
+      explainBn: "Effect noun (প্রভাব); affect সাধারণত verb। No effect on him।",
       source: "Practice bank",
     },
     {
@@ -147,6 +158,7 @@ export default {
       options: ["study","studies","are studying","have study"],
       answer: "B",
       explain: "The subject is one, so use the singular verb studies.",
+      explainBn: "One of + plural noun হলেও subject one, তাই singular verb: studies।",
       source: "Practice bank",
     },
     {
@@ -154,6 +166,7 @@ export default {
       options: ["The road repaired.","The road is repaired now.","The road is being repaired.","The road has repairing."],
       answer: "C",
       explain: "Present continuous passive: is/are being + V3.",
+      explainBn: "Present continuous passive: is/are being + V3 = is being repaired।",
       source: "Practice bank",
     },
     {
@@ -161,6 +174,7 @@ export default {
       options: ["a full clause with because","a noun or gerund phrase","only a finite verb","only an adjective"],
       answer: "B",
       explain: "Despite is a preposition and takes a noun/gerund phrase.",
+      explainBn: "Despite preposition, তাই এর পরে noun বা gerund phrase বসে; despite of ভুল।",
       source: "Practice bank",
     },
     {
@@ -168,6 +182,7 @@ export default {
       options: ["less","fewer","little","fewest than"],
       answer: "B",
       explain: "Fewer is used with countable plural nouns.",
+      explainBn: "Students countable, তাই comparison-এ fewer; less uncountable-এর জন্য।",
       source: "Practice bank",
     },
     {
@@ -175,6 +190,7 @@ export default {
       options: ["in detail","generally","occasionally","secretly"],
       answer: "B",
       explain: "By and large means generally or on the whole.",
+      explainBn: "By and large মানে সাধারণভাবে বা মোটের ওপর।",
       source: "Practice bank",
     },
     {
@@ -182,6 +198,7 @@ export default {
       options: ["Each of the boys have a pen.","Each of the boys has a pen.","Each boys has a pen.","Each of boys have pens."],
       answer: "B",
       explain: "Each is singular and takes has.",
+      explainBn: "Each singular, তাই has: Each of the boys has a pen।",
       source: "Practice bank",
     },
     {
@@ -189,6 +206,7 @@ export default {
       options: ["for","with","of","by"],
       answer: "C",
       explain: "The standard collocation is accused of.",
+      explainBn: "Accused of—অভিযুক্ত করার ক্ষেত্রে preposition of বসে।",
       source: "Practice bank",
     },
     {
@@ -196,6 +214,7 @@ export default {
       options: ["have","has","are","were"],
       answer: "B",
       explain: "The head noun quality is singular.",
+      explainBn: "Subject-এর মূল noun quality (singular); of these products বাদ দিয়ে verb মেলাও: has improved।",
       source: "Practice bank",
     },
     {
@@ -203,6 +222,7 @@ export default {
       options: ["biographer","lexicographer","cartographer","photographer"],
       answer: "B",
       explain: "A lexicographer compiles or edits dictionaries.",
+      explainBn: "অভিধান রচয়িতা lexicographer; biographer জীবনী লেখক, cartographer মানচিত্র অঙ্কনকারী।",
       source: "Practice bank",
     },
     {
@@ -210,13 +230,15 @@ export default {
       options: ["No sooner he arrived than it rained.","No sooner had he arrived than it rained.","No sooner did he arrived when it rained.","No sooner he had arrive then it rained."],
       answer: "B",
       explain: "No sooner + had + subject + V3 + than + past simple.",
+      explainBn: "No sooner had + subject + V3 + than + past simple—নির্দিষ্ট গঠন।",
       source: "Practice bank",
     },
     {
-      q: "Choose the correct article: He studies at ____ university.",
+      q: "She is ____ university student.",
       options: ["a","an","the","no article"],
       answer: "A",
-      explain: "University begins with a /juː/ consonant sound, so use a.",
+      explain: "University begins with the consonant /j/ sound, so “a university student”.",
+      explainBn: "University শুরু হয় 'ইউ' (consonant /j/) sound দিয়ে, তাই a university student।",
       source: "Practice bank",
     },
     {
@@ -224,6 +246,7 @@ export default {
       options: ["very often","very rarely","every month","at midnight"],
       answer: "B",
       explain: "It means very rarely.",
+      explainBn: "Once in a blue moon মানে খুব কালেভদ্রে।",
       source: "Practice bank",
     },
     {
@@ -231,13 +254,15 @@ export default {
       options: ["staying","to stay","stay","stayed"],
       answer: "C",
       explain: "Would rather + base verb.",
+      explainBn: "Would rather-এর পরে base verb: would rather stay।",
       source: "Practice bank",
     },
     {
-      q: "The committee ____ divided in its opinion.",
-      options: ["are","is","have","were always"],
+      q: "The committee ____ divided in their opinions.",
+      options: ["is","are","has","was"],
       answer: "B",
-      explain: "When the committee is treated as one body, singular agreement is appropriate.",
+      explain: "When the members of a collective noun act as individuals (their opinions), the verb is plural: are.",
+      explainBn: "সদস্যরা ভিন্ন ভিন্ন মত দিচ্ছে (their opinions)—committee এখানে আলাদা ব্যক্তিদের বোঝায়, তাই plural: are।",
       source: "Practice bank",
     },
     {
@@ -245,6 +270,7 @@ export default {
       options: ["therefore","nevertheless","because","so that"],
       answer: "B",
       explain: "Nevertheless signals contrast.",
+      explainBn: "অসুস্থ ছিল, তবুও পরীক্ষা দিয়েছে—বিপরীত ভাব বোঝাতে nevertheless।",
       source: "Practice bank",
     },
     {
@@ -252,6 +278,7 @@ export default {
       options: ["to tell","telling","tell","told"],
       answer: "C",
       explain: "Make + object + bare infinitive in active voice.",
+      explainBn: "Make + object + base verb (to ছাড়া): made me tell।",
       source: "Practice bank",
     },
     {
@@ -259,6 +286,7 @@ export default {
       options: ["extend","enlarge","contract","increase"],
       answer: "C",
       explain: "Contract means become smaller; it is the opposite of expand.",
+      explainBn: "Expand মানে প্রসারিত হওয়া; বিপরীত contract (সংকুচিত হওয়া)।",
       source: "Practice bank",
     },
     {
@@ -266,6 +294,7 @@ export default {
       options: ["He is senior than me.","He is senior to me.","He is more senior than me.","He senior to me."],
       answer: "B",
       explain: "Senior is followed by to, not than.",
+      explainBn: "Senior, junior, superior, inferior-এর পরে than নয়, to বসে: senior to me।",
       source: "Practice bank",
     },
     {
@@ -273,6 +302,7 @@ export default {
       options: ["kind","hostile","careless","uncertain"],
       answer: "A",
       explain: "Benevolent means well-meaning and kind.",
+      explainBn: "Benevolent মানে দয়ালু ও পরোপকারী; বিপরীত hostile।",
       source: "Practice bank",
     },
     {
@@ -280,6 +310,7 @@ export default {
       options: ["than","when","then","that"],
       answer: "B",
       explain: "Hardly pairs with when.",
+      explainBn: "Hardly/Scarcely ... when—নির্দিষ্ট জোড়া; than বসে না।",
       source: "Practice bank",
     },
     {
@@ -287,6 +318,7 @@ export default {
       options: ["to","at","in","on"],
       answer: "C",
       explain: "Interested in is followed by a noun or gerund.",
+      explainBn: "Interested in + noun/gerund: interested in learning।",
       source: "Practice bank",
     },
     {
@@ -294,6 +326,7 @@ export default {
       options: ["analysises","analyses","analysis","analysies"],
       answer: "B",
       explain: "Analysis becomes analyses in the plural.",
+      explainBn: "-is দিয়ে শেষ শব্দে -is বদলে -es: analysis → analyses।",
       source: "Practice bank",
     },
     {
@@ -301,6 +334,7 @@ export default {
       options: ["have","are","has","were"],
       answer: "C",
       explain: "The main subject manager is singular; along with does not change agreement.",
+      explainBn: "Along with দিয়ে যুক্ত অংশ verb বদলায় না; মূল subject manager singular, তাই has।",
       source: "Practice bank",
     },
     {
@@ -308,6 +342,7 @@ export default {
       options: ["clearly","clear","clarity","clearness"],
       answer: "B",
       explain: "An adjective is needed after were: clear.",
+      explainBn: "Were-এর পরে subject-এর অবস্থা বোঝাতে adjective লাগে: clear।",
       source: "Practice bank",
     },
     {
@@ -315,6 +350,7 @@ export default {
       options: ["will pass","would pass","would have passed","passed"],
       answer: "C",
       explain: "Third conditional: if + past perfect, would have + V3.",
+      explainBn: "Third conditional: if + had + V3, would have + V3 = would have passed।",
       source: "Practice bank",
     },
     {
@@ -322,13 +358,15 @@ export default {
       options: ["in addition to","instead of","because of","in spite of"],
       answer: "B",
       explain: "In lieu of means instead of.",
+      explainBn: "In lieu of মানে instead of—কোনো কিছুর বদলে।",
       source: "Practice bank",
     },
     {
-      q: "Choose the correct sentence.",
-      options: ["The data is convincing.","The data are convincing.","The datas are convincing.","The data were convinces."],
+      q: "Choose the correct form: These data ____ convincing.",
+      options: ["is","are","was","has"],
       answer: "B",
-      explain: "In formal academic usage, data is often treated as a plural noun.",
+      explain: "“These” marks data as plural, so the plural verb “are” is needed.",
+      explainBn: "These দিয়ে data-কে স্পষ্টভাবে plural বলা হয়েছে, তাই are।",
       source: "Practice bank",
     },
     {
@@ -336,6 +374,7 @@ export default {
       options: ["to","from","for","by"],
       answer: "B",
       explain: "Prevent someone from doing something.",
+      explainBn: "Prevent someone from doing something—from বসে।",
       source: "Practice bank",
     },
     {
@@ -343,6 +382,7 @@ export default {
       options: ["advices","advice","an advice","the advices"],
       answer: "B",
       explain: "Advice is uncountable; use some advice.",
+      explainBn: "Advice uncountable; advices বা an advice হয় না, some useful advice।",
       source: "Practice bank",
     },
     {
@@ -350,6 +390,7 @@ export default {
       options: ["hopeful","positive","pessimistic","confident"],
       answer: "C",
       explain: "Pessimistic is the opposite of optimistic.",
+      explainBn: "Optimistic মানে আশাবাদী; বিপরীত pessimistic (নিরাশাবাদী)।",
       source: "Practice bank",
     },
     {
@@ -357,6 +398,7 @@ export default {
       options: ["he arrived","did he arrive","he did arrived","arrived he"],
       answer: "B",
       explain: "Not only at the start triggers inversion: did he arrive.",
+      explainBn: "Not only বাক্যের শুরুতে এলে inversion হয়: did he arrive।",
       source: "Practice bank",
     },
   ],

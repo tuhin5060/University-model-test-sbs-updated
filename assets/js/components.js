@@ -66,7 +66,7 @@ export function hydratePhotos(root = document) {
 
 /** Full-bleed header image with an instant blurred placeholder behind it. */
 export function heroMedia(p) {
-  return `<div class="hero-media" style="background-image:url('${p.placeholder}')">${photo(p, { cls: 'hero-img', eager: true, sizes: '100vw' })}</div>`;
+  return `<figure class="hero-photo" style="background-image:url('${p.placeholder}')">${photo(p, { eager: true, sizes: '(min-width: 900px) 560px, 100vw' })}${p.credit ? `<figcaption>${credit(p)}</figcaption>` : ''}</figure>`;
 }
 
 export function credit(p) {
@@ -86,12 +86,11 @@ export function postCard(p, big = false) {
 
 export function uniCard(u) {
   return `<article class="uni-card">
-    <a class="uni-top" href="#university/${esc(u.id)}"><span class="uni-badge">${esc(u.short)}</span><span><b>${esc(u.name)}</b><small lang="en">${esc(u.english)}</small></span></a>
+    <a class="uni-top" href="#university/${esc(u.id)}"><span class="uni-badge">${esc(u.short)}</span><span><b>${esc(u.name)}</b><small lang="en">${esc(u.english)}</small></span><span class="uni-go" aria-hidden="true">›</span></a>
     <p class="muted small">📍 ${esc(u.place)} · ${esc(u.type)}</p>
     <div class="uni-links">
       ${u.site ? `<a class="pill-link" href="${safeURL(u.site)}" target="_blank" rel="noopener noreferrer">🌐 Website</a>` : ''}
       ${u.admission ? `<a class="pill-link strong" href="${safeURL(u.admission)}" target="_blank" rel="noopener noreferrer">📝 Admission</a>` : ''}
-      <a class="pill-link" href="#university/${esc(u.id)}">বিস্তারিত →</a>
     </div>
   </article>`;
 }
@@ -129,59 +128,11 @@ export async function loadLeaderboards(root = document, fresh = false) {
             .join('')}</ol>`
         : `<p class="empty">এখনো কেউ score করেনি—প্রথম হওয়ার সুযোগ তোমার! 🏁</p>`;
     } catch {
-      rowsEl.innerHTML = `<p class="empty">Leaderboard এখন দেখা যাচ্ছে না (offline বা server বন্ধ)। তোমার score এই device-এ save থাকছে।</p>`;
+      rowsEl.innerHTML = `<p class="empty">Leaderboard এই মুহূর্তে লোড হচ্ছে না। তোমার score এই device-এ save আছে। <button class="link-btn" data-action="lb-retry">আবার চেষ্টা করো</button></p>`;
     }
   }
 }
 
 export function empty(text, cta = '') {
   return `<div class="empty-box"><p>${esc(text)}</p>${cta}</div>`;
-}
-
-
-/** Compact, live homepage leaderboard widgets. */
-export function liveLeaderboard() {
-  return `<section class="container live-leaderboard section" aria-labelledby="live-lb-title">
-    <div class="live-lb-heading"><div><span class="eyebrow">LIVE RANKINGS</span><h2 id="live-lb-title">🏆 কার স্কোর কত?</h2><p class="muted small">সর্বশেষ পাওয়া স্কোর · স্বয়ংক্রিয় আপডেট</p></div><a class="text-link" href="#leaderboard">সম্পূর্ণ Leaderboard →</a></div>
-    <div class="lb-ticker" aria-label="শিক্ষার্থীদের স্কোর"><div class="lb-ticker-track" data-lb-ticker><span class="ticker-placeholder">Leaderboard-এর স্কোর লোড হচ্ছে…</span></div></div>
-    <div class="live-lb-grid">
-      <article class="card live-lb-card"><div class="live-lb-card-head"><h3>🎮 Fun Quiz Leaders</h3><a href="#leaderboard">সব দেখো →</a></div><div class="lb-live-rows" data-live-board="fun"><div class="skeleton"></div><div class="skeleton"></div></div></article>
-      <article class="card live-lb-card"><div class="live-lb-card-head"><h3>⏱️ Model Test Leaders</h3><a href="#leaderboard">সব দেখো →</a></div><div class="lb-live-rows" data-live-board="exam"><div class="skeleton"></div><div class="skeleton"></div></div></article>
-    </div>
-    <article class="card topic-champions"><div class="live-lb-card-head"><div><h3>🏅 Topic Champions</h3><p class="muted small">প্রতিটি Topic-এ সেরা স্কোর</p></div><a href="#leaderboard">বিস্তারিত →</a></div><div class="champion-grid" data-topic-champions><p class="muted small">Topic-wise ফলাফল লোড হচ্ছে…</p></div></article>
-  </section>`;
-}
-
-function miniRows(rows, mode) {
-  if (!rows.length) return '<p class="empty">এখনো কোনো স্কোর পাওয়া যায়নি। প্রথম স্কোরটি তোমার হতে পারে! 🏁</p>';
-  return `<ol class="lb-list live-mini-list">${rows.slice(0,5).map((r,i)=>`<li><span class="lb-rank">${['🥇','🥈','🥉'][i]||bn(i+1)}</span><span class="lb-avatar" aria-hidden="true">${esc(r.avatar||'🚂')}</span><span class="lb-name"><b>${esc(r.name||'Student')}</b><small>${bn(r.correct||0)}/${bn(r.total||0)} সঠিক</small></span><span class="lb-score">${mode==='fun'?bn(r.score):bn(r.score)+'%'}</span></li>`).join('')}</ol>`;
-}
-
-export async function loadLiveLeaderboard(root = document) {
-  const ticker = root.querySelector('[data-lb-ticker]');
-  const funBox = root.querySelector('[data-live-board="fun"]');
-  const examBox = root.querySelector('[data-live-board="exam"]');
-  const champions = root.querySelector('[data-topic-champions]');
-  try {
-    const [fun, exam] = await Promise.all([fetchLeaderboard('fun','all',{fresh:true}),fetchLeaderboard('exam','all',{fresh:true})]);
-    if (funBox) funBox.innerHTML = miniRows(fun,'fun');
-    if (examBox) examBox.innerHTML = miniRows(exam,'exam');
-    if (ticker) {
-      const ranked = [...fun.slice(0,5).map(r=>({...r,kind:'Fun',display:bn(r.score)+' pts'})),...exam.slice(0,5).map(r=>({...r,kind:'Test',display:bn(r.score)+'%'}))];
-      ticker.innerHTML = ranked.length ? `<div class="lb-ticker-content">${[...ranked,...ranked].map(r=>`<span class="ticker-item"><span aria-hidden="true">🏆</span><b>${esc(r.name||'Student')}</b><small>${esc(r.kind)}</small><strong>${esc(r.display)}</strong></span>`).join('')}</div>` : '<span class="ticker-placeholder">এখনো স্কোর নেই — প্রথম হয়ে যাও! 🏁</span>';
-      ticker.classList.toggle('is-empty', !ranked.length);
-    }
-  } catch {
-    if (ticker) ticker.innerHTML='<span class="ticker-placeholder">লাইভ স্কোর এই মুহূর্তে পাওয়া যাচ্ছে না।</span>';
-    if (funBox) funBox.innerHTML='<p class="empty">Leaderboard এখন পাওয়া যাচ্ছে না।</p>';
-    if (examBox) examBox.innerHTML='<p class="empty">Leaderboard এখন পাওয়া যাচ্ছে না।</p>';
-  }
-  if (champions) {
-    try {
-      const topics = TOPICS;
-      const boards = await Promise.all(topics.map(t=>fetchLeaderboard('exam',t.id).then(rows=>({topic:t,rows})).catch(()=>({topic:t,rows:[]}))));
-      const top = boards.filter(x=>x.rows.length).map(x=>({topic:x.topic,row:x.rows[0]})).sort((a,b)=>b.row.score-a.row.score).slice(0,8);
-      champions.innerHTML = top.length ? top.map(x=>`<a class="champion-item" href="#leaderboard"><span class="champion-topic">${esc(x.topic.title)}</span><b>${esc(x.row.name||'Student')}</b><strong>${bn(x.row.score)}%</strong><small>${bn(x.row.correct||0)}/${bn(x.row.total||0)} সঠিক</small></a>`).join('') : '<p class="empty">Topic-wise champion দেখানোর মতো Model Test score এখনো নেই।</p>';
-    } catch { champions.innerHTML='<p class="empty">Topic-wise ফলাফল এখন পাওয়া যাচ্ছে না।</p>'; }
-  }
 }

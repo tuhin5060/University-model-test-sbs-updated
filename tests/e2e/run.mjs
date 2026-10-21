@@ -35,6 +35,10 @@ try {
     }
     // Fun Quiz
     await page.goto(BASE + '#start/fun/tense');
+    // A name is required before starting.
+    await page.locator('#setup-form button[type=submit]:visible').first().click();
+    assert.ok(await page.isVisible('#name-error'), 'missing name shows an error');
+    assert.equal(await page.locator('.play-fun').count(), 0, 'quiz did not start without a name');
     await page.fill('#player-name', `Tester ${viewport.width}`);
     await page.locator('#setup-form button[type=submit]:visible').first().click();
     await page.waitForSelector('.play-fun');

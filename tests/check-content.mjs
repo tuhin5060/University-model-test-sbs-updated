@@ -39,9 +39,14 @@ for (const t of TOPICS_RAW) {
     if (new Set(q.options.map(o => o.trim().toLowerCase())).size !== q.options.length) err(`${at}: two options are identical`);
     const idx = Number.isInteger(q.answer) ? q.answer : 'ABCD'.indexOf(String(q.answer).toUpperCase());
     if (idx < 0 || idx >= q.options.length) err(`${at}: answer "${q.answer}" is not one of A–${'ABCD'[q.options.length - 1]}`);
-    if (!q.explain) warn(`${at}: no explanation`);
-    const key = `${q.q.trim().toLowerCase()}|${q.options.join('|').toLowerCase()}`;
-    if (seenText.has(key)) warn(`${at}: same question and options as ${seenText.get(key)}`);
+    if (!q.explain && !q.explainBn) err(`${at}: no explanation (add explain or explainBn)`);
+    const META = /the source (item|question|distinguishes)|\bprompt\b|answer key|\bsupplied\b|\bscan\b|cross-check|Source-এ|Source-এর/i;
+    if (META.test(`${q.explain || ''} ${q.explainBn || ''}`)) warn(`${at}: explanation mentions the source/answer key — write it for students`);
+    if (/Choose from:/.test(q.q)) warn(`${at}: question repeats its options ("Choose from: …")`);
+    // Near-duplicate check: ignore blank length, punctuation and case.
+    const norm = s => String(s).toLowerCase().replace(/_+/g, '_').replace(/[^a-z0-9_\u0980-\u09ff]+/g, ' ').trim();
+    const key = `${norm(q.q)}|${q.options.map(norm).sort().join('|')}`; // across all topics
+    if (seenText.has(key)) warn(`${at}: same question as ${seenText.get(key)}`);
     else seenText.set(key, at);
   });
 }

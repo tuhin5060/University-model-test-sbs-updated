@@ -2,7 +2,7 @@
 // attempts for all three modes (fun / exam / practice). UI lives in pages/play.js.
 
 import { QUESTIONS, QUESTION_MAP } from '../../data/questions/index.js';
-import { scoreAttempt, funPoints, EXAM_PACE, FUN_SECONDS, MAX_QUESTIONS } from './shared/scoring.js';
+import { scoreAttempt, funPoints, EXAM_PACE, FUN_LIMIT, EXAM_NEGATIVE, MAX_QUESTIONS } from './shared/scoring.js';
 import { state, save, recordAttempt, updateHistory, mistakeIds } from './lib/store.js';
 import { shuffle, seeded, today, uid, toast, navigate } from './lib/dom.js';
 import { submitScore, clearBoardCache } from './lib/api.js';
@@ -37,12 +37,8 @@ export function startSession(opts) {
     toast('এখানে কোনো প্রশ্ন পাওয়া যায়নি।');
     return false;
   }
-  const settings = { ...opts.settings };
-  if (mode === 'fun') settings.perQuestion = FUN_SECONDS.includes(+settings.perQuestion) ? +settings.perQuestion : 30;
-  if (mode === 'exam') {
-    settings.pace = settings.pace in EXAM_PACE ? settings.pace : 'admission';
-    settings.negative = +settings.negative === 0.25 ? 0.25 : 0;
-  }
+  // Fixed rules: the same timer and negative marking for everyone, so scores compare fairly.
+  const settings = mode === 'fun' ? { perQuestion: FUN_LIMIT } : mode === 'exam' ? { pace: 'admission', negative: EXAM_NEGATIVE } : {};
   const now = Date.now();
   state.session = {
     id: uid(),

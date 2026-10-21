@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { scoreAttempt, funPoints, multiplier, maxFunScore } from '../assets/js/shared/scoring.js';
 import { buildBank, QUESTIONS, QUESTION_MAP, hashText } from '../data/questions/index.js';
 import { markdown } from '../assets/js/lib/dom.js';
+import { mongoUri } from '../lib/mongodb.js';
 
 const qs = QUESTIONS.slice(0, 6);
 const right = q => q.a;
@@ -74,4 +75,14 @@ test('markdown renderer escapes HTML and only allows https links', () => {
   assert.ok(!html.includes('href="javascript'));
   assert.ok(html.includes('<strong>bold</strong>'));
   assert.ok(html.includes('class="callout"'));
+});
+
+test('MongoDB connection string is found under the names Vercel integrations use', () => {
+  const u = 'mongodb+srv://user:pw@cluster0.example.mongodb.net/?retryWrites=true';
+  assert.equal(mongoUri({ MONGODB_URI: u }), u);
+  assert.equal(mongoUri({ MONGODB_URL: u }), u);
+  assert.equal(mongoUri({ STORAGE_URL: u }), u);
+  assert.equal(mongoUri({ UNI_DB_URL: u, OTHER_URL: 'https://example.com' }), u);
+  assert.equal(mongoUri({ DATABASE_URL: 'postgres://x' }), '');
+  assert.equal(mongoUri({}), '');
 });

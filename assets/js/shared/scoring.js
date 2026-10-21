@@ -6,6 +6,10 @@ export const MAX_QUESTIONS = 50;
 export const FUN_SECONDS = [20, 30];
 export const EXAM_PACE = { admission: 36, relaxed: 60 }; // seconds per question
 export const NEGATIVE_MARKS = [0, 0.25];
+// Rules used for every new attempt (the setup screen has no options for these).
+export const FUN_LIMIT = 30; // seconds per Fun Quiz question
+export const EXAM_SECONDS = EXAM_PACE.admission; // seconds per Model Test question
+export const EXAM_NEGATIVE = 0.25; // marks lost per wrong Model Test answer
 
 /** Streak multiplier after a correct answer. */
 export function multiplier(streak) {

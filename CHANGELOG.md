@@ -1,5 +1,66 @@
 # Changelog
 
+## 2.3.0 — simpler start, fixed rules, Score tab
+* Only two modes on the start screen: Fun Quiz and Model Test (Practice is
+  gone; "retry my mistakes" still works from a result).
+* Start screen order: 1 full name (required, remembered next time) → 2 topic →
+  3 number of questions, then one start bar that shows what you picked.
+  Starting without a name shows an error next to the name box.
+* Fixed rules, no options: Fun Quiz 30 s per question; Model Test 36 s per
+  question and −0.25 for every wrong answer. The server applies the same
+  rules, so leaderboard scores compare fairly.
+* New Score tab (bottom bar and header): your best scores and recent results,
+  the leaderboard with a retry button, and a WhatsApp feedback button.
+  Campus moved to a header icon on phones.
+* Universities page: short filter labels that fit on a phone, one link per
+  card (the card title) instead of a separate "বিস্তারিত" button.
+
+## 2.2.1 — sharper header, cleaner footer
+* Header: the CU gate photo is shown as a framed picture next to the headline
+  on desktop (at its real resolution, so no more blurry stretched background);
+  phones show it above the text. Same on the CU page.
+* Footer: readable tagline, developer card (photo, name, initiative), green
+  WhatsApp feedback button and the live visitor count side by side.
+
+## 2.2.0 — at least 40 questions per topic, live visitors, feedback
+* 146 new TOEFL-style practice questions, each with an English and a Bangla
+  explanation: Hope & Wish 3 → 43, Conditional 15 → 42, Gender 20 → 42,
+  Modal / Causative / Subjunctive 30 → 42, Number 31 → 42, Noun 32 → 42.
+  Bank: 624 questions in 13 topics; every topic has at least 42.
+* Removed a "plural of criterion" question that appeared in both Number and
+  Mixed English; `npm run check` now flags duplicates across topics too.
+* Live visitor count on the home page and footer — only real heartbeats from
+  open tabs (`/api/visitors`, MongoDB). Hidden when the database is not set up.
+* Developer photo and a WhatsApp feedback link in the footer and About page.
+
+## 2.1.0 — 150 new questions, full answer review, cleaner buttons
+### Questions
+* 4 new topics: Adverb (60), Modal Verb (30), Causative Verb (30),
+  Subjunctive (30), each with answer and explanation. The bank now has 479
+  questions in 13 topics.
+* Every question has its own explanation; new Bangla explanations for Tense,
+  Sequence of Tense, Noun, Number, Gender, Mixed English and Article.
+  `npm run check` now fails if a question has no explanation.
+* Whole bank re-read: 25 duplicate Article questions merged (sources kept),
+  ambiguous items rewritten (Article, Sequence of Tense, Number, Gender, Mixed,
+  Noun), answer-key notes and repeated "Choose from:" lists removed.
+### Answers are always visible
+* Result page: the answer sheet comes right after the score; every wrong or
+  skipped question shows "সঠিক উত্তর: X. option" plus the explanation (no
+  more hidden/collapsed explanations). The topic leaderboard moved below it.
+* Fun Quiz / Practice feedback names the correct option, not only its letter.
+### Fewer, clearer buttons
+* One start button per screen (in-card on desktop, floating on phones), one
+  Submit in Model Test, no fake buttons on home mode cards, plain labels
+  instead of filler text.
+* Leaderboard errors explain themselves ("Network unavailable", "Leaderboard
+  service is not configured yet").
+
+## 2.0.3 — easier database setup
+* The API finds the MongoDB connection string whether it is named
+  `MONGODB_URI`, `MONGODB_URL`, `STORAGE_URL` or `<PREFIX>_URL` (Vercel's
+  MongoDB Atlas integration), so no manual renaming is needed.
+
 ## 2.0.2 — new header photo
 * The CU main gate photo is the header on the home and CU pages: responsive
   480/768/1113 px WebP (27–72 KB instead of 109 KB), preloaded, with an

@@ -4,8 +4,9 @@ import { QUESTION_MAP } from '../../../data/questions/index.js';
 import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { celebrate, beep } from '../lib/fx.js';
-import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, topicById, empty } from '../components.js';
+import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
 import { startSession, sendScore } from '../quiz.js';
+import { explainBlock } from './play.js';
 
 const L = 'ABCD';
 let filter = 'all';
@@ -14,7 +15,7 @@ let lastShown = null;
 function saveStatus(h) {
   if (h.kind !== 'topic' || h.mode === 'practice') return '';
   if (!h.player?.playerId) {
-    return `<p class="notice">💡 পরের বার নাম দিয়ে শুরু করলে score leaderboard-এ উঠবে।</p>`;
+    return `<p class="notice">⚠️ Server-এ নাম save হয়নি, তাই এই score শুধু এই device-এ আছে—leaderboard-এ যায়নি।</p>`;
   }
   const map = {
     saving: '<p class="notice" id="save-status">⏳ Leaderboard-এ score পাঠানো হচ্ছে…</p>',
@@ -25,25 +26,24 @@ function saveStatus(h) {
 }
 
 function verdict(p) {
-  if (p >= 90) return ['অসাধারণ! 🏆', 'এই topic তোমার দখলে।'];
-  if (p >= 75) return ['দারুণ হয়েছে! 🎉', 'আর একটু হলেই নিখুঁত।'];
-  if (p >= 50) return ['ভালো চেষ্টা! 💪', 'ভুলগুলো দেখে নিলেই score লাফ দেবে।'];
-  return ['শেখার শুরু এখানেই 🌱', 'ব্যাখ্যাগুলো পড়ো, তারপর ভুলগুলো আবার practice করো।'];
+  if (p >= 90) return ['অসাধারণ', 'এই topic তোমার দখলে।'];
+  if (p >= 75) return ['খুব ভালো', 'নিচে ভুলগুলোর ব্যাখ্যা দেখে নাও।'];
+  if (p >= 50) return ['ভালো চেষ্টা', 'নিচের উত্তরপত্রে ভুলগুলোর ব্যাখ্যা আছে।'];
+  return ['আরও practice দরকার', 'নিচের উত্তরপত্রে প্রতিটি প্রশ্নের সঠিক উত্তর ও ব্যাখ্যা আছে।'];
 }
 
 function reviewItem(a, i, h) {
   const q = QUESTION_MAP.get(a.id);
   if (!q) return '';
   const status = a.choice < 0 ? 'skipped' : a.choice === q.a ? 'right' : 'wrong';
-  const topic = topicById(q.topicId);
-  const bnText = q.bn || (/[ঀ-৿]/.test(q.e) ? '' : topic?.tipBn);
   return `<article class="review ${status}" data-status="${status}" ${a.flag ? 'data-flag="1"' : ''}>
     <div class="q-meta"><span>${bn(i + 1)}. ${status === 'right' ? '✅ সঠিক' : status === 'wrong' ? '❌ ভুল' : '⏭️ উত্তর দাওনি'}${a.flag ? ' · 🚩' : ''}${h.points?.[a.id] ? ` · +${bn(h.points[a.id])}` : ''}</span><span class="src">${esc(q.source)}</span></div>
     <h3 lang="en">${esc(q.q)}</h3>
     <ul class="review-opts">${q.o
       .map((o, j) => `<li class="${j === q.a ? 'right' : ''} ${j === a.choice && j !== q.a ? 'wrong' : ''}"><span class="key">${L[j]}</span><span lang="en">${esc(o)}</span>${j === q.a ? ' ✓' : j === a.choice ? ' ✕' : ''}</li>`)
       .join('')}</ul>
-    <details ${status !== 'right' ? 'open' : ''}><summary>ব্যাখ্যা</summary><p lang="en">${esc(q.e)}</p>${bnText ? `<p class="bn-note"><b>সহজ বাংলায়:</b> ${esc(bnText)}</p>` : ''}</details>
+    ${status === 'right' ? '' : `<p class="answer-line">সঠিক উত্তর: <span lang="en">${L[q.a]}. ${esc(q.o[q.a])}</span></p>`}
+    ${explainBlock(q)}
   </article>`;
 }
 
@@ -92,16 +92,16 @@ export function render([id]) {
         ${h.mode === 'exam' && h.settings?.negative ? `<div><b>−${bn(h.settings.negative)}</b><small>প্রতি ভুলে</small></div>` : ''}
       </div>
       <div class="result-actions">
-        ${wrongIds.length ? `<button class="btn" data-action="retry-wrong" data-id="${esc(h.id)}">🔁 ভুলগুলো আবার practice (${bn(wrongIds.length)})</button>` : ''}
-        <a class="btn ghost" href="#start/${esc(h.mode === 'practice' ? 'fun' : h.mode)}/${esc(['daily', 'retry'].includes(h.kind) ? 'all' : h.topic)}">আবার খেলো</a>
-        <button class="btn ghost" data-action="share" data-id="${esc(h.id)}">📤 Share</button>
+        ${wrongIds.length ? `<button class="btn" data-action="retry-wrong" data-id="${esc(h.id)}">ভুলগুলো আবার (${bn(wrongIds.length)})</button>` : ''}
+        <a class="btn ghost" href="#start/${esc(h.mode)}/${esc(['daily', 'retry'].includes(h.kind) ? 'all' : h.topic)}">${h.mode === 'exam' ? 'আরেকটি Test' : h.mode === 'fun' ? 'আবার খেলো' : 'আবার practice'}</a>
+        <a class="btn ghost" href="#review">উত্তরপত্র দেখো ↓</a>
+        <button class="link-btn" data-action="share" data-id="${esc(h.id)}">Share করো</button>
       </div>
       ${saveStatus(h)}
       ${h.auto ? '<p class="muted small">⏰ সময় শেষ হওয়ায় স্বয়ংক্রিয়ভাবে জমা হয়েছে।</p>' : ''}
       <p class="muted small">${bnDate(h.finished)}</p>
     </section>
     ${topicBreakdown(h)}
-    ${h.kind === 'topic' && h.mode !== 'practice' ? `<section class="section"><div class="section-head"><h2>🏆 এই topic-এর leaderboard</h2></div>${leaderboard({ mode: h.mode, topic: h.topic, limit: 10 })}</section>` : ''}
     <section class="section" id="review">
       <div class="section-head"><h2>উত্তরপত্র</h2>
         ${answers.length ? `<div class="chips" role="group" aria-label="Filter">${[['all', 'সব', answers.length], ['wrong', '❌ ভুল', counts.wrong], ['skipped', '⏭️ বাদ', counts.skip], ['right', '✅ সঠিক', counts.right], ...(counts.flag ? [['flag', '🚩 Flag', counts.flag]] : [])]
@@ -110,6 +110,7 @@ export function render([id]) {
       </div>
       ${answers.length ? `<div class="reviews" data-filter="${filter}">${answers.map((a, i) => reviewItem(a, i, h)).join('')}</div>` : '<p class="empty">এই পুরোনো ফলাফলের উত্তরপত্র সংরক্ষিত নেই।</p>'}
     </section>
+    ${h.kind === 'topic' && h.mode !== 'practice' ? `<section class="section"><div class="section-head"><h2>এই topic-এর leaderboard</h2></div>${leaderboard({ mode: h.mode, topic: h.topic, limit: 10 })}</section>` : ''}
   </div>`;
 }
 

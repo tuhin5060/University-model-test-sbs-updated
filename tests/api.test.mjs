@@ -97,3 +97,26 @@ test('scores: rate limit', async () => {
   }
   assert.equal(last.statusCode, 429);
 });
+
+test('visitors: counts distinct live browsers, leave removes, bad ids rejected', async () => {
+  const { default: visitors, ONLINE_MS } = await import('../api/visitors.js');
+  const a = 'a'.repeat(24), b = 'b'.repeat(24);
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.online, 1);
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.online, 1, 'same browser counted once');
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: b } })).body.online, 2);
+  db.collection('presence').docs.find(d => d._id === b).at = new Date(Date.now() - ONLINE_MS - 1000);
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.online, 1, 'stale heartbeat not counted');
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: a, leave: true } })).body.online, 0);
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: '<x>' } })).statusCode, 400);
+  assert.equal((await call(visitors, { method: 'GET' })).statusCode, 405);
+});
+
+test('scores: Model Test always deducts 0.25 per wrong answer', async () => {
+  const r = await call(scores, { method: 'POST', cookie: alice, body: {
+    playerId: alice, attemptId: 'neg1', mode: 'exam', topic: 'tense', settings: { negative: 0, pace: 'relaxed' }, timeSec: 60,
+    answers: sheet(q => (q === tense[0] ? (q.a + 1) % 4 : q.a)),
+  } });
+  assert.equal(r.statusCode, 201);
+  assert.equal(r.body.entry.correct, 4);
+  assert.equal(r.body.entry.score, 75, '(4 − 0.25) / 5 = 75%');
+});

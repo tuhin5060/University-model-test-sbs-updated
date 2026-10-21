@@ -1,24 +1,22 @@
-// Setup screen for a new Fun Quiz / Model Test / Practice session.
+// Setup screen for a new Fun Quiz / Model Test.
+// Order on every screen: 1 name → 2 topic → 3 number of questions → one start button.
+// Timer and negative marking are fixed (see shared/scoring.js), so there is nothing else to pick.
 
 import { TOPICS, QUESTIONS } from '../../../data/questions/index.js';
 import { AVATARS } from '../../../data/site.js';
 import { esc, bn, $, toast } from '../lib/dom.js';
 import { state, save, mistakeIds } from '../lib/store.js';
 import { saveProfile } from '../lib/api.js';
-import { EXAM_PACE } from '../shared/scoring.js';
-import { MODE_INFO, pageHead, topicAccuracy } from '../components.js';
+import { FUN_LIMIT, EXAM_SECONDS, EXAM_NEGATIVE } from '../shared/scoring.js';
+import { MODE_INFO, pageHead, topicAccuracy, topicTitle } from '../components.js';
 import { startSession } from '../quiz.js';
 
-const OPTIONS = {
-  fun: { counts: [10, 15, 20], default: 10 },
-  exam: { counts: [10, 20, 30, 50], default: 20 },
-  practice: { counts: [10, 20, 30], default: 10 },
-};
-
-const MODE_TEXT = {
-  fun: ['প্রতি প্রশ্নে countdown', 'ঠিক উত্তরে points, streak-এ x1.5 / x2 bonus', '50:50 ও Freeze lifeline', 'সঙ্গে সঙ্গে ব্যাখ্যা'],
-  exam: ['পুরো test-এ একটি timer', 'প্রশ্ন বাদ দিয়ে পরে ফেরা, 🚩 flag', 'চাইলে negative marking', 'Submit-এর পরে answer key ও বিশ্লেষণ'],
-  practice: ['কোনো timer নেই', 'প্রতিটি উত্তরের পরেই ব্যাখ্যা', 'নতুন rule শেখার জন্য সেরা', 'ভুলগুলো আলাদা করে জমা থাকে'],
+const MODES = ['fun', 'exam'];
+const COUNTS = { fun: [10, 15, 20], exam: [10, 20, 30, 50] };
+const DEFAULT_COUNT = { fun: 10, exam: 20 };
+const RULES = {
+  fun: `প্রতি প্রশ্নে ${bn(FUN_LIMIT)} সেকেন্ড · দ্রুত ঠিক উত্তরে বেশি points · 50:50 ও Freeze lifeline`,
+  exam: `প্রতি প্রশ্নে ${bn(EXAM_SECONDS)} সেকেন্ড · প্রতি ভুল উত্তরে −${bn(EXAM_NEGATIVE)} নম্বর · শেষে পুরো উত্তরপত্র`,
 };
 
 function topicOption(id, title, sub, count, icon, checked, tone = '') {
@@ -37,59 +35,52 @@ function seg(name, values, current, label = v => v) {
     .join('')}</div>`;
 }
 
+const summary = (mode, topic, count) => `${MODE_INFO[mode].icon} ${topicTitle(topic)} · ${bn(count)}টি প্রশ্ন`;
+
 export function render([mode = 'fun', topic = 'all']) {
-  if (!MODE_INFO[mode]) mode = 'fun';
+  if (!MODES.includes(mode)) mode = 'fun';
   const info = MODE_INFO[mode];
   const mistakes = mistakeIds().length;
   if (topic === 'mistakes' && !mistakes) topic = 'all';
   if (topic !== 'all' && topic !== 'mistakes' && !TOPICS.some(t => t.id === topic)) topic = 'all';
   const p = state.player || {};
   const prefs = state.prefs?.[mode] || {};
-  const count = prefs.count || OPTIONS[mode].default;
+  const count = COUNTS[mode].includes(prefs.count) ? prefs.count : DEFAULT_COUNT[mode];
 
-  const settings = mode === 'fun'
-    ? `<div class="field"><span class="label">প্রতি প্রশ্নে সময়</span>${seg('perQuestion', [20, 30], prefs.perQuestion || 30, v => `${bn(v)} সেকেন্ড`)}</div>`
-    : mode === 'exam'
-      ? `<div class="field"><span class="label">সময়ের চাপ</span>${seg('pace', Object.keys(EXAM_PACE), prefs.pace || 'admission', v => (v === 'admission' ? `ভর্তি পরীক্ষার গতি (${bn(EXAM_PACE[v])} সে/প্রশ্ন)` : `আরামে (${bn(EXAM_PACE[v])} সে/প্রশ্ন)`))}</div>
-         <div class="field"><span class="label">Negative marking</span>${seg('negative', [0, 0.25], prefs.negative ?? 0, v => (v ? 'প্রতি ভুলে −০.২৫' : 'নেই'))}</div>`
-      : '';
-
-  const ranked = mode !== 'practice';
   return `<div class="container">
-    ${pageHead(`${info.icon} ${info.label}`, info.bn, 'নতুন session', [[null, info.label]])}
-    <nav class="mode-tabs" aria-label="Mode">${Object.entries(MODE_INFO)
-      .map(([id, m]) => `<a href="#start/${id}/${esc(topic)}" class="${id === mode ? 'active' : ''} t-${m.color}" ${id === mode ? 'aria-current="page"' : ''}><span aria-hidden="true">${m.icon}</span>${esc(m.label)}</a>`)
+    ${pageHead(`${info.icon} ${info.label}`, RULES[mode], '', [[null, info.label]])}
+    <nav class="mode-tabs" aria-label="Mode">${MODES
+      .map(id => `<a href="#start/${id}/${esc(topic)}" class="${id === mode ? 'active' : ''} t-${MODE_INFO[id].color}" ${id === mode ? 'aria-current="page"' : ''}><span aria-hidden="true">${MODE_INFO[id].icon}</span>${esc(MODE_INFO[id].label)}</a>`)
       .join('')}</nav>
-    <form class="setup" id="setup-form" data-mode="${mode}">
-      <section class="setup-main">
-        <h2 class="step"><span>১</span> Topic বেছে নাও</h2>
+    <form class="setup" id="setup-form" data-mode="${mode}" novalidate>
+      <section class="setup-name card">
+        <h2 class="step"><span>১</span> তোমার নাম</h2>
+        <label class="label" for="player-name">পুরো নাম <small class="muted">(Leaderboard-এ নিজের score খুঁজে পেতে)</small></label>
+        <input id="player-name" name="name" maxlength="60" autocomplete="name" placeholder="যেমন: Rahim Uddin" value="${esc(p.name || '')}" required>
+        <p class="field-error" id="name-error" hidden>Leaderboard-এর জন্য তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।</p>
+        <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
+      </section>
+      <section class="setup-topic">
+        <h2 class="step"><span>২</span> Topic বেছে নাও</h2>
         <div class="picks">
           ${topicOption('all', 'সব topic (মিশ্র)', 'পুরো question bank থেকে', QUESTIONS.length, '🎲', topic === 'all')}
-          ${mistakes ? topicOption('mistakes', 'আমার ভুলগুলো', 'আগে যেগুলো ভুল করেছ', mistakes, '🔁', topic === 'mistakes', '#d64545') : ''}
+          ${mistakes ? topicOption('mistakes', 'আমার ভুলগুলো', 'আগে যেগুলো ভুল করেছ (leaderboard-এ যায় না)', mistakes, '🔁', topic === 'mistakes', '#d64545') : ''}
           ${TOPICS.map(t => topicOption(t.id, t.title, t.bn, t.count, t.icon, topic === t.id, t.color)).join('')}
         </div>
       </section>
-      <aside class="setup-side">
-        <div class="card sticky">
-          <h2 class="step"><span>২</span> Setting</h2>
-          <div class="field"><span class="label">কয়টি প্রশ্ন?</span>${seg('count', OPTIONS[mode].counts, count, v => bn(v))}</div>
-          ${settings}
-          ${ranked ? `<div class="field">
-            <label class="label" for="player-name">নাম <small class="muted">(leaderboard-এর জন্য, ঐচ্ছিক)</small></label>
-            <input id="player-name" name="name" maxlength="60" autocomplete="name" placeholder="তোমার নাম" value="${esc(p.name || '')}">
-            <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
-          </div>` : ''}
-          <ul class="mode-points">${MODE_TEXT[mode].map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-          <button class="btn big block t-${info.color}" type="submit">${info.icon} শুরু করো</button>
-        </div>
-      </aside>
-      <button class="btn big start-fab t-${info.color}" type="submit" aria-hidden="true" tabindex="-1">${info.icon} শুরু করো →</button>
+      <section class="setup-count card">
+        <h2 class="step"><span>৩</span> কয়টি প্রশ্ন?</h2>
+        ${seg('count', COUNTS[mode], count, v => bn(v))}
+      </section>
+      <div class="start-bar">
+        <span class="start-summary" id="start-summary">${esc(summary(mode, topic, count))}</span>
+        <button class="btn big t-${info.color}" type="submit">শুরু করো →</button>
+      </div>
     </form>
   </div>`;
 }
 
 async function ensureProfile(name, avatar) {
-  if (!name) return null;
   const p = state.player;
   if (p?.playerId && p.name === name && p.avatar === avatar) return p;
   try {
@@ -112,31 +103,45 @@ async function ensureProfile(name, avatar) {
 export function mount() {
   const form = $('#setup-form');
   if (!form) return;
+  const mode = form.dataset.mode;
+  const nameInput = $('#player-name');
+  const nameError = $('#name-error');
+  const cleanName = () => String(nameInput.value || '').replace(/\s+/g, ' ').trim();
+  const refresh = () => {
+    const fd = new FormData(form);
+    $('#start-summary').textContent = summary(mode, String(fd.get('topic') || 'all'), Number(fd.get('count')));
+  };
   form.addEventListener('change', e => {
-    if (e.target.name !== 'topic') return;
-    history.replaceState(null, '', `#start/${form.dataset.mode}/${e.target.value}`);
-    form.querySelectorAll('.pick').forEach(l => l.classList.toggle('is-checked', l.contains(e.target)));
+    if (e.target.name === 'topic') {
+      history.replaceState(null, '', `#start/${mode}/${e.target.value}`);
+      form.querySelectorAll('.pick').forEach(l => l.classList.toggle('is-checked', l.contains(e.target)));
+    }
+    refresh();
+  });
+  nameInput.addEventListener('input', () => {
+    if (cleanName().length >= 2) { nameError.hidden = true; nameInput.removeAttribute('aria-invalid'); }
   });
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(form);
-    const mode = form.dataset.mode;
-    const btn = e.submitter || form.querySelector('button[type=submit]');
-    const name = String(fd.get('name') || '').replace(/\s+/g, ' ').trim();
-    if (name && name.length < 2) return toast('নাম কমপক্ষে ২ অক্ষরের হতে হবে।');
-    const settings = {
-      perQuestion: Number(fd.get('perQuestion')) || undefined,
-      pace: fd.get('pace') || undefined,
-      negative: fd.get('negative') !== null ? Number(fd.get('negative')) : undefined,
-    };
+    const btn = form.querySelector('button[type=submit]');
+    const name = cleanName();
+    if (name.length < 2) {
+      nameError.hidden = false;
+      nameInput.setAttribute('aria-invalid', 'true');
+      nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      nameInput.focus({ preventScroll: true });
+      return;
+    }
     const count = Number(fd.get('count'));
-    state.prefs = { ...state.prefs, [mode]: { ...settings, count } };
+    state.prefs = { ...state.prefs, [mode]: { count } };
     btn.disabled = true;
     btn.textContent = 'প্রস্তুত হচ্ছে…';
-    const player = mode === 'practice' ? null : await ensureProfile(name, String(fd.get('avatar') || '🚂'));
+    const player = await ensureProfile(name, String(fd.get('avatar') || '🚂'));
     btn.disabled = false;
+    btn.textContent = 'শুরু করো →';
     const topic = String(fd.get('topic') || 'all');
-    const ok = startSession({ mode, topic, count, settings, player, kind: topic === 'mistakes' ? 'mistakes' : 'topic' });
+    const ok = startSession({ mode, topic, count, settings: {}, player, kind: topic === 'mistakes' ? 'mistakes' : 'topic' });
     if (!ok) btn.textContent = 'আবার চেষ্টা করো';
   });
 }

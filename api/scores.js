@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { getDatabase } from '../lib/mongodb.js';
 import { readCookie, ID_RE, parseBody, clean, sendJSON } from '../lib/http.js';
 import { QUESTION_MAP, TOPICS } from '../data/questions/index.js';
-import { scoreAttempt, MAX_QUESTIONS, FUN_SECONDS, EXAM_PACE } from '../assets/js/shared/scoring.js';
+import { scoreAttempt, MAX_QUESTIONS, FUN_LIMIT, EXAM_NEGATIVE, EXAM_PACE } from '../assets/js/shared/scoring.js';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 20; // submissions per student per window
@@ -15,7 +15,7 @@ export function validateSubmission(body) {
   const answers = body.answers;
   if (!Array.isArray(answers) || answers.length < 1 || answers.length > MAX_QUESTIONS) return `Between 1 and ${MAX_QUESTIONS} answers are required.`;
   const seen = new Set();
-  const limit = FUN_SECONDS.includes(Number(body.settings?.perQuestion)) ? Number(body.settings.perQuestion) : 30;
+  const limit = FUN_LIMIT;
   for (const a of answers) {
     const q = a && QUESTION_MAP.get(a.id);
     if (!q) return 'Unknown question in answer sheet.';
@@ -30,9 +30,8 @@ export function validateSubmission(body) {
 
 /** Build the stored entry from a validated submission (score is recomputed here, never trusted). */
 export function buildEntry(body, student, attemptId) {
-  const settings = body.mode === 'fun'
-    ? { perQuestion: FUN_SECONDS.includes(Number(body.settings?.perQuestion)) ? Number(body.settings.perQuestion) : 30 }
-    : { pace: body.settings?.pace in EXAM_PACE ? body.settings.pace : 'admission', negative: Number(body.settings?.negative) === 0.25 ? 0.25 : 0 };
+  // Every ranked attempt uses the fixed rules, whatever the browser sent.
+  const settings = body.mode === 'fun' ? { perQuestion: FUN_LIMIT } : { pace: 'admission', negative: EXAM_NEGATIVE };
   const answers = body.answers.map(a => ({ id: a.id, choice: a.choice, sec: Number(a.sec) || 0, frozen: a.frozen === true }));
   const r = scoreAttempt({ mode: body.mode, settings, answers }, QUESTION_MAP);
   const maxTime = body.mode === 'exam' ? answers.length * EXAM_PACE[settings.pace] + 30 : answers.length * settings.perQuestion + 600;

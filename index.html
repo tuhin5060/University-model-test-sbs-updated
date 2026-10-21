@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="preload" as="image" href="assets/img/cu-gate-1113.webp" imagesrcset="assets/img/cu-gate-480.webp 480w, assets/img/cu-gate-768.webp 768w, assets/img/cu-gate-1113.webp 1113w" imagesizes="100vw" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/img/cu-gate-1113.webp" imagesrcset="assets/img/cu-gate-480.webp 480w, assets/img/cu-gate-768.webp 768w, assets/img/cu-gate-1113.webp 1113w" imagesizes="(min-width: 900px) 560px, 100vw" fetchpriority="high">
   <script>
     try { var t = localStorage.getItem('campus-theme') || 'auto'; document.documentElement.dataset.theme = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t; } catch (e) {}
   </script>
@@ -42,11 +42,11 @@
         <a href="#start/exam" data-nav="start/exam">⏱️ Model Test</a>
         <a href="#tips" data-nav="tips">Tips & Tricks</a>
         <a href="#universities" data-nav="universities">বিশ্ববিদ্যালয়</a>
-        <a href="#leaderboard" data-nav="leaderboard">Leaderboard</a>
+        <a href="#leaderboard" data-nav="leaderboard">🏆 Score</a>
       </nav>
       <div class="header-tools">
         <button class="icon-btn" data-action="search" aria-label="খুঁজুন (/)">🔍</button>
-        <a class="icon-btn" href="#progress" data-nav="progress" aria-label="আমার অগ্রগতি">📊</a>
+        <a class="icon-btn only-mobile" href="#universities" data-nav="universities" aria-label="বিশ্ববিদ্যালয়">🏛️</a>
         <button class="icon-btn" id="theme-btn" data-action="theme" aria-label="Theme">🌓</button>
       </div>
     </div>
@@ -67,18 +67,31 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <div>
-        <p class="brand-text">ক্যাম্পাস পথে<small>একটু একটু করে, স্বপ্নের ক্যাম্পাসের দিকে।</small></p>
-        <p class="muted small">Initiative by <b>SBS Students’ Association</b> · Developed by <a href="https://web.facebook.com/misbahul.tuhin" target="_blank" rel="noopener noreferrer">Misbahul Tuhin</a></p>
-        <p class="muted small">স্বতন্ত্র শিক্ষার্থী-সহায়ক উদ্যোগ · কোনো বিশ্ববিদ্যালয়ের official website নয়।</p>
+      <div class="footer-about">
+        <p class="footer-brand">ক্যাম্পাস পথে</p>
+        <p class="footer-tagline">একটু একটু করে, স্বপ্নের ক্যাম্পাসের দিকে।</p>
+        <div class="dev-card">
+          <img src="assets/img/developer-96.webp" width="52" height="52" alt="Misbahul Tuhin" loading="lazy" decoding="async">
+          <div>
+            <span class="dev-label">Developed by</span>
+            <a class="dev-name" href="https://web.facebook.com/misbahul.tuhin" target="_blank" rel="noopener noreferrer">Misbahul Tuhin</a>
+            <span class="dev-label">Initiative by SBS Students’ Association</span>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <a class="btn small wa-btn" href="https://wa.me/8801729894327" target="_blank" rel="noopener noreferrer">💬 WhatsApp-এ feedback দাও</a>
+          <p class="live-pill" data-live hidden><i aria-hidden="true"></i><b></b> জন এখন অনলাইনে</p>
+        </div>
       </div>
       <nav class="footer-links" aria-label="Footer">
-        <a href="#start/practice">📖 Practice</a>
+        <a href="#start/fun">🎮 Fun Quiz</a>
+        <a href="#start/exam">⏱️ Model Test</a>
         <a href="#progress">📊 আমার অগ্রগতি</a>
-        <a href="#leaderboard">🏆 Leaderboard</a>
+        <a href="#leaderboard">🏆 Score ও Leaderboard</a>
         <a href="#about">ℹ️ আমাদের কথা</a>
         <a href="https://admission.cu.ac.bd/" target="_blank" rel="noopener noreferrer">CU Admission ↗</a>
       </nav>
+      <p class="footer-note">স্বতন্ত্র শিক্ষার্থী-সহায়ক উদ্যোগ · কোনো বিশ্ববিদ্যালয়ের official website নয়।</p>
     </div>
   </footer>
 
@@ -86,8 +99,8 @@
     <a href="#home" data-nav="home"><span aria-hidden="true">🏠</span>হোম</a>
     <a href="#start/fun" data-nav="start/fun"><span aria-hidden="true">🎮</span>Fun</a>
     <a href="#start/exam" data-nav="start/exam"><span aria-hidden="true">⏱️</span>Test</a>
+    <a href="#leaderboard" data-nav="leaderboard"><span aria-hidden="true">🏆</span>Score</a>
     <a href="#tips" data-nav="tips"><span aria-hidden="true">💡</span>Tips</a>
-    <a href="#universities" data-nav="universities"><span aria-hidden="true">🏛️</span>Campus</a>
   </nav>
 
   <dialog id="search-dialog" aria-label="খুঁজুন">

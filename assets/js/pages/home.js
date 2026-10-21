@@ -6,7 +6,7 @@ import { UNIVERSITIES } from '../../../data/universities.js';
 import { SITE, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
 import { esc, bn, today, safeURL } from '../lib/dom.js';
 import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
-import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, loadLiveLeaderboard, liveLeaderboard, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
+import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
 import { startSession, dailyIds } from '../quiz.js';
 
 function resumeBanner() {
@@ -52,21 +52,16 @@ function modes() {
         <span class="mode-emoji" aria-hidden="true">🎮</span>
         <h3>Fun Quiz</h3>
         <p>Countdown timer, points, streak bonus, 50:50 আর Freeze lifeline। ঠিক-ভুল সঙ্গে সঙ্গে, ব্যাখ্যাসহ।</p>
-        <span class="mode-tags"><span>⏳ ২০–৩০ সে/প্রশ্ন</span><span>🔥 x2 bonus</span><span>🏆 Leaderboard</span></span>
-        <span class="btn">খেলা শুরু →</span>
+        <span class="mode-tags"><span>⏳ ৩০ সে/প্রশ্ন</span><span>🔥 x2 bonus</span><span>🏆 Leaderboard</span></span>
       </a>
       <a class="mode-card t-exam" href="#start/exam">
         <span class="mode-emoji" aria-hidden="true">⏱️</span>
         <h3>Model Test</h3>
         <p>ভর্তি পরীক্ষার মতো একটানা timer, flag, প্রশ্ন তালিকা আর negative marking। Submit-এর পরে পূর্ণ বিশ্লেষণ।</p>
-        <span class="mode-tags"><span>📋 ১০–৫০ প্রশ্ন</span><span>➖ −০.২৫ option</span><span>📊 Topic report</span></span>
-        <span class="btn">Test দাও →</span>
+        <span class="mode-tags"><span>📋 ১০–৫০ প্রশ্ন</span><span>➖ প্রতি ভুলে −০.২৫</span><span>📊 Topic report</span></span>
       </a>
     </div>
-    <div class="mini-modes">
-      <a href="#start/practice">📖 <b>Practice</b> — timer ছাড়া, প্রতিটি উত্তরে ব্যাখ্যা</a>
-      ${m ? `<a href="#start/practice/mistakes">🔁 <b>আমার ভুলগুলো</b> — ${bn(m)}টি প্রশ্ন অপেক্ষা করছে</a>` : ''}
-    </div>
+    ${m ? `<div class="mini-modes"><a href="#start/fun/mistakes">🔁 <b>আমার ভুলগুলো</b> — ${bn(m)}টি প্রশ্ন আবার চেষ্টা করো</a></div>` : ''}
   </section>`;
 }
 
@@ -95,8 +90,8 @@ export function render() {
   const name = state.player?.name;
   return `
   <section class="hero">
-    ${heroMedia(hero)}
-    <div class="container hero-inner">
+    <div class="container hero-grid">
+    <div class="hero-inner">
       <span class="eyebrow light">${esc(SITE.initiative)}</span>
       <h1>${name ? `${esc(name.split(' ')[0])}, ` : ''}স্বপ্নের ক্যাম্পাসের<br>প্রস্তুতি শুরু হোক আজ।</h1>
       <p>বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English MCQ—খেলার মতো মজায়, পরীক্ষার মতো নিয়মে। প্রতিটি উত্তরের সঙ্গে সহজ বাংলা ব্যাখ্যা।</p>
@@ -109,15 +104,16 @@ export function render() {
         <li><b>${bn(TOPICS.length)}</b><span>Topic</span></li>
         <li><b>${bn(UNIVERSITIES.length)}</b><span>বিশ্ববিদ্যালয়</span></li>
       </ul>
+      <p class="live-pill" data-live hidden><i aria-hidden="true"></i><b></b> জন এখন অনলাইনে</p>
     </div>
-    <span class="hero-credit">${credit(hero)}</span>
+    ${heroMedia(hero)}
+    </div>
   </section>
   ${resumeBanner()}
-  ${liveLeaderboard()}
   ${daily()}
   ${modes()}
   <section class="container section">
-    <div class="section-head"><div><h2>Topic ধরে প্রস্তুতি</h2><p>যেকোনো topic-এ চাপ দাও, তারপর mode বেছে নাও। নিয়মিত নতুন প্রশ্ন যোগ হচ্ছে।</p></div><a class="text-link" href="#start/exam">সব topic →</a></div>
+    <div class="section-head"><div><h2>Topic ধরে প্রস্তুতি</h2><p>যে topic-এ দুর্বল, সেখান থেকে শুরু করো।</p></div></div>
     <div class="topic-grid">${TOPICS.map(t => topicCard(t)).join('')}</div>
   </section>
   ${cuSpotlight()}
@@ -140,10 +136,6 @@ export function render() {
 export function mount() {
   hydratePhotos();
   loadLeaderboards();
-  loadLiveLeaderboard();
-  // Keep the compact ticker fresh without reloading the page.
-  const liveTimer = window.setInterval(() => { if (location.hash === '' || location.hash === '#home') loadLiveLeaderboard(); }, 60000);
-  window.addEventListener('hashchange', () => window.clearInterval(liveTimer), { once: true });
 }
 
 export function onAction(action) {
