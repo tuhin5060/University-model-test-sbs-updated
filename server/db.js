@@ -1,8 +1,8 @@
 // Neon Postgres access over HTTPS (works on Vercel Node functions and
-// Cloudflare Pages Functions alike). The connection string comes only from the
-// host's environment settings: DATABASE_URL (set by the Vercel ↔ Neon
+// Cloudflare Pages Functions alike; no npm package needed). The connection
+// string comes only from the host's environment settings: DATABASE_URL (set by the Vercel ↔ Neon
 // integration) or POSTGRES_URL. It never reaches the browser.
-import { neon } from '@neondatabase/serverless';
+import { neonHttp } from './neon-http.js';
 
 export class NotConfigured extends Error {}
 
@@ -53,14 +53,6 @@ export function useDatabase(db) {
 
 export const databaseUrl = env => env?.DATABASE_URL || env?.POSTGRES_URL || '';
 
-function neonDb(url) {
-  const sql = neon(url);
-  return {
-    query: (text, params = []) => sql.query(text, params),
-    batch: list => sql.transaction(list.map(([text, params = []]) => sql.query(text, params))),
-  };
-}
-
 /** A ready-to-use database for this request's environment (schema created once per instance). */
 export async function getDb(env) {
   if (injected) return injected;
@@ -68,7 +60,7 @@ export async function getDb(env) {
   if (!url) throw new NotConfigured('DATABASE_URL is not set');
   let entry = pool.get(url);
   if (!entry) {
-    const db = neonDb(url);
+    const db = neonHttp(url);
     entry = { db, ready: db.batch(SCHEMA.map(text => [text])) };
     entry.ready.catch(() => pool.delete(url)); // retry on the next request
     pool.set(url, entry);

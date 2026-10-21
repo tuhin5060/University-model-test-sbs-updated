@@ -28,7 +28,10 @@
   </script>
   <script type="module" src="assets/js/main.js"></script>
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
-  <script defer src="/_vercel/insights/script.js"></script>
+  <script>
+    // Vercel Web Analytics exists only on Vercel; the Cloudflare copy skips it.
+    if (/\.vercel\.app$/.test(location.hostname)) document.head.append(Object.assign(document.createElement('script'), { defer: true, src: '/_vercel/insights/script.js' }));
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">মূল অংশে যাও</a>
