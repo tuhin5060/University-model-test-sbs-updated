@@ -52,7 +52,7 @@ export function render() {
     ${saved.length ? `<section class="section"><div class="section-head"><h2>★ পছন্দের বিশ্ববিদ্যালয়</h2></div><div class="chips">${saved.map(u => `<a class="chip" href="#university/${esc(u.id)}">${esc(u.short)} · ${esc(u.name)}</a>`).join('')}</div></section>` : ''}
 
     <section class="section">
-      <div class="section-head"><div><h2>💾 Backup ও privacy</h2><p>অগ্রগতি শুধু এই browser-এ থাকে। অন্য phone/computer-এ নিতে backup file ব্যবহার করো। Leaderboard-এ শুধু নাম, avatar ও score যায়—কোনো password বা phone number নয়।</p></div></div>
+      <div class="section-head"><div><h2>💾 Backup ও privacy</h2><p>অগ্রগতির local copy এই browser-এ থাকে এবং server-এ Cloudflare D1-এ backup sync হয়। অন্য phone/computer-এ নিজের progress আনতে একই browser identity/profile ব্যবহার বা backup file import করো। Leaderboard-এ শুধু নাম, avatar ও score যায়—কোনো password বা phone number নয়।</p></div></div>
       <div class="actions">
         <button class="btn ghost" data-action="export">⬇️ Backup download</button>
         <label class="btn ghost" for="import-file">⬆️ Backup import</label><input id="import-file" type="file" accept=".json,application/json" hidden>
