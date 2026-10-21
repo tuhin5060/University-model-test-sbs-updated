@@ -42,7 +42,7 @@ data/                       ← ALL CONTENT. See CONTENT_GUIDE.md
   posts.js                  Tips & Tricks posts
   universities.js           Universities, official links, resources
   site.js                   Site name, credits, CU photos
-api/
+api/                         Legacy local/Vercel handlers used by tests and local server
   profile.js                Student name/avatar (cookie-based identity)
   scores.js                 Leaderboard: validates answer sheet, recomputes score
   visitors.js               Live visitor count (heartbeats, no estimates)
@@ -50,13 +50,20 @@ lib/
   mongodb.js                MongoDB connection (Vercel pooled)
   http.js                   Cookie / JSON helpers
   memory-db.js              In-memory DB for local dev + tests
-scripts/serve.mjs           Local dev server (static + API)
+functions/
+  api/profile.js             Cloudflare Pages API: student profile (D1)
+  api/scores.js              Cloudflare Pages API: validated leaderboard (D1)
+  api/visitors.js            Cloudflare Pages API: live visitors (D1)
+  api/progress.js            Cloudflare Pages API: progress backup/sync (D1)
+  _lib/shared.js             Shared Cloudflare cookie/JSON helpers
+wrangler.toml                Pages output + D1 binding
+schema.sql                   D1 schema
+scripts/serve.mjs            Local dev server (static + legacy API)
 tests/                      Content checker, unit/API tests, browser e2e
 tense-express/              Old URL → redirects to Fun Quiz (Tense); classic.html keeps the old game
 ```
 
-No build step and no framework: plain HTML, CSS and ES modules, so content can
-be edited directly on GitHub and Vercel redeploys.
+No build step and no framework: plain HTML, CSS and ES modules. Cloudflare Pages is connected to the GitHub `main` branch, so pushes to GitHub trigger a new deployment automatically.
 
 ## Run locally
 
@@ -67,25 +74,22 @@ npm run check        # content checker + unit/API tests
 npm run test:e2e     # optional browser test (needs: npm i -D playwright && npx playwright install chromium)
 ```
 
-Without `MONGODB_URI` the dev server uses an in-memory database, so the
-leaderboard works locally (it resets on restart). Set `MONGODB_URI` in a local
-`.env`-style environment to use a real database.
+Without `MONGODB_URI` the legacy local server uses an in-memory database, so that local leaderboard resets on restart. The deployed Cloudflare Pages Functions use the Cloudflare D1 binding named `DB` and do not need a MongoDB connection string.
 
-## Deploy on Vercel
+## Deploy on Cloudflare Pages
 
-* Framework preset: **Other**. Build command: *(empty)*. Output directory: `.`
-* Environment variables:
-  * `MONGODB_URI` — MongoDB Atlas connection string (**Sensitive**, server only).
-    Using the Vercel → MongoDB Atlas integration instead? Its `MONGODB_URL` /
-    `<PREFIX>_URL` variable is picked up automatically.
-  * `MONGODB_DB` — optional, defaults to `admission_companion`.
-* MongoDB Atlas → Network Access must allow Vercel.
-* Enable Web Analytics in the Vercel dashboard (the script tag is already in `index.html`).
-* Node.js 20 or newer.
+This repository is connected to the Cloudflare Pages project `university-model-test-sbs-updated`.
 
-Existing data keeps working: old `test` scores appear on the Model Test board,
-old student cookies/profiles are reused, and the new indexes are created
-automatically on first request.
+* Production branch: `main`
+* Build command: *(empty — no build step)*
+* Output directory: `.`
+* Functions: `functions/api/*.js` (Cloudflare Pages Functions)
+* Storage: Cloudflare D1 database `campus-admission-companion`, bound as `DB` in production and preview deployments.
+* The schema is documented in `schema.sql`; the database tables are already initialized in the connected Cloudflare account.
+* Push or merge commits to `main` to trigger a new production deployment. Other branches receive preview deployments.
+* No MongoDB environment variable is required by the deployed Cloudflare Functions.
+
+The Cloudflare deployment stores student profiles, leaderboard attempts, live visitor heartbeats, and progress snapshots in D1. The browser also keeps a local cache for offline use; when online, progress changes are debounced and synced to D1.
 
 ## Security & data model
 
@@ -105,7 +109,7 @@ automatically on first request.
   database is not configured the badge is simply hidden — no made-up numbers.
 * Only topic-based Fun Quiz and Model Test results are ranked; mistakes practice,
   retries and the daily challenge are personal.
-* Local progress (history, mistakes, checklist) never leaves the browser.
+* Practice history, mistakes, topic stats, daily progress, saved universities, checklist, preferences and resumable session are stored in localStorage for quick/offline access and synced as a progress snapshot to D1. A browser-specific HttpOnly cookie identifies the snapshot until a student profile is created; the profile cookie is then used. This is not a password-based account system, so it does not securely merge progress across unrelated devices/browsers.
 
 See `CHANGELOG.md` for everything that changed in v2 and `CONTENT_GUIDE.md` for
 adding content.
