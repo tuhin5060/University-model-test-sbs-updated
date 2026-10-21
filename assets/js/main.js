@@ -5,7 +5,7 @@ import { POSTS } from '../../data/posts.js';
 import { UNIVERSITIES } from '../../data/universities.js';
 import { SITE } from '../../data/site.js';
 import { $, $$, esc } from './lib/dom.js';
-import { state, save } from './lib/store.js';
+import { state, save, replaceState } from './lib/store.js';
 import { fetchProfile, restoreProgress, enableProgressSync, queueProgressSync } from './lib/api.js';
 import { startLive, paintLive } from './lib/live.js';
 import * as home from './pages/home.js';
