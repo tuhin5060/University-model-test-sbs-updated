@@ -19,7 +19,9 @@
   score ("🏆 Arman.007 Fun Quiz-এ Tense topic-এ সর্বোচ্চ …").
 * Database moved from MongoDB to **Neon Postgres** (faster, one shared
   database). The same API code (`server/`) runs on Vercel (`api/`) and
-  Cloudflare Pages (`functions/`).
+  Cloudflare Pages (`functions/`). The API has no npm dependencies (Neon is
+  reached with plain `fetch`), so the Cloudflare build works without
+  `npm install`; Node.js 22 is pinned for both hosts.
 * Dhaka University and Comilla University pages: key facts, latest QS / THE
   rankings with sources, and Wikimedia Commons photos with credits.
 * Phones get the edge-to-edge header photo with the green fade again; desktop

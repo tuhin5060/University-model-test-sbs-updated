@@ -28,6 +28,11 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
    (`explainBn`) that also says why the other options are wrong.
 5. No names, phone numbers, websites or brand lines from source PDFs in questions.
 6. Keep `api/*.js` and `functions/api/*.js` as thin entry points; put logic in `server/`.
+7. **No npm packages in `server/`, `api/` or `functions/`.** Cloudflare Pages does not run
+   `npm install` (empty build command), so any import from `node_modules` breaks the
+   Cloudflare build. Neon is reached with plain `fetch` (`server/neon-http.js`).
+8. After a push, check both builds: the GitHub commit shows a “Vercel” status and a
+   “Cloudflare Pages” check. Both must be green.
 
 ## 3. Where things are
 | What | File |
@@ -42,6 +47,7 @@ no build step. API in `server/` backed by **Neon Postgres**, deployed on both
 | Scoring (Fun 30 s/q; Model Test 36 s/q, −0.25 per wrong) | `assets/js/shared/scoring.js` (browser + server) |
 | API logic | `server/routes/{profile,scores,visitors,progress}.js` |
 | Database tables | `server/db.js` (`SCHEMA`, created automatically) |
+| Neon HTTPS client | `server/neon-http.js` |
 | Vercel / Cloudflare entry points | `api/*.js` / `functions/api/*.js` |
 | Roll field, start screen | `assets/js/pages/start.js` |
 | Score page (rank cards) | `assets/js/pages/misc.js` |

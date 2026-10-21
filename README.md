@@ -55,7 +55,8 @@ server/                     ← THE API (one copy, used by both hosts)
   routes/scores.js          Leaderboard, my stats/rank, answer-sheet check, top-score events
   routes/visitors.js        Live visitor count + "new highest score" events
   routes/progress.js        Private progress backup
-  db.js                     Neon Postgres (HTTPS driver) + table definitions
+  db.js                     Database setup + table definitions
+  neon-http.js              Tiny Neon SQL-over-HTTPS client (no npm package)
   http.js, route.js         Request/response helpers, error handling
   local-db.js               In-memory Postgres (PGlite) for tests and `npm run dev`
 api/*.js                    Vercel entry points (2 lines each → server/routes)
@@ -89,6 +90,12 @@ automatically on the first request (`server/db.js` → `SCHEMA`):
 
 The connection string is a secret: it lives only in the host's settings, never
 in the repository or the browser.
+
+The API has **no runtime npm dependencies** on purpose: Cloudflare Pages does
+not run `npm install` when the build command is empty, so an imported package
+would break the Cloudflare build. `server/neon-http.js` speaks Neon's HTTPS
+protocol with plain `fetch`. (`@electric-sql/pglite` is a dev-only dependency
+for tests.)
 
 ## Deploy on Vercel
 
