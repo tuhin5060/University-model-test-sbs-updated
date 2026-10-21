@@ -3,6 +3,7 @@
 
 import { QUESTION_MAP } from '../../../data/questions/index.js';
 import { today } from './dom.js';
+import { queueProgressSync } from './api.js';
 
 const KEY = 'campus-pothe.v2';
 const LEGACY_KEY = 'campus-companion.v1';
@@ -78,6 +79,7 @@ export function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
     storageOK = true;
+    queueProgressSync(state);
   } catch {
     storageOK = false;
   }
