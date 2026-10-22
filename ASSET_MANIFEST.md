@@ -7,7 +7,7 @@
 | `assets/img/cu-buildings.webp` | Campus buildings among hills (480×270) | Same as above; shown as "Illustrative image". |
 | `assets/img/logo.svg`, `favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | ক্যাম্পাসের পথে logo mark (CU gate, road, rising sun): header, favicon, home-screen icons | Original project asset, drawn for this site. |
 | `assets/img/campus-pothe-logo-{light,dark}.png` | Full logo (mark + name + tagline), 1200×420, for social media and print | Original project asset. |
-| `assets/img/og-cover.jpg` | Link-preview image (1200×630, `og:image`): CU main gate photo with a green overlay, the logo mark, site name and SBS line in the centre so a square crop (Messenger) still shows them | Made from `cu-gate-1113.webp` + `logo.svg`. |
+| `assets/img/og-image.jpg` | Link-preview image (1200×630 baseline JPEG under 100 KB, `og:image`, works for Facebook, Messenger and WhatsApp): CU main gate photo with a green overlay, the logo mark, site name and SBS line in the centre so a square crop (Messenger) still shows them | Made from `cu-gate-1113.webp` + `logo.svg`. |
 | `assets/img/developer-96.webp` | Developer photo in the footer | Supplied by the site owner. |
 
 ## Remote photos (Wikimedia Commons)
@@ -18,7 +18,7 @@ Commons file page, where author and licence (commonly CC BY-SA 4.0) are listed.
 If a file cannot load, the gallery hides it (remote-only) or keeps the local
 image (when a local fallback exists), so the page never shows a broken image.
 
-* `Campus, University of Chittagong 1.jpg` (hero; was the og:image before `og-cover.jpg`)
+* `Campus, University of Chittagong 1.jpg` (hero; was the og:image before `og-image.jpg`)
 * `Central Shaheed Minar, University of Chittagong (08).jpg` — Moheen Reeyad
 * `Chittagong University Library (04).jpg` — Moheen Reeyad
 * `Chittagong University Road (01).jpg` — Moheen Reeyad
