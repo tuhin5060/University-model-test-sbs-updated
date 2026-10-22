@@ -10,6 +10,7 @@ import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
 import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
 import { startSession, dailyIds } from '../quiz.js';
 import { loadLatest } from './community.js';
+import { hydratePush } from '../lib/push.js';
 
 function resumeBanner() {
   const s = state.session;
@@ -36,6 +37,7 @@ function daily() {
       ${doneToday !== undefined
         ? `<p class="done-today">✅ আজ শেষ করেছ: <b>${bn(doneToday)}/৫</b> সঠিক। কাল আবার এসো!</p><button class="btn ghost" data-action="daily">আবার খেলো</button>`
         : '<button class="btn" data-action="daily">▶ আজকের চ্যালেঞ্জ শুরু</button>'}
+      <p class="push-line" data-push hidden></p>
     </div>
     <div class="card tip-card">
       <span class="eyebrow">আজকের টিপ</span>
@@ -160,6 +162,7 @@ export function mount() {
   hydratePhotos();
   loadLeaderboards();
   loadLatest(document.getElementById('home-community'));
+  hydratePush();
 }
 
 export function onAction(action) {

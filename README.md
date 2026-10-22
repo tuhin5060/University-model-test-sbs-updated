@@ -15,6 +15,7 @@ Cloudflare Pages copy — both deploy from `main` and share one Neon database.
 | 🎮 **Fun Quiz** | 30 s countdown per question, points, streak bonus (x1.5 / x2), 50:50 and Freeze lifelines, sounds + confetti, instant explanation, leaderboard. |
 | ⏱️ **Model Test** | One timer for the whole test (36 s per question), question palette, 🚩 flag for review, ⏭ skip to the next unanswered question, −0.25 for every wrong answer, auto-submit on time-up, topic-wise report and full answer sheet. |
 | 💬 **Community** (`#community`) | Ask a question under a topic (with up to 5 tags, or straight from a question in the answer sheet), reply to others, filter by status / topic / tag / search. The asker marks the thread — or one reply — as ✅ solved. An admin deletes a thread or reply with the admin password. The newest threads also show on the home page. |
+| 🔔 **Reminders** | Browser notifications (Chrome / Edge / Android; iPhone after “Add to Home Screen”): a daily 8 PM (Bangladesh) practice reminder — skipped for students who already took a test that day — and news when a new topic is added. Offered in a small card after a test and on the home page (on / test / off). |
 | 🔁 **My mistakes** | Wrong answers are collected automatically; two correct answers later remove them. |
 | 📅 **Daily challenge** | The same 5 questions for everyone each day, with a 🔥 day streak. |
 | 💡 **Tips & Tricks** | 13 posts (CU English roadmap, MCQ strategy, Article & Tense cheat-sheets, routines, exam-day checklist …) with "practice this topic" buttons inside posts. |
@@ -106,6 +107,12 @@ for tests.)
 * Environment variable `DATABASE_URL` comes from the Vercel ↔ Neon
   integration (Storage tab). `POSTGRES_URL` also works. MongoDB variables are
   no longer used and can be deleted.
+* `VAPID_PRIVATE_JWK` (Sensitive): the signing key for notifications (a P-256
+  JWK with `d`, `x`, `y`; the public key is derived from it). Without it the
+  reminder control is hidden.
+* `CRON_SECRET` (Sensitive): Vercel Cron sends it to `/api/push-cron`, which
+  runs daily at 14:00 UTC = 8 PM Bangladesh (`vercel.json → crons`; on the
+  Hobby plan it fires within that hour).
 * `ADMIN_PASSWORD` (Sensitive): the password for “Admin হিসেবে delete” in the
   community. Without it nothing can be deleted (the API answers 503).
 

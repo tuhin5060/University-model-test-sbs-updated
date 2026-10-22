@@ -7,6 +7,7 @@ import { celebrate, beep } from '../lib/fx.js';
 import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
 import { startSession, sendScore } from '../quiz.js';
 import { explainBlock } from './play.js';
+import { maybeAskPush } from '../lib/push.js';
 
 const L = 'ABCD';
 let filter = 'all';
@@ -124,6 +125,7 @@ export function mount([id]) {
     if (pct >= 0.7) { celebrate(['🎉', '🏆', '⭐', '✨'], 26); beep('win'); }
   }
   lastShown = h.id;
+  if (Date.now() - new Date(h.finished).getTime() < 60_000) setTimeout(maybeAskPush, 1500); // only right after finishing
 }
 
 export function onAction(action, el) {

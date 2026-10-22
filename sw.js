@@ -5,17 +5,18 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = 'a4954d602936';
+const VERSION = '2dbd83c9fd87';
 const PRECACHE = [
   './',
-  'assets/css/styles.css?v=2.5.3',
-  'assets/js/main.js?v=2.5.3',
+  'assets/css/styles.css?v=2.6.0',
+  'assets/js/main.js?v=2.6.0',
   'assets/js/components.js',
   'assets/js/lib/api.js',
   'assets/js/lib/cloud.js',
   'assets/js/lib/dom.js',
   'assets/js/lib/fx.js',
   'assets/js/lib/live.js',
+  'assets/js/lib/push.js',
   'assets/js/lib/store.js',
   'assets/js/pages/community.js',
   'assets/js/pages/home.js',
@@ -112,4 +113,36 @@ self.addEventListener('fetch', event => {
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(staleWhileRevalidate(request));
   }
+});
+
+// ---- Notifications (server: server/routes/push.js) -----------------------------
+// A push carries no text; ask the server what to show (a test message or the day's reminder).
+self.addEventListener('push', event => {
+  event.waitUntil((async () => {
+    let message = null;
+    try {
+      const sub = await self.registration.pushManager.getSubscription();
+      const res = await fetch(`/api/push?message=1${sub ? `&endpoint=${encodeURIComponent(sub.endpoint)}` : ''}`, { cache: 'no-store' });
+      message = (await res.json()).message;
+    } catch { /* offline: show the default text */ }
+    message ||= { title: 'ক্যাম্পাসের পথে', body: 'আজকের practice বাকি আছে—কয়েক মিনিট সময় দাও!', url: '/#home' };
+    await self.registration.showNotification(message.title, {
+      body: message.body,
+      icon: '/assets/img/icon-192.png',
+      badge: '/assets/img/icon-192.png',
+      tag: 'campus-daily',
+      renotify: true,
+      data: { url: message.url || '/#home' },
+    });
+  })());
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url || '/#home', self.location.origin).href;
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    const open = list.find(c => new URL(c.url).origin === self.location.origin);
+    if (open) return open.navigate(url).then(c => (c || open).focus()).catch(() => open.focus());
+    return self.clients.openWindow(url);
+  }));
 });

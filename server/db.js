@@ -59,6 +59,15 @@ export const SCHEMA = [
     created_at timestamptz NOT NULL DEFAULT now()
   )`,
   'CREATE INDEX IF NOT EXISTS replies_thread ON replies (thread_id, id)',
+  // Browser push: one row per subscribed browser; settings holds the day's message and known topics.
+  `CREATE TABLE IF NOT EXISTS push_subs (
+    endpoint text PRIMARY KEY,
+    player_id uuid REFERENCES students(id) ON DELETE SET NULL,
+    pending jsonb,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    last_sent_at timestamptz
+  )`,
+  'CREATE TABLE IF NOT EXISTS settings (key text PRIMARY KEY, value jsonb NOT NULL)',
   `CREATE TABLE IF NOT EXISTS events (
     id bigserial PRIMARY KEY,
     kind text NOT NULL,

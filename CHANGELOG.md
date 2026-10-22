@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.6.0 — daily reminder notifications
+* 🔔 Browser notifications: every day at 8 PM (Bangladesh) a short practice
+  reminder (rotating: Model Test, daily challenge, Fun Quiz, vocabulary). Students
+  who already took a test that day are skipped. When a deploy adds a new topic,
+  the next 8 PM message announces it to everyone instead.
+* Turned on from a small card shown after a test (at most once a week until
+  answered) or the line under the home page's daily challenge, which also has
+  “পরীক্ষা করো” (send a test notification now) and “বন্ধ করো”. iPhone users
+  are told to add the site to the Home Screen first.
+* Server: `server/routes/push.js` (`/api/push`, `/api/push-cron`), tables
+  `push_subs` and `settings`. Pushes carry no payload; the service worker asks
+  `/api/push?message=1` what to show. Signed with VAPID using WebCrypto only.
+  Only real push services (Google, Mozilla, Microsoft, Apple) are contacted.
+
 ## 2.5.3 — opens even on a weak connection
 * Offline copy (`sw.js`): after the first visit, the page, styles, all
   modules and the hero photo are kept on the phone and served from there, so

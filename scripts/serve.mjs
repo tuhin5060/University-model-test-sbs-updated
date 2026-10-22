@@ -14,7 +14,7 @@ const types = {
   '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json', '.webp': 'image/webp',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json', '.md': 'text/plain; charset=utf-8',
 };
-const ROUTES = ['profile', 'scores', 'visitors', 'progress', 'community'];
+const ROUTES = ['profile', 'scores', 'visitors', 'progress', 'community', 'push'];
 
 let apiReady = null;
 async function api() {

@@ -7,6 +7,7 @@ import { SITE } from '../../data/site.js';
 import { $, $$, esc } from './lib/dom.js';
 import { syncCloud } from './lib/cloud.js';
 import { startLive, paintLive } from './lib/live.js';
+import { onPushAction, refreshPush } from './lib/push.js';
 import * as home from './pages/home.js';
 import * as start from './pages/start.js';
 import * as play from './pages/play.js';
@@ -105,6 +106,7 @@ document.addEventListener('click', e => {
   if (action === 'theme') return cycleTheme();
   if (action === 'search') return openSearch();
   if (action === 'lb-retry') return loadLeaderboards(document, true);
+  if (action.startsWith('push-')) return onPushAction(action, el);
   current?.onAction?.(action, el);
 });
 
@@ -187,7 +189,7 @@ window.__booted = true;
 const local = ['localhost', '127.0.0.1'].includes(location.hostname) && !location.search.includes('sw');
 if ('serviceWorker' in navigator && !local) {
   const hadWorker = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.register('/sw.js').then(() => refreshPush()).catch(() => {});
   // A new version finished downloading: offer a reload (never forced, a test may be running).
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hadWorker || $('.update-bar')) return;
