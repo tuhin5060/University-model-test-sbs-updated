@@ -32,7 +32,14 @@ export function json(body, status = 200, extra = {}) {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-export class BadRequest extends Error {}
+/** A client error shown to the student as is (400 unless another status is given). */
+export class BadRequest extends Error {
+  constructor(message, status = 400, extra = {}) {
+    super(message);
+    this.status = status;
+    this.extra = extra;
+  }
+}
 
 export async function readJSON(request, maxBytes = 200_000) {
   const raw = await request.text();

@@ -13,7 +13,8 @@ Cloudflare Pages copy — both deploy from `main` and share one Neon database.
 | | |
 |---|---|
 | 🎮 **Fun Quiz** | 30 s countdown per question, points, streak bonus (x1.5 / x2), 50:50 and Freeze lifelines, sounds + confetti, instant explanation, leaderboard. |
-| ⏱️ **Model Test** | One timer for the whole test (36 s per question), question palette, 🚩 flag for review, −0.25 for every wrong answer, auto-submit on time-up, topic-wise report and full answer sheet. |
+| ⏱️ **Model Test** | One timer for the whole test (36 s per question), question palette, 🚩 flag for review, ⏭ skip to the next unanswered question, −0.25 for every wrong answer, auto-submit on time-up, topic-wise report and full answer sheet. |
+| 💬 **Community** (`#community`) | Ask a question under a topic (with up to 5 tags, or straight from a question in the answer sheet), reply to others, filter by status / topic / tag / search. The asker marks the thread — or one reply — as ✅ solved. An admin deletes a thread or reply with the admin password. The newest threads also show on the home page. |
 | 🔁 **My mistakes** | Wrong answers are collected automatically; two correct answers later remove them. |
 | 📅 **Daily challenge** | The same 5 questions for everyone each day, with a 🔥 day streak. |
 | 💡 **Tips & Tricks** | 13 posts (CU English roadmap, MCQ strategy, Article & Tense cheat-sheets, routines, exam-day checklist …) with "practice this topic" buttons inside posts. |
@@ -105,6 +106,8 @@ for tests.)
 * Environment variable `DATABASE_URL` comes from the Vercel ↔ Neon
   integration (Storage tab). `POSTGRES_URL` also works. MongoDB variables are
   no longer used and can be deleted.
+* `ADMIN_PASSWORD` (Sensitive): the password for “Admin হিসেবে delete” in the
+  community. Without it nothing can be deleted (the API answers 503).
 
 ## Deploy on Cloudflare Pages
 
@@ -114,7 +117,8 @@ for tests.)
   project → Settings → Variables and Secrets → add `DATABASE_URL` (type
   *Secret*) for Production and Preview, using the same value as on Vercel
   (Neon console → Connect, or Vercel → Storage → Neon). Then redeploy.
-  Without it the site still works, but the leaderboard and visitor count are hidden.
+  Without it the site still works, but the leaderboard, visitor count and community are hidden.
+  Add `ADMIN_PASSWORD` (Secret) the same way, with the same value as on Vercel.
 * The old D1 database is no longer used.
 
 ## Security & data model
@@ -137,6 +141,11 @@ for tests.)
   once a minute with a random browser id (no name, no IP stored). The badge
   shows how many browsers sent one in the last 150 s; closing the tab removes it
   at once. If the database is not configured the badge is simply hidden.
+* Community: posting needs a student profile (the same cookie). Text is
+  stored as plain text and always escaped when shown. Limits: 3 new questions
+  per student per 10 minutes, 6 replies per 2 minutes. Deleting checks
+  `ADMIN_PASSWORD` on the server (digest comparison, a short delay after a
+  wrong password); the password never reaches the browser code or the repo.
 * Only topic-based Fun Quiz and Model Test results are ranked; mistakes practice,
   retries and the daily challenge are personal.
 * Practice history, mistakes, stats and settings live in localStorage and are

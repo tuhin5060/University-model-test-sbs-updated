@@ -105,7 +105,9 @@ export function render() {
   if (s.mode === 'exam') {
     nav = `<button class="btn ghost" data-action="prev" ${i === 0 ? 'disabled' : ''}>← আগের</button>
       <button class="btn ghost ${s.flags[q.id] ? 'on' : ''}" data-action="flag" aria-pressed="${!!s.flags[q.id]}">🚩 ${s.flags[q.id] ? 'Flagged' : 'Flag'}</button>
-      ${last ? '<button class="btn only-mobile" data-action="submit">✅ Submit</button>' : '<button class="btn" data-action="next">পরের →</button>'}`;
+      ${!quiz.isAnswered(s, q.id)
+        ? '<button class="btn ghost" data-action="exam-skip">এড়িয়ে যাও ⏭</button>'
+        : last ? '<button class="btn only-mobile" data-action="submit">✅ Submit</button>' : '<button class="btn" data-action="next">পরের →</button>'}`;
   } else {
     nav = done
       ? `<button class="btn big" data-action="next" id="next-btn">${last ? '🏁 ফলাফল দেখো' : 'পরের প্রশ্ন →'}</button>`
@@ -217,6 +219,21 @@ function goNext() {
   $('#qcard')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
+/** Model Test: leave this question unanswered and go to the next unanswered one (or offer to submit). */
+function skipExam() {
+  const s = state.session;
+  const n = s.ids.length;
+  for (let step = 1; step < n; step++) {
+    const i = (s.index + step) % n;
+    if (!quiz.isAnswered(s, s.ids[i])) {
+      quiz.go(i);
+      refresh();
+      return $('#qcard')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+  submit();
+}
+
 function submit() {
   const s = state.session;
   const left = s.ids.length - Object.keys(s.answers).length;
@@ -247,6 +264,7 @@ export function onAction(action, el) {
     }
     case 'next': return goNext();
     case 'skip': return goNext();
+    case 'exam-skip': return skipExam();
     case 'prev': quiz.go(s.index - 1); return refresh();
     case 'goto':
       quiz.go(Number(el.dataset.index));

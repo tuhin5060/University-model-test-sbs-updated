@@ -9,6 +9,7 @@ import { esc, bn, today, safeURL } from '../lib/dom.js';
 import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
 import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
 import { startSession, dailyIds } from '../quiz.js';
+import { loadLatest } from './community.js';
 
 function resumeBanner() {
   const s = state.session;
@@ -63,6 +64,14 @@ function modes() {
       </a>
     </div>
     ${m ? `<div class="mini-modes"><a href="#start/fun/mistakes">🔁 <b>আমার ভুলগুলো</b> — ${bn(m)}টি প্রশ্ন আবার চেষ্টা করো</a></div>` : ''}
+  </section>`;
+}
+
+function community() {
+  return `<section class="container section">
+    <div class="section-head"><div><h2>💬 কমিউনিটি</h2><p>আটকে গেলে প্রশ্ন করো, অন্যরা উত্তর দেবে। তুমিও কারও প্রশ্নের উত্তর দাও।</p></div><a class="text-link" href="#community">সব আলোচনা →</a></div>
+    <div class="cm-list" id="home-community"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <a class="btn" href="#community/new">✍️ প্রশ্ন করো</a>
   </section>`;
 }
 
@@ -124,6 +133,7 @@ export function render() {
   ${resumeBanner()}
   ${daily()}
   ${modes()}
+  ${community()}
   <section class="container section">
     <div class="section-head"><div><h2>📘 Grammar</h2><p>যে topic-এ দুর্বল, সেখান থেকে শুরু করো।</p></div></div>
     <div class="topic-grid">${TOPICS.filter(t => t.group === 'grammar').map(t => topicCard(t)).join('')}</div>
@@ -149,6 +159,7 @@ export function render() {
 export function mount() {
   hydratePhotos();
   loadLeaderboards();
+  loadLatest(document.getElementById('home-community'));
 }
 
 export function onAction(action) {

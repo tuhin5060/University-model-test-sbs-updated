@@ -44,6 +44,7 @@ function reviewItem(a, i, h) {
       .join('')}</ul>
     ${status === 'right' ? '' : `<p class="answer-line">সঠিক উত্তর: <span lang="en">${L[q.a]}. ${esc(q.o[q.a])}</span></p>`}
     ${explainBlock(q)}
+    <a class="text-link ask-link" href="#community/new/${esc(q.topicId)}/${encodeURIComponent(q.id)}">💬 এই প্রশ্ন নিয়ে কমিউনিটিতে জিজ্ঞেস করো</a>
   </article>`;
 }
 

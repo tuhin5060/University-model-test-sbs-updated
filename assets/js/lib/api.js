@@ -73,3 +73,15 @@ export function queueProgressSync(state) {
     });
   }, 900);
 }
+
+// Community: threads by topic with tags, replies, "resolved", admin delete.
+export async function fetchThreads({ topic = '', tag = '', status = '', q = '', page = 0 } = {}) {
+  const qs = new URLSearchParams(Object.entries({ topic, tag, status, q, page }).filter(([, v]) => v !== '' && v !== 0));
+  return call(`/api/community${qs.size ? `?${qs}` : ''}`);
+}
+export async function fetchThread(id) {
+  return (await call(`/api/community?id=${encodeURIComponent(id)}`)).thread;
+}
+export async function communityAction(body) {
+  return call('/api/community', { method: 'POST', body: JSON.stringify(body) });
+}

@@ -2,6 +2,7 @@
 # functions/api/*.js are the API. The database is the same Neon Postgres the
 # Vercel deployment uses: add DATABASE_URL as an encrypted variable in
 # Cloudflare → Workers & Pages → this project → Settings → Variables and Secrets.
+# ADMIN_PASSWORD (Secret) is the community's admin-delete password.
 name = "university-model-test-sbs-updated"
 pages_build_output_dir = "."
 compatibility_date = "2026-10-21"

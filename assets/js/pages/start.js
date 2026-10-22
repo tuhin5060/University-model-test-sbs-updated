@@ -107,7 +107,7 @@ function tagPreview(name, roll) {
  * Save name + roll on the server. Returns the player, null (offline: play
  * without the leaderboard) or false (fix the form first, e.g. roll taken).
  */
-async function ensureProfile({ name, roll, avatar }, showRollError) {
+export async function ensureProfile({ name, roll, avatar }, showRollError) {
   const p = state.player;
   if (p?.playerId && p.roll && p.name === name && rollText(p.roll) === (roll && rollText(roll)) && p.avatar === avatar) return p;
   try {

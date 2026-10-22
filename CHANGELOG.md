@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.5.0 — community, skip in Model Test, faster first load
+* **Community** (`#community`, in the top and bottom menus and on the home
+  page): ask a question under a topic with tags (or from any question in the
+  answer sheet), reply, filter by ✅ solved / ❓ open, topic, tag or search.
+  The asker marks the thread or one reply as the solution. Admin delete asks
+  for the admin password (`ADMIN_PASSWORD`, set only in the host settings).
+* Model Test: **এড়িয়ে যাও ⏭** on an unanswered question goes to the next
+  unanswered one; at the end it offers to submit.
+* Site name is now **ক্যাম্পাসের পথে** everywhere (page, link preview, logos).
+* New link-preview image (CU gate + logo) and professional preview text.
+* Faster, more reliable loading: Google Fonts no longer block the page, all
+  modules are preloaded, code/data are reused from the browser cache.
+* SEO: title, description, canonical URL, structured data, robots.txt, sitemap.
+* Home headline: “স্বপ্নটা সেরা ক্যাম্পাসের, প্রস্তুতিও হোক সেরা।”
+* Node.js 24.
+
 ## 2.4.0 — Memorising, roll numbers, Neon, Cloudflare + Vercel
 * New **Memorising** section next to Grammar (pick a single topic or "সব
   Memorising"): Vocabulary Synonym (538), Antonym (330) and Word Meaning (122)

@@ -35,6 +35,30 @@ export const SCHEMA = [
   'CREATE INDEX IF NOT EXISTS score_attempts_player ON score_attempts (player_id, at DESC)',
   'CREATE TABLE IF NOT EXISTS presence (sid text PRIMARY KEY, at timestamptz NOT NULL)',
   'CREATE TABLE IF NOT EXISTS progress (id uuid PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL)',
+  // Community: question threads (by topic, with tags) and their replies.
+  `CREATE TABLE IF NOT EXISTS threads (
+    id bigserial PRIMARY KEY,
+    author_id uuid NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    topic text NOT NULL,
+    title text NOT NULL,
+    body text NOT NULL DEFAULT '',
+    tags jsonb NOT NULL DEFAULT '[]',
+    question_id text,
+    resolved boolean NOT NULL DEFAULT false,
+    solution_id bigint,
+    replies integer NOT NULL DEFAULT 0,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    active_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  'CREATE INDEX IF NOT EXISTS threads_active ON threads (active_at DESC)',
+  `CREATE TABLE IF NOT EXISTS replies (
+    id bigserial PRIMARY KEY,
+    thread_id bigint NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+    author_id uuid NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    body text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  'CREATE INDEX IF NOT EXISTS replies_thread ON replies (thread_id, id)',
   `CREATE TABLE IF NOT EXISTS events (
     id bigserial PRIMARY KEY,
     kind text NOT NULL,
