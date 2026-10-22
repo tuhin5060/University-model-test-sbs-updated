@@ -106,7 +106,7 @@ export function render() {
     <div class="container hero-grid">
     <div class="hero-inner">
       <span class="eyebrow light">${esc(SITE.initiative)}</span>
-      <h1>${name ? `${esc(name.split(' ')[0])}, ` : ''}স্বপ্নের ক্যাম্পাসের<br>প্রস্তুতি শুরু হোক আজ।</h1>
+      <h1>${name ? `${esc(name.split(' ')[0])}, ` : ''}স্বপ্নটা সেরা ক্যাম্পাসের,<br>প্রস্তুতিও হোক সেরা।</h1>
       <p>বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English MCQ—খেলার মতো মজায়, পরীক্ষার মতো নিয়মে। প্রতিটি উত্তরের সঙ্গে সহজ বাংলা ব্যাখ্যা।</p>
       <div class="hero-cta">
         <a class="btn big t-fun" href="#start/fun">🎮 Fun Quiz খেলো</a>
