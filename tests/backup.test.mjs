@@ -80,3 +80,11 @@ test('converted SQL loads into SQLite with everything connected', async t => {
   assert.equal(lite.prepare("SELECT id FROM threads WHERE title = 'next one'").get().id, backup.tables.threads[0].id + 1);
   lite.close();
 });
+
+test('admin usage: database size and row counts, password required', async () => {
+  assert.equal((await backupApi.POST(req('/api/backup', { password: 'wrong', stats: true }))).status, 403);
+  const body = await (await backupApi.POST(req('/api/backup', { password: ADMIN, stats: true }))).json();
+  assert.ok(body.size > 0);
+  assert.ok(body.rows.students >= 2 && body.rows.score_attempts >= 2);
+  assert.equal(body.tables, undefined, 'only numbers, no student data');
+});

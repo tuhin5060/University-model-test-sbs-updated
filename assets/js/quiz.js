@@ -4,7 +4,7 @@
 import { QUESTIONS, QUESTION_MAP, inTopic } from '../../data/questions/index.js';
 import { scoreAttempt, funPoints, EXAM_PACE, FUN_LIMIT, EXAM_NEGATIVE, MAX_QUESTIONS } from './shared/scoring.js';
 import { state, save, recordAttempt, updateHistory, mistakeIds } from './lib/store.js';
-import { shuffle, seeded, today, uid, toast, navigate } from './lib/dom.js';
+import { shuffle, seeded, today, uid, toast, navigate, ask } from './lib/dom.js';
 import { submitScore, clearBoardCache } from './lib/api.js';
 import { topicTitle } from './components.js';
 
@@ -31,8 +31,8 @@ export const DAILY_SECONDS = 120;
  * Start a new session and open the play screen.
  * opts: { mode, topic, count, settings, kind, ids, title, player }
  */
-export function startSession(opts) {
-  if (state.session && !confirm('আগের অসমাপ্ত test বাদ দিয়ে নতুন শুরু করবে?')) return false;
+export async function startSession(opts) {
+  if (state.session && !(await ask('আগের একটা test অসমাপ্ত আছে। সেটা বাদ দিয়ে নতুন test শুরু করবে?', { yes: 'নতুন শুরু করো', no: 'না' }))) return false;
   const mode = ['fun', 'exam', 'practice'].includes(opts.mode) ? opts.mode : 'practice';
   const count = Math.min(MAX_QUESTIONS, Math.max(1, Number(opts.count) || 10));
   const ids = opts.ids || shuffle(poolFor(opts.topic)).slice(0, count).map(q => q.id);

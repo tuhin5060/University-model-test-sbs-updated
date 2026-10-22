@@ -2,6 +2,7 @@
 // POST { password } → { app, version, exportedAt, tables: { students: [...], ... } }
 // Used for safe-keeping and for moving to another database (scripts/backup-to-d1.mjs).
 // Short-lived tables (presence, events) are left out.
+// POST { password, stats: true } → { size: bytes, rows: { students: n, ... } } (database usage).
 import { route } from '../route.js';
 import { json, readJSON } from '../http.js';
 import { requireAdmin } from '../admin.js';
@@ -20,6 +21,13 @@ export default route('backup', {
   async POST(request, db, env) {
     const body = await readJSON(request, 2_000);
     await requireAdmin(body.password, env, db, request);
+    if (body.stats === true) {
+      const [[size], [rows]] = await db.batch([
+        ['SELECT pg_database_size(current_database())::text AS bytes'],
+        [`SELECT ${[...Object.keys(BACKUP_TABLES), 'hits'].map(t => `(SELECT count(*) FROM ${t})::int AS ${t}`).join(', ')}`],
+      ]);
+      return json({ ok: true, size: Number(size.bytes), rows });
+    }
     const names = Object.keys(BACKUP_TABLES);
     const results = await db.batch(names.map(name => [BACKUP_TABLES[name]]));
     const tables = Object.fromEntries(names.map((name, i) => [name, results[i]]));

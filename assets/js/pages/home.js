@@ -5,7 +5,7 @@ import VOCAB from '../../../data/vocabulary.js';
 import { POSTS, QUICK_TIPS } from '../../../data/posts.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
 import { SITE, SBS, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
-import { esc, bn, today, safeURL } from '../lib/dom.js';
+import { esc, bn, today, safeURL, ask } from '../lib/dom.js';
 import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
 import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
 import { startSession, dailyIds } from '../quiz.js';
@@ -181,11 +181,11 @@ export function mount() {
   hydratePush();
 }
 
-export function onAction(action) {
+export async function onAction(action) {
   if (action === 'daily') {
     startSession({ mode: 'practice', topic: 'daily', ids: dailyIds(5), kind: 'daily', title: topicTitle('daily') });
   } else if (action === 'discard') {
-    if (confirm('অসমাপ্ত test বাদ দেবে? এর উত্তরগুলো মুছে যাবে।')) {
+    if (await ask('অসমাপ্ত test বাদ দেবে? এর উত্তরগুলো মুছে যাবে।', { yes: 'বাদ দাও', no: 'না' })) {
       state.session = null;
       save();
       document.querySelector('.resume')?.remove();

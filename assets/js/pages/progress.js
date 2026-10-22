@@ -2,7 +2,7 @@
 
 import { TOPICS } from '../../../data/questions/index.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
-import { esc, bn, bnDate, duration, toast } from '../lib/dom.js';
+import { esc, bn, bnDate, duration, toast, ask } from '../lib/dom.js';
 import { state, storageOK, mistakeIds, dailyStreak, replaceState, resetState, validBackup } from '../lib/store.js';
 import { pageHead, MODE_INFO, topicAccuracy, empty } from '../components.js';
 
@@ -62,7 +62,7 @@ export function render() {
   </div>`;
 }
 
-export function onAction(action) {
+export async function onAction(action) {
   if (action === 'export') {
     const url = URL.createObjectURL(new Blob([JSON.stringify({ ...state, session: null }, null, 2)], { type: 'application/json' }));
     const a = Object.assign(document.createElement('a'), { href: url, download: `campus-pothe-backup-${new Date().toISOString().slice(0, 10)}.json` });
@@ -71,7 +71,7 @@ export function onAction(action) {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   } else if (action === 'clear') {
-    if (confirm('সব ফলাফল, ভুলের তালিকা ও অগ্রগতি মুছে যাবে। নিশ্চিত?')) {
+    if (await ask('সব ফলাফল, ভুলের তালিকা ও অগ্রগতি মুছে যাবে। নিশ্চিত?', { yes: 'মুছে ফেলো', no: 'না' })) {
       resetState();
       document.getElementById('main').innerHTML = render();
       toast('মুছে ফেলা হয়েছে');
@@ -88,7 +88,7 @@ export async function onChange(el) {
     if (f.size > 3_000_000) throw new Error('size');
     const data = JSON.parse(await f.text());
     if (!validBackup(data)) throw new Error('format');
-    if (!confirm('এই browser-এর অগ্রগতি backup দিয়ে বদলে দেবে?')) return;
+    if (!(await ask('এই browser-এর অগ্রগতি backup দিয়ে বদলে দেবে?', { yes: 'বদলে দাও', no: 'না' }))) return;
     replaceState(data);
     document.getElementById('main').innerHTML = render();
     toast('✅ Backup import হয়েছে');

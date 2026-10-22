@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.8.3 — Model Test submit works in every browser
+* Submit, “শেষ করো”, “বের হও”, starting a new test over an unfinished one, a new
+  roll and the progress reset now ask on the page itself instead of the browser’s
+  `confirm()` popup, which Messenger/Facebook in-app browsers can block (it then
+  silently answered “no”, so Submit or Start looked dead).
+* The database schema step retries once, so the first requests after a deploy no
+  longer fail when two fresh instances create a new table at the same moment.
+* `#backup`: “📊 Database কতটুকু ভরেছে?” shows storage used of the Neon free 1 GB
+  and row counts (admin password).
+* `#sbs`: the Facebook page box is gone; just the Facebook button (no `frame-src`).
+
 ## 2.8.2 — SBS Students’ Association
 * New page `#sbs`: who SBS is (Chattogram University students from Bhatiary,
   Sonaichhari and Salimpur, Sitakunda), what it does (admission help and exam-day

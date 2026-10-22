@@ -52,6 +52,24 @@ export function seeded(seedText) {
 }
 
 let toastTimer;
+/**
+ * A yes/no question shown on the page itself (resolves true for yes). Used instead
+ * of window.confirm, which Messenger/Facebook in-app browsers can block: there it
+ * silently answers "no", so a Submit or Start button seemed to do nothing.
+ */
+export function ask(message, { yes = 'হ্যাঁ', no = 'না' } = {}) {
+  const dlg = document.createElement('dialog');
+  if (typeof dlg.showModal !== 'function') return Promise.resolve(window.confirm(message));
+  dlg.className = 'ask-dialog';
+  dlg.innerHTML = `<form method="dialog"><p>${esc(message)}</p>
+    <div class="actions"><button class="btn ghost" value="no">${esc(no)}</button><button class="btn" value="yes" autofocus>${esc(yes)}</button></div></form>`;
+  document.body.append(dlg);
+  return new Promise(resolve => {
+    dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes'); dlg.remove(); }, { once: true });
+    dlg.showModal();
+  });
+}
+
 export function toast(message) {
   const el = document.getElementById('toast');
   if (!el) return;

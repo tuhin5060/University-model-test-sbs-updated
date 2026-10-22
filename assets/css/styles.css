@@ -805,6 +805,10 @@ button.cm-tag { cursor: pointer; }
 .cm-dialog::backdrop { background: rgba(0, 0, 0, .45); }
 .cm-dialog h3 { margin-top: 0; }
 .cm-dialog form { display: grid; gap: 10px; }
+.ask-dialog { border: 0; border-radius: var(--r); padding: 20px; width: min(92vw, 380px); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg); }
+.ask-dialog::backdrop { background: rgba(0, 0, 0, .45); }
+.ask-dialog p { margin: 0 0 16px; white-space: pre-line; font-size: 1.02rem; line-height: 1.6; }
+.ask-dialog .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 .skeleton.tall { height: 180px; }
 .ask-link { display: inline-block; margin-top: 8px; font-size: .9rem; }
 @media (max-width: 559px) {
@@ -891,7 +895,5 @@ button.cm-tag { cursor: pointer; }
 .sbs-item { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 14px 16px; }
 .sbs-item > span { font-size: 1.6rem; line-height: 1; }
 .sbs-item p { margin: 4px 0 0; color: var(--muted); }
-.fb-embed { display: grid; justify-items: center; margin: 8px 0; min-height: 120px; }
-.fb-embed iframe { border: 0; border-radius: 12px; max-width: 100%; background: var(--surface); }
 @media (min-width: 700px) { .sbs-work { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 420px) { .sbs-card { grid-template-columns: 1fr; } }

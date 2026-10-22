@@ -8,7 +8,7 @@
 //                 that roll yet (e.g. a roll the admin handed out), ask, then register with it.
 //                 A roll that belongs to someone else is never taken.
 
-import { esc, toast } from './dom.js';
+import { esc, toast, ask } from './dom.js';
 import { state, save } from './store.js';
 import { saveProfile } from './api.js';
 import { playerFrom, syncCloud } from './cloud.js';
@@ -105,7 +105,7 @@ export async function signIn(root, { avatar } = {}) {
     if (found !== NOT_FOUND) return found;
     // Nobody has this roll yet: a roll the student was given. Register with it, after a check.
     if (!college) return showError(box, `Roll ${rollText(roll)} এখনো কারও নেই। এই roll দিয়ে নতুন নাম খুলতে তোমার কলেজের নামও দাও।`, 'college'), false;
-    if (!confirm(`Roll ${rollText(roll)} এখনো কারও নেই।\n\n“${name}” নামে এই roll দিয়ে নতুন ID খুলবে?\n\n(আগে খেলে থাকলে Cancel চেপে নিজের আগের roll ঠিক করে লেখো।)`)) return false;
+    if (!(await ask(`Roll ${rollText(roll)} এখনো কারও নেই।\n\n“${name}” নামে এই roll দিয়ে নতুন ID খুলবে?\n\n(আগে খেলে থাকলে “না” চেপে নিজের আগের roll ঠিক করে লেখো।)`, { yes: 'হ্যাঁ, খোলো', no: 'না' }))) return false;
     return send({ name, roll, avatar: avatar || '🚂', college }, box);
   }
   if (loginOnly) return showError(box, 'তোমার roll লেখো (যেমন 007)।', 'roll'), false;

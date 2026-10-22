@@ -116,7 +116,7 @@ export function mount() {
     btn.textContent = 'শুরু করো →';
     if (player === false) return;
     const topic = String(fd.get('topic') || 'all');
-    const ok = startSession({ mode, topic, count, settings: {}, player, kind: topic === 'mistakes' ? 'mistakes' : 'topic' });
+    const ok = await startSession({ mode, topic, count, settings: {}, player, kind: topic === 'mistakes' ? 'mistakes' : 'topic' });
     if (!ok) btn.textContent = 'আবার চেষ্টা করো';
   });
 }

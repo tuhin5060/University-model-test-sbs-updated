@@ -99,7 +99,10 @@ export async function getDb(env) {
   let entry = pool.get(url);
   if (!entry) {
     const db = neonHttp(url);
-    entry = { db, ready: db.batch(SCHEMA.map(text => [text])) };
+    // Two fresh instances creating a new table at the same moment (right after a
+    // deploy) can collide once; the second try then finds the table and passes.
+    const init = () => db.batch(SCHEMA.map(text => [text]));
+    entry = { db, ready: init().catch(init) };
     entry.ready.catch(() => pool.delete(url)); // retry on the next request
     pool.set(url, entry);
   }

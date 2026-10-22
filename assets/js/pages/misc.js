@@ -168,30 +168,16 @@ export function switchBoardMode(el) {
   loadLeaderboards(box.parentElement);
 }
 
-// The organisation behind the site, with its Facebook page (Facebook's own page box,
-// loaded only when it scrolls into view so the page stays fast).
+// The organisation behind the site, with a link to its Facebook page.
 export const sbsPage = {
   render() {
     return `<div class="container narrow">
       ${pageHead(SBS.name, SBS.intro, SBS.area, [[null, 'SBS']])}
       <div class="sbs-work">${SBS.work.map(([icon, title, text]) => `<div class="card sbs-item"><span aria-hidden="true">${icon}</span><div><b>${esc(title)}</b><p>${esc(text)}</p></div></div>`).join('')}</div>
       <p class="actions"><a class="btn fb-btn" href="${esc(SBS.facebook)}" target="_blank" rel="noopener noreferrer">📘 Facebook পেজে যাও ↗</a></p>
-      <section class="section-tight">
-        <h2 class="h3">📣 Facebook-এ সর্বশেষ</h2>
-        <div class="fb-embed" id="fb-embed"><p class="muted small">Facebook পেজ লোড হচ্ছে…</p></div>
-        <p class="muted small">পোস্ট দেখা না গেলে (নেট বা browser-এর কারণে) ${ext(SBS.facebook, 'সরাসরি Facebook-এ দেখো')}</p>
-      </section>
+      <p class="muted small">সর্বশেষ খবর, কার্যক্রমের ছবি আর ঘোষণা SBS-এর Facebook পেজে।</p>
       <p class="muted">“${esc(SITE.name)}” SBS-এর উদ্যোগ—ভর্তিচ্ছুরা যেন ঘরে বসেই প্রস্তুতি নিতে পারে।</p>
     </div>`;
-  },
-  mount() {
-    const box = $('#fb-embed');
-    if (!box) return;
-    const width = Math.max(280, Math.min(500, Math.floor(box.clientWidth)));
-    const src = `https://www.facebook.com/plugins/page.php?${new URLSearchParams({
-      href: SBS.facebook, tabs: 'timeline', width, height: 620, small_header: 'true', adapt_container_width: 'true', hide_cover: 'false', show_facepile: 'false',
-    })}`;
-    box.innerHTML = `<iframe src="${esc(src)}" width="${width}" height="620" loading="lazy" title="${esc(SBS.name)} — Facebook" allow="encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   },
 };
 
@@ -234,12 +220,33 @@ export const backupPage = {
         <input id="backup-password" type="password" name="password" autocomplete="current-password" required>
         <p class="field-error" id="backup-error" hidden></p>
         <button class="btn" type="submit">⬇️ Backup download করো</button>
+        <button class="btn ghost" type="button" id="usage-btn">📊 Database কতটুকু ভরেছে?</button>
+        <div id="usage-box" hidden></div>
         <p class="muted small">File-টা নিরাপদ জায়গায় রাখো—এতে সবার নাম ও roll আছে। নতুন database-এ নেওয়ার নিয়ম: <code>docs/MIGRATE_TO_D1.md</code>।</p>
       </form>
     </div>`;
   },
   mount() {
     const form = $('#backup-form');
+    $('#usage-btn')?.addEventListener('click', async e => {
+      const box = $('#usage-box');
+      e.target.disabled = true;
+      try {
+        const res = await fetch('/api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: form.elements.password.value, stats: true }) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || `(${res.status})`);
+        const mb = data.size / 1048576;
+        const pct = data.size / (1024 ** 3) * 100; // Neon free plan: 1 GB per project
+        box.innerHTML = `<p><b>Storage:</b> ${esc(mb.toFixed(1))} MB / 1 GB (${esc(pct < 0.1 ? '<0.1' : pct.toFixed(1))}%)</p>
+          <p class="muted small">${Object.entries(data.rows).map(([t, n]) => `${esc(t)}: ${bn(n)}`).join(' · ')}</p>
+          <p class="muted small">Compute (মাসে ১০০ CU-hour) দেখা যায় শুধু Neon console-এ: Vercel → Storage → database → Open in Neon → Usage।</p>`;
+      } catch (err) {
+        box.innerHTML = `<p class="field-error">${esc(err.message)}</p>`;
+      } finally {
+        box.hidden = false;
+        e.target.disabled = false;
+      }
+    });
     form?.addEventListener('submit', async e => {
       e.preventDefault();
       const error = $('#backup-error');

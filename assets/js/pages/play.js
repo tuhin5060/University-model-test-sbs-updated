@@ -1,6 +1,6 @@
 // The play screen for Fun Quiz, Model Test and Practice.
 
-import { esc, bn, clock, $, $$, toast } from '../lib/dom.js';
+import { esc, bn, clock, $, $$, toast, ask } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { beep, celebrate, shake, soundOn, setSound } from '../lib/fx.js';
 import { multiplier } from '../shared/scoring.js';
@@ -237,14 +237,14 @@ function skipExam() {
   submit();
 }
 
-function submit() {
+async function submit() {
   const s = state.session;
   const left = s.ids.length - Object.keys(s.answers).length;
   const flagged = Object.values(s.flags).filter(v => v === true).length;
   const msg = left || flagged
-    ? `${left ? `${left}টি প্রশ্নের উত্তর দেওয়া হয়নি। ` : ''}${flagged ? `${flagged}টি flag করা আছে। ` : ''}তবুও submit করবে?`
+    ? `${left ? `${bn(left)}টি প্রশ্নের উত্তর দেওয়া হয়নি। ` : ''}${flagged ? `${bn(flagged)}টি flag করা আছে। ` : ''}তবুও submit করবে?`
     : 'সব উত্তর জমা দেবে?';
-  if (confirm(msg)) quiz.finish();
+  if (await ask(msg, { yes: '✅ Submit করো', no: 'ফিরে যাও' })) quiz.finish();
 }
 
 export function onAction(action, el) {
@@ -285,10 +285,10 @@ export function onAction(action, el) {
       return refresh();
     case 'sound': setSound(!soundOn()); return refresh();
     case 'end':
-      if (confirm('এখনই শেষ করবে? যতটুকু খেলেছ ততটুকুর ফলাফল দেখাবে।')) quiz.finish();
+      ask('এখনই শেষ করবে? যতটুকু খেলেছ ততটুকুর ফলাফল দেখাবে।', { yes: 'শেষ করো', no: 'খেলতে থাকো' }).then(yes => yes && quiz.finish());
       return;
     case 'exit':
-      if (confirm('Test থেকে বের হবে? পরে হোম পেজ থেকে আবার এখান থেকেই শুরু করতে পারবে।')) location.hash = '#home';
+      ask('Test থেকে বের হবে? পরে হোম পেজ থেকে আবার এখান থেকেই শুরু করতে পারবে।', { yes: 'বের হও', no: 'থাকো' }).then(yes => { if (yes) location.hash = '#home'; });
       return;
   }
 }
