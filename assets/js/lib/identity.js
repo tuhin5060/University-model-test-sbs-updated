@@ -116,12 +116,29 @@ export async function signIn(root, { avatar } = {}) {
 
 const NOT_FOUND = Symbol('roll not found');
 
+const uuid = () => crypto.randomUUID?.()
+  ?? '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16));
+
+/** saveProfile, waiting up to 15 s; a slow or dropped answer (network, server busy) is tried once more. */
+async function saveWithRetry(body) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await Promise.race([
+        saveProfile(body),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000)),
+      ]);
+    } catch (err) {
+      if (attempt >= 2 || (err.status && err.status < 500)) throw err;
+    }
+  }
+}
+
 async function send(body, box, { quietNotFound = false } = {}) {
+  // A new student: the id is chosen here, so sending the sign-up again cannot create a second student.
+  // Kept with the name until it reaches the server, so pressing Start again re-sends the same one.
+  if (!body.login && !body.playerId) body.newId = state.player?.newId && state.player.name === body.name ? state.player.newId : uuid();
   try {
-    const res = await Promise.race([
-      saveProfile(body),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
-    ]);
+    const res = await saveWithRetry(body);
     state.player = playerFrom(res.player);
     save();
     if (res.created) await showIdCard(res.player);
@@ -132,14 +149,13 @@ async function send(body, box, { quietNotFound = false } = {}) {
     return state.player;
   } catch (err) {
     if (quietNotFound && err.body?.code === 'roll_not_found') return NOT_FOUND;
-    if (err.status === 404 || err.status === 409 || err.status === 400) {
+    if ([400, 403, 404, 409, 429].includes(err.status)) {
       showError(box, err.body?.error || err.message, err.body?.code === 'name_mismatch' ? 'name' : 'roll');
       return false;
     }
-    toast('⚠️ Server-এ পৌঁছানো গেল না—এবারের score শুধু এই device-এ থাকবে।');
     if (state.player?.playerId) return state.player;
     if (body.name && !body.login) {
-      state.player = { name: body.name, avatar: body.avatar };
+      state.player = { name: body.name, avatar: body.avatar, newId: body.newId };
       save();
     }
     return null;

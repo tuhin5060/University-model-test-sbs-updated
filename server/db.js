@@ -81,6 +81,22 @@ export const SCHEMA = [
   )`,
 ];
 
+// A fingerprint of SCHEMA, stored in settings once the statements have run: a new
+// instance then needs one small query instead of the whole list (faster cold starts).
+export const SCHEMA_VERSION = `v1-${[...SCHEMA.join('\n')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36)}`;
+
+export async function prepare(db) {
+  try {
+    const [row] = await db.query("SELECT value FROM settings WHERE key = 'schema'");
+    if (row?.value === SCHEMA_VERSION) return;
+  } catch { /* a new database: no settings table yet */ }
+  // Two fresh instances creating a new table at the same moment (right after a
+  // deploy) can collide once; the second try then finds the table and passes.
+  const run = () => db.batch(SCHEMA.map(text => [text]));
+  await run().catch(run);
+  await db.query("INSERT INTO settings (key, value) VALUES ('schema', $1::jsonb) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [JSON.stringify(SCHEMA_VERSION)]);
+}
+
 let injected = null;
 const pool = new Map();
 
@@ -99,10 +115,7 @@ export async function getDb(env) {
   let entry = pool.get(url);
   if (!entry) {
     const db = neonHttp(url);
-    // Two fresh instances creating a new table at the same moment (right after a
-    // deploy) can collide once; the second try then finds the table and passes.
-    const init = () => db.batch(SCHEMA.map(text => [text]));
-    entry = { db, ready: init().catch(init) };
+    entry = { db, ready: prepare(db) };
     entry.ready.catch(() => pool.delete(url)); // retry on the next request
     pool.set(url, entry);
   }

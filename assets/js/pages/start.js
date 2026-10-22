@@ -4,7 +4,7 @@
 
 import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { AVATARS } from '../../../data/site.js';
-import { esc, bn, $ } from '../lib/dom.js';
+import { esc, bn, $, ask } from '../lib/dom.js';
 import { state, mistakeIds } from '../lib/store.js';
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { FUN_LIMIT, EXAM_SECONDS, EXAM_NEGATIVE } from '../shared/scoring.js';
@@ -111,7 +111,13 @@ export function mount() {
     state.prefs = { ...state.prefs, [mode]: { count } };
     btn.disabled = true;
     btn.textContent = 'প্রস্তুত হচ্ছে…';
-    const player = await signIn(form, { avatar: String(fd.get('avatar') || '🚂') });
+    let player = await signIn(form, { avatar: String(fd.get('avatar') || '🚂') });
+    // Server not reached (slow or no network): say so, instead of a test whose score is never saved.
+    while (player === null) {
+      const retry = await ask('Server-এ পৌঁছানো যাচ্ছে না (নেট ধীর বা বন্ধ)। তোমার নাম save হয়নি, তাই এই test-এর score leaderboard-এ যাবে না।\n\nআবার চেষ্টা করবে?', { yes: '🔄 আবার চেষ্টা', no: 'save ছাড়াই শুরু' });
+      if (!retry) break;
+      player = await signIn(form, { avatar: String(fd.get('avatar') || '🚂') });
+    }
     btn.disabled = false;
     btn.textContent = 'শুরু করো →';
     if (player === false) return;

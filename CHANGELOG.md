@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.8.4 — names and scores reach the server on slow networks and iPhones
+* Sign-up waits up to 15 s and tries once more by itself; the browser picks the new
+  student’s id, so a sign-up sent twice still makes one student (`newId`).
+* If the server still cannot be reached, Start asks “আবার চেষ্টা / save ছাড়াই শুরু”
+  instead of silently starting a test whose score is never saved; refusals (too many
+  tries, cross-site) show their real reason.
+* A result saved only on the device gets a “… নামে পাঠাও” button once the name is saved.
+* Per-address limits raised for mobile networks (many phones share one address):
+  300 sign-ups/hour, 300 sign-ins and 600 scores per 10 min.
+* Requests marked `Sec-Fetch-Site: same-origin` are always accepted (Safari privacy
+  modes may send `Origin: null`).
+* Cold starts: the schema statements run only when they changed (version in `settings`).
+* Messenger/Facebook “open in Chrome” bar and switch: Android only.
+
 ## 2.8.3 — Model Test submit works in every browser
 * Submit, “শেষ করো”, “বের হও”, starting a new test over an unfinished one, a new
   roll and the progress reset now ask on the page itself instead of the browser’s

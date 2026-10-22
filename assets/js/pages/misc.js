@@ -3,7 +3,7 @@
 import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { UNIVERSITIES, CONTENT_UPDATED } from '../../../data/universities.js';
 import { SITE, SBS, CU_PHOTOS } from '../../../data/site.js';
-import { esc, bn, bnDate, duration, ext, $, navigate } from '../lib/dom.js';
+import { esc, bn, bnDate, duration, ext, $, navigate, toast } from '../lib/dom.js';
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { state, dailyStreak } from '../lib/store.js';
 import { fetchMyStats } from '../lib/api.js';
@@ -133,6 +133,7 @@ export const leaderboardPage = {
         const player = await signIn(login);
         btn.disabled = false;
         if (player?.playerId) navigate(location.hash || '#leaderboard');
+        else if (player === null) toast('⚠️ Server-এ পৌঁছানো গেল না—নেট দেখে আবার চেষ্টা করো।');
       });
     }
     loadMyStats();

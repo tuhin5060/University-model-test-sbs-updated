@@ -64,8 +64,12 @@ async function rollTaken(db, roll) {
   }, 409);
 }
 
-async function insertStudent(db, { name, key, avatar, roll, college }, request) {
-  await limit(db, request, 'signup', 40, 3600, 'এই network থেকে অনেক নতুন নাম হয়েছে—এক ঘণ্টা পরে আবার চেষ্টা করো।');
+// Mobile operators put thousands of phones behind one address, and a whole class may
+// sign up at once from one shared link, so the per-address limits are generous.
+export const SIGNUP_MAX = 300; // new students per address per hour
+
+async function insertStudent(db, { id, name, key, avatar, roll, college }, request) {
+  await limit(db, request, 'signup', SIGNUP_MAX, 3600, 'এই network থেকে অনেক নতুন নাম হয়েছে—এক ঘণ্টা পরে আবার চেষ্টা করো।');
   // roll === null → the lowest free number, so rolls the admin hands out (e.g. 2101…)
   // are never taken automatically. A parallel sign-up can take the same number
   // first; then try again with the next free one.
@@ -74,7 +78,7 @@ async function insertStudent(db, { name, key, avatar, roll, college }, request) 
       `INSERT INTO students (id, name, name_key, roll, avatar, college)
        SELECT $1, $2, $3, COALESCE($4::int, (SELECT s FROM generate_series(1, ${MAX_ROLL}) s WHERE NOT EXISTS (SELECT 1 FROM students WHERE roll = s) LIMIT 1)), $5, $6
        ON CONFLICT (roll) DO NOTHING RETURNING ${COLUMNS}`,
-      [crypto.randomUUID(), name, key, roll, avatar, college],
+      [id || crypto.randomUUID(), name, key, roll, avatar, college],
     );
     if (rows[0] || roll !== null) return rows[0] || null;
   }
@@ -109,7 +113,7 @@ export default route('profile', {
     // "আগে খেলেছি": sign in to an existing name + roll only — never create a new student.
     if (body.login === true) {
       if (roll === null) throw new BadRequest('তোমার roll লেখো (যেমন 007)।');
-      await limit(db, request, 'login', 60, 600); // stops guessing name + roll pairs
+      await limit(db, request, 'login', 300, 600); // stops guessing name + roll pairs
       const owner = await byRoll(db, roll);
       if (!owner) {
         return json({ ok: false, code: 'roll_not_found', error: `Roll ${rollText(roll)}-এ কোনো শিক্ষার্থী নেই। ID কার্ডে যে roll ছিল সেটা দাও। প্রথমবার হলে roll-এর ঘর খালি রাখো।` }, 404);
@@ -125,6 +129,14 @@ export default route('profile', {
     }
 
     const me = myId ? await byId(db, myId) : null;
+    // A new student's browser picks the id (newId), so a sign-up it sends again after a
+    // lost answer (slow network) finds the same student instead of making a second one.
+    let newId = !me && ID_RE.test(String(body.newId || '')) ? String(body.newId) : null;
+    if (newId) {
+      const again = await byId(db, newId);
+      if (again?.name_key === key) return ok(again, 200, { created: true });
+      if (again) newId = null;
+    }
 
     const update = async (id, fields) => {
       const rows = await db.query(
@@ -145,12 +157,12 @@ export default route('profile', {
         // Same student moving to a free roll they prefer.
         try { return ok(await update(me.id, { name, key, avatar, roll }), 200); } catch { return rollTaken(db, roll); }
       }
-      const created = await insertStudent(db, { name, key, avatar, roll, college }, request);
+      const created = await insertStudent(db, { id: newId, name, key, avatar, roll, college }, request);
       return created ? ok(created, 201, { created: true }) : rollTaken(db, roll);
     }
 
     if (me && me.name_key === key) return ok(await update(me.id, { name, key, avatar }), 200);
-    const created = await insertStudent(db, { name, key, avatar, roll: null, college }, request);
+    const created = await insertStudent(db, { id: newId, name, key, avatar, roll: null, college }, request);
     if (!created) throw new Error('Could not assign a roll number');
     return ok(created, 201, { created: true });
   },

@@ -140,7 +140,7 @@ export default route('scores', {
     if (cookieId && cookieId !== playerId) return json({ ok: false, error: 'This score belongs to a different student on this browser.' }, 403);
     const invalid = validateSubmission(body);
     if (invalid) return json({ ok: false, error: invalid }, 400);
-    await limit(db, request, 'score', 150, 600);
+    await limit(db, request, 'score', 600, 600);
 
     const attemptId = clean(body.attemptId, 100) || crypto.randomUUID();
     const [students, existing, recent, prev] = await db.batch([

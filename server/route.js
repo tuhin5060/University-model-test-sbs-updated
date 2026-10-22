@@ -8,6 +8,10 @@ import { json, methodNotAllowed, BadRequest } from './http.js';
  */
 /** True unless the browser says the request came from another website. */
 export function sameOrigin(request) {
+  // Every current browser says where a request comes from; trust that first.
+  const site = request.headers.get('sec-fetch-site');
+  if (site === 'same-origin') return true;
+  if (site === 'cross-site') return false;
   const origin = request.headers.get('origin');
   if (!origin || origin === 'null') return !origin;
   try {

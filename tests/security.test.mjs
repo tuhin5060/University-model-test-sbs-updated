@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { useDatabase } from '../server/db.js';
 import { createLocalDb } from '../server/local-db.js';
 import * as profile from '../api/profile.js';
+import { SIGNUP_MAX } from '../server/routes/profile.js';
 import * as scores from '../api/scores.js';
 import * as backup from '../api/backup.js';
 import { sameOrigin } from '../server/route.js';
@@ -29,11 +30,11 @@ test('admin password: 10 wrong guesses from one address lock it out for a while,
   assert.equal(other.status, 200, 'another address is not affected');
 });
 
-test('sign-ups: at most 40 new students per address per hour', async () => {
-  for (let i = 0; i < 40; i++) {
+test('sign-ups: a whole class can join from one address, a script cannot flood', async () => {
+  for (let i = 0; i < SIGNUP_MAX; i++) {
     assert.equal((await profile.POST(req('/api/profile', { body: { name: `Bot Student ${i}` }, ip: '192.0.2.50' }))).status, 201);
   }
-  assert.equal((await profile.POST(req('/api/profile', { body: { name: 'Bot Student 41' }, ip: '192.0.2.50' }))).status, 429);
+  assert.equal((await profile.POST(req('/api/profile', { body: { name: 'Bot Student over' }, ip: '192.0.2.50' }))).status, 429);
   assert.equal((await profile.POST(req('/api/profile', { body: { name: 'Real Student' }, ip: '192.0.2.51' }))).status, 201);
 });
 
@@ -41,6 +42,8 @@ test('posts from another website are refused; same site and no Origin are allowe
   assert.equal(sameOrigin(new Request('https://site.test/api/x', { headers: { origin: 'https://site.test' } })), true);
   assert.equal(sameOrigin(new Request('https://site.test/api/x')), true);
   assert.equal(sameOrigin(new Request('https://site.test/api/x', { headers: { origin: 'https://evil.example' } })), false);
+  assert.equal(sameOrigin(new Request('https://site.test/api/x', { headers: { origin: 'null', 'sec-fetch-site': 'same-origin' } })), true, 'a privacy-mode Safari');
+  assert.equal(sameOrigin(new Request('https://site.test/api/x', { headers: { origin: 'https://site.test', 'sec-fetch-site': 'cross-site' } })), false);
   const r = await profile.POST(req('/api/profile', { body: { name: 'Cross Site' }, origin: 'https://evil.example', ip: '192.0.2.60' }));
   assert.equal(r.status, 403);
 });

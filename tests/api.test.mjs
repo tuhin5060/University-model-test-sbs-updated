@@ -264,3 +264,18 @@ test('no database configured → 503 with a clear message', async () => {
   assert.equal(res.status, 503);
   useDatabase(db);
 });
+
+test('a sign-up sent twice (answer lost on a slow network) gives one student, not two', async () => {
+  const newId = '3f2b8c1e-5d4a-4b7e-9c6d-1a2b3c4d5e6f';
+  const first = await call(profile, { method: 'POST', body: { name: 'Slow Net', newId, college: 'Chittagong College' } });
+  assert.equal(first.statusCode, 201);
+  const again = await call(profile, { method: 'POST', body: { name: 'Slow Net', newId, college: 'Chittagong College' } });
+  assert.equal(again.statusCode, 200);
+  assert.equal(again.body.player.playerId, newId);
+  assert.equal(again.body.player.roll, first.body.player.roll);
+  assert.equal(again.body.created, true, 'the browser still shows the new ID card');
+  // Someone else's id is never taken over.
+  const other = await call(profile, { method: 'POST', body: { name: 'Another Person', newId, college: 'Chittagong College' } });
+  assert.equal(other.statusCode, 201);
+  assert.notEqual(other.body.player.playerId, newId);
+});

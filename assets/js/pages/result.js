@@ -2,7 +2,7 @@
 
 import { QUESTION_MAP } from '../../../data/questions/index.js';
 import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
-import { state } from '../lib/store.js';
+import { state, updateHistory } from '../lib/store.js';
 import { celebrate, beep } from '../lib/fx.js';
 import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
 import { startSession, sendScore } from '../quiz.js';
@@ -16,7 +16,10 @@ let lastShown = null;
 function saveStatus(h) {
   if (h.kind !== 'topic' || h.mode === 'practice') return '';
   if (!h.player?.playerId) {
-    return `<p class="notice">⚠️ Server-এ নাম save হয়নি, তাই এই score শুধু এই device-এ আছে—leaderboard-এ যায়নি।</p>`;
+    // The name was not saved when this test started; once it is (a later test), send this score too.
+    return state.player?.playerId && h.answers
+      ? `<p class="notice warn" id="save-status">⚠️ এই score এখনো leaderboard-এ যায়নি। <button class="link-btn" data-action="attach-save" data-id="${esc(h.id)}">${esc(state.player.tag)} নামে পাঠাও</button></p>`
+      : `<p class="notice" id="save-status">⚠️ Server-এ নাম save হয়নি, তাই এই score শুধু এই device-এ আছে—leaderboard-এ যায়নি। নেট ঠিক হলে নতুন test শুরু করলে নাম save হবে, তখন এখানে “পাঠাও” বাটন আসবে।</p>`;
   }
   const map = {
     saving: '<p class="notice" id="save-status">⏳ Leaderboard-এ score পাঠানো হচ্ছে…</p>',
@@ -139,6 +142,9 @@ export function onAction(action, el) {
     const ids = (h.answers || []).filter(a => { const q = QUESTION_MAP.get(a.id); return q && a.choice !== q.a; }).map(a => a.id);
     startSession({ mode: 'practice', topic: h.topic, ids, kind: 'retry', title: 'ভুলগুলো আবার' });
   } else if (action === 'retry-save' && h) {
+    sendScore(h.id);
+  } else if (action === 'attach-save' && h && state.player?.playerId) {
+    updateHistory(h.id, { player: state.player });
     sendScore(h.id);
   } else if (action === 'share' && h) {
     const text = `আমি "ক্যাম্পাসের পথে"-তে ${h.title} ${MODE_INFO[h.mode]?.label || ''}-এ ${h.correct}/${h.total} সঠিক করেছি${h.mode === 'fun' ? ` (${h.score} points)` : ''}! তুমি পারবে? 🎯`;
