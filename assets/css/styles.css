@@ -862,3 +862,19 @@ button.cm-tag { cursor: pointer; }
 .inapp-bar .btn { white-space: nowrap; }
 .inapp-bar .icon-btn { width: 34px; height: 34px; }
 @media (max-width: 420px) { .inapp-bar { grid-template-columns: 1fr auto; } .inapp-bar .btn { grid-column: 1; justify-self: start; } .inapp-bar .icon-btn { grid-row: 1; grid-column: 2; } }
+/* College picker */
+.college-field { position: relative; display: grid; gap: 8px; margin-top: 4px; }
+.college-list { position: absolute; z-index: 30; left: 0; right: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 290px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg); }
+.college-list li { display: grid; gap: 1px; padding: 9px 12px; border-radius: 9px; cursor: pointer; }
+.college-list li small { color: var(--muted); font-size: .8rem; }
+.college-list li:hover, .college-list li[aria-selected='true'] { background: var(--brand-soft); }
+.college-list li.custom { border-top: 1px dashed var(--line); margin-top: 2px; }
+.identity[data-state='current']:not([data-needs-college]) .college-field { display: none; }
+.identity[data-state='current'][data-needs-college] .college-field { margin-top: 10px; }
+/* Leaderboard: college short in the row, full name when the row is tapped */
+.lb-list li { cursor: pointer; }
+.lb-detail { display: none; grid-column: 3 / -1; font-size: .85rem; color: var(--muted); line-height: 1.5; }
+.lb-list li.open .lb-detail { display: block; }
+.lb-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.my-name .my-college { display: block; color: var(--muted); font-size: .88rem; margin: 2px 0 0 30px; }
+.lb-name { min-width: 0; }

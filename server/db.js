@@ -18,6 +18,8 @@ export const SCHEMA = [
     updated_at timestamptz NOT NULL DEFAULT now(),
     last_seen_at timestamptz NOT NULL DEFAULT now()
   )`,
+  // Added in 2.7: the student's college (full name, picked from data/colleges.js or typed).
+  'ALTER TABLE students ADD COLUMN IF NOT EXISTS college text',
   `CREATE TABLE IF NOT EXISTS score_attempts (
     attempt_id text PRIMARY KEY,
     player_id uuid NOT NULL REFERENCES students(id) ON DELETE CASCADE,

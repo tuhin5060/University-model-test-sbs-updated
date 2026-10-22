@@ -92,6 +92,23 @@ test('profile: "আগে খেলেছি" sign-in never creates a student an
   assert.equal((await db.query('SELECT count(*)::int AS n FROM students'))[0].n, before, 'no new student');
 });
 
+test('profile: college is saved on registration, added on sign-in when missing, shown on the leaderboard', async () => {
+  const r = await call(profile, { method: 'POST', body: { name: 'Mim Akter', college: '  Chittagong   College ' } });
+  assert.equal(r.statusCode, 201);
+  assert.equal(r.body.player.college, 'Chittagong College');
+  const id = r.body.player.playerId;
+  const roll = String(r.body.player.roll);
+  const keep = await call(profile, { method: 'POST', body: { login: true, name: 'Mim Akter', roll, college: 'Other College' } });
+  assert.equal(keep.body.player.college, 'Chittagong College', 'sign-in does not overwrite an existing college');
+  await db.query('UPDATE students SET college = NULL WHERE id = $1', [id]);
+  const add = await call(profile, { method: 'POST', body: { login: true, name: 'Mim Akter', roll, college: 'Notre Dame College' } });
+  assert.equal(add.body.player.college, 'Notre Dame College', 'sign-in adds a missing college');
+  const qs = QUESTIONS.filter(q => q.topicId === 'article').slice(0, 3);
+  await call(scores, { method: 'POST', cookie: id, body: { playerId: id, attemptId: 'col-1', mode: 'fun', topic: 'article', answers: qs.map(q => ({ id: q.id, choice: q.a, sec: 2 })) } });
+  const board = await call(scores, { query: { mode: 'fun', topic: 'article' } });
+  assert.equal(board.body.rows.find(x => x.name === 'Mim Akter').college, 'Notre Dame College');
+});
+
 test('profile: cookie wins over a different id in the body; no roll + other name = new student', async () => {
   const bob = (await join({ name: 'Bob Ali' })).player;
   const r = await call(profile, { method: 'POST', body: { playerId: bob.playerId, name: 'Alice Rahman' }, cookie: alice });

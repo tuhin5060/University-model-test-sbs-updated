@@ -33,7 +33,7 @@ function myScores() {
   const fun = best('fun');
   const exam = best('exam');
   const p = state.player;
-  return `${loginCard()}${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}</p>` : ''}
+  return `${loginCard()}${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}${p.college ? `<small class="my-college">🏫 ${esc(p.college)}</small>` : ''}</p>` : ''}
     <div id="my-stats">${p?.playerId ? '<div class="skeleton"></div>' : ''}</div>
     <div class="stat-grid" id="local-stats">
       <div class="stat"><b>${fun < 0 ? '—' : bn(fun)}</b><small>Fun Quiz সেরা points</small></div>

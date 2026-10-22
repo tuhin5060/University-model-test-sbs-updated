@@ -6,7 +6,7 @@ import { state, save, replaceState } from './store.js';
 import { fetchProfile, restoreProgress, enableProgressSync, queueProgressSync } from './api.js';
 
 /** Keep only what the browser needs from a server profile. */
-export const playerFrom = p => ({ playerId: p.playerId, name: p.name, roll: p.roll, tag: p.tag, avatar: p.avatar });
+export const playerFrom = p => ({ playerId: p.playerId, name: p.name, roll: p.roll, tag: p.tag, avatar: p.avatar, college: p.college || null });
 
 /** Merge a server snapshot into the local state (newest wins, nothing local is lost). */
 function mergeProgress(remote) {

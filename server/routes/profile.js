@@ -23,6 +23,7 @@ export function view(s) {
     roll: s.roll,
     tag: `${s.name}.${rollText(s.roll)}`,
     avatar: s.avatar || '🚂',
+    college: s.college || null,
     createdAt: iso(s.created_at),
   };
 }
@@ -40,7 +41,7 @@ export function resolvePlayerId(request, requested) {
   return readCookie(request) || (ID_RE.test(String(requested || '')) ? String(requested) : '');
 }
 
-const COLUMNS = 'id, name, name_key, roll, avatar, created_at';
+const COLUMNS = 'id, name, name_key, roll, avatar, college, created_at';
 const byId = async (db, id) => (await db.query(`SELECT ${COLUMNS} FROM students WHERE id = $1`, [id]))[0] || null;
 const byRoll = async (db, roll) => (await db.query(`SELECT ${COLUMNS} FROM students WHERE roll = $1`, [roll]))[0] || null;
 
@@ -62,15 +63,15 @@ async function rollTaken(db, roll) {
   }, 409);
 }
 
-async function insertStudent(db, { name, key, avatar, roll }) {
+async function insertStudent(db, { name, key, avatar, roll, college }) {
   // roll === null → next number after the highest one. A parallel sign-up can
   // take the same number first; then try again with the new highest.
   for (let i = 0; i < 5; i++) {
     const rows = await db.query(
-      `INSERT INTO students (id, name, name_key, roll, avatar)
-       SELECT $1, $2, $3, COALESCE($4::int, COALESCE(MAX(roll), 0) + 1), $5 FROM students
+      `INSERT INTO students (id, name, name_key, roll, avatar, college)
+       SELECT $1, $2, $3, COALESCE($4::int, COALESCE(MAX(roll), 0) + 1), $5, $6 FROM students
        ON CONFLICT (roll) DO NOTHING RETURNING ${COLUMNS}`,
-      [crypto.randomUUID(), name, key, roll, avatar],
+      [crypto.randomUUID(), name, key, roll, avatar, college],
     );
     if (rows[0] || roll !== null) return rows[0] || null;
   }
@@ -99,6 +100,7 @@ export default route('profile', {
     const key = nameKey(name);
     const avatar = ALLOWED_AVATARS.has(body.avatar) ? body.avatar : '🚂';
     const roll = parseRoll(body.roll);
+    const college = clean(body.college, 100) || null;
     const myId = resolvePlayerId(request, body.playerId);
 
     // "আগে খেলেছি": sign in to an existing name + roll only — never create a new student.
@@ -111,16 +113,21 @@ export default route('profile', {
       if (owner.name_key !== key) {
         return json({ ok: false, code: 'name_mismatch', hint: maskName(owner.name), error: `Roll ${rollText(roll)}-এর সাথে এই নাম মিলছে না। প্রথমবার যে নাম দিয়েছিলে হুবহু সেটা লেখো (${maskName(owner.name)})।` }, 409);
       }
-      return ok(owner, 200, { restored: owner.id !== myId });
+      // A student who registered before colleges existed can add theirs while signing in.
+      const student = college && !owner.college
+        ? (await db.query(`UPDATE students SET college = $2 WHERE id = $1 RETURNING ${COLUMNS}`, [owner.id, college]))[0]
+        : owner;
+      return ok(student, 200, { restored: owner.id !== myId });
     }
 
     const me = myId ? await byId(db, myId) : null;
 
     const update = async (id, fields) => {
       const rows = await db.query(
-        `UPDATE students SET name = $2, name_key = $3, avatar = $4, roll = COALESCE($5::int, roll), updated_at = now(), last_seen_at = now()
+        `UPDATE students SET name = $2, name_key = $3, avatar = $4, roll = COALESCE($5::int, roll), college = COALESCE($6, college),
+           updated_at = now(), last_seen_at = now()
          WHERE id = $1 RETURNING ${COLUMNS}`,
-        [id, fields.name, fields.key, fields.avatar, fields.roll ?? null],
+        [id, fields.name, fields.key, fields.avatar, fields.roll ?? null, college],
       );
       return rows[0];
     };
@@ -134,12 +141,12 @@ export default route('profile', {
         // Same student moving to a free roll they prefer.
         try { return ok(await update(me.id, { name, key, avatar, roll }), 200); } catch { return rollTaken(db, roll); }
       }
-      const created = await insertStudent(db, { name, key, avatar, roll });
+      const created = await insertStudent(db, { name, key, avatar, roll, college });
       return created ? ok(created, 201, { created: true }) : rollTaken(db, roll);
     }
 
     if (me && me.name_key === key) return ok(await update(me.id, { name, key, avatar }), 200);
-    const created = await insertStudent(db, { name, key, avatar, roll: null });
+    const created = await insertStudent(db, { name, key, avatar, roll: null, college });
     if (!created) throw new Error('Could not assign a roll number');
     return ok(created, 201, { created: true });
   },

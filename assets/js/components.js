@@ -4,6 +4,7 @@ import { esc, bn, safeURL, bnDate, $$ } from './lib/dom.js';
 import { TOPICS, GROUPS } from '../../data/questions/index.js';
 import { state } from './lib/store.js';
 import { fetchLeaderboard } from './lib/api.js';
+import { collegeShort } from '../../data/colleges.js';
 
 export const topicById = id => TOPICS.find(t => t.id === id);
 export const topicTitle = id =>
@@ -120,11 +121,12 @@ export async function loadLeaderboards(root = document, fresh = false) {
       if (box.dataset.mode !== mode) continue; // tab switched meanwhile
       rowsEl.innerHTML = rows.length
         ? `<ol class="lb-list">${rows
-            .map((r, i) => `<li class="${r.me ? 'me' : ''}">
+            .map((r, i) => `<li class="${r.me ? 'me' : ''}" tabindex="0" aria-expanded="false" title="বিস্তারিত দেখতে চাপো">
               <span class="lb-rank">${['🥇', '🥈', '🥉'][i] || bn(i + 1)}</span>
               <span class="lb-avatar" aria-hidden="true">${esc(r.avatar || '🚂')}</span>
-              <span class="lb-name"><b>${esc(r.tag || r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${bn(r.correct)}/${bn(r.total)} সঠিক · ${bn(r.attempts || 1)} বার</small></span>
-              <span class="lb-score">${mode === 'fun' ? bn(r.score) : `${bn(r.score)}%`}</span></li>`)
+              <span class="lb-name"><b>${esc(r.tag || r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${r.college ? `🏫 ${esc(collegeShort(r.college))} · ` : ''}${bn(r.correct)}/${bn(r.total)} সঠিক</small></span>
+              <span class="lb-score">${mode === 'fun' ? bn(r.score) : `${bn(r.score)}%`}</span>
+              <span class="lb-detail">${r.college ? `🏫 <b>${esc(r.college)}</b><br>` : ''}${bn(r.correct)}/${bn(r.total)} সঠিক · ${bn(r.attempts || 1)} বার test · ${bnDate(r.at)}</span></li>`)
             .join('')}</ol>`
         : `<p class="empty">এখনো কেউ score করেনি—প্রথম হওয়ার সুযোগ তোমার! 🏁</p>`;
     } catch {

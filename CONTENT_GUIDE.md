@@ -75,6 +75,18 @@ The new topic then appears automatically on the home page, the Fun Quiz /
 Model Test / Practice setup, search, progress bars and the leaderboard filter.
 The server-side score checker picks it up too.
 
+## 2b. Add a college to the registration list
+
+Open `data/colleges.js` and add one line anywhere in `COLLEGES`:
+
+```js
+  { n: 'Full Official College Name', s: 'Short Name', p: 'District' },
+```
+
+`n` is saved and shown in full when a leaderboard row is tapped, `s` (keep it
+under ~18 letters) is shown in the leaderboard row, `p` lets students find it by
+district. Students can also type a college that is not listed; it is saved as typed.
+
 ## 3. Add a Tips & Tricks post
 
 Open `data/posts.js` and copy a `{ … }` block inside `POSTS`:

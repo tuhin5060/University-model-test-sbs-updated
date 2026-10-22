@@ -15,6 +15,7 @@ export const D1_SCHEMA = [
     name_key TEXT NOT NULL,
     roll INTEGER NOT NULL UNIQUE CHECK (roll BETWEEN 1 AND 99999),
     avatar TEXT NOT NULL DEFAULT '🚂',
+    college TEXT,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     last_seen_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
@@ -77,7 +78,7 @@ export const D1_SCHEMA = [
 
 // Insert order respects foreign keys (students first).
 export const D1_TABLES = {
-  students: ['id', 'name', 'name_key', 'roll', 'avatar', 'created_at', 'updated_at', 'last_seen_at'],
+  students: ['id', 'name', 'name_key', 'roll', 'avatar', 'college', 'created_at', 'updated_at', 'last_seen_at'],
   score_attempts: ['attempt_id', 'player_id', 'topic', 'mode', 'score', 'correct', 'wrong', 'total', 'best_streak', 'time_sec', 'at'],
   progress: ['id', 'payload', 'updated_at'],
   threads: ['id', 'author_id', 'topic', 'title', 'body', 'tags', 'question_id', 'resolved', 'solution_id', 'replies', 'created_at', 'active_at'],

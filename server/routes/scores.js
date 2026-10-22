@@ -58,7 +58,7 @@ const BEST = `SELECT DISTINCT ON (player_id) player_id, topic, score, correct, t
 
 const BOARD = `WITH best AS (${BEST}),
   n AS (SELECT player_id, count(*)::int AS attempts FROM score_attempts WHERE mode = $1 AND ($2 = 'all' OR topic = $2) GROUP BY player_id)
-  SELECT b.*, n.attempts, s.name, s.roll, s.avatar
+  SELECT b.*, n.attempts, s.name, s.roll, s.avatar, s.college
   FROM best b JOIN n USING (player_id) JOIN students s ON s.id = b.player_id
   ORDER BY ${ORDER} LIMIT 100`;
 
@@ -71,6 +71,7 @@ const row = (r, me) => ({
   roll: r.roll,
   tag: `${r.name}.${rollText(r.roll)}`,
   avatar: r.avatar || '🚂',
+  college: r.college || null,
   topic: r.topic,
   score: Number(r.score),
   correct: r.correct,

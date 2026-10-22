@@ -34,8 +34,8 @@ export async function fetchProfile(playerId) {
  * → { player, created?, restored? }. login: true only signs in to an existing name + roll
  * (errors: roll_not_found 404, name_mismatch 409 with a masked hint).
  */
-export async function saveProfile({ playerId, name, roll, avatar, login = false }) {
-  return call('/api/profile', { method: 'POST', body: JSON.stringify({ playerId, name, roll, avatar, login }) });
+export async function saveProfile({ playerId, name, roll, avatar, login = false, college }) {
+  return call('/api/profile', { method: 'POST', body: JSON.stringify({ playerId, name, roll, avatar, login, college }) });
 }
 
 export async function submitScore(payload) {

@@ -27,7 +27,7 @@ const req = (url, body, cookie) => new Request(`https://site.test${url}`, {
 let backup;
 test('admin backup: password required, every table included', async () => {
   const rahim = (await (await profile.POST(req('/api/profile', { name: "Rahim O'Neil" }))).json()).player.playerId;
-  const sadia = (await (await profile.POST(req('/api/profile', { name: 'সাদিয়া ইসলাম', roll: '042' }))).json()).player.playerId;
+  const sadia = (await (await profile.POST(req('/api/profile', { name: 'সাদিয়া ইসলাম', roll: '042', college: 'Chittagong College' }))).json()).player.playerId;
   const qs = QUESTIONS.filter(q => q.topicId === 'tense').slice(0, 4);
   for (const [id, n] of [[rahim, 'b1'], [sadia, 'b2']]) {
     const r = await scores.POST(req('/api/scores', { playerId: id, attemptId: n, mode: 'exam', topic: 'tense', answers: qs.map(q => ({ id: q.id, choice: q.a })) }, id));
@@ -61,8 +61,9 @@ test('converted SQL loads into SQLite with everything connected', async t => {
   for (const [table, n] of Object.entries(counts)) {
     assert.equal(lite.prepare(`SELECT count(*) AS n FROM ${table}`).get().n, n, table);
   }
-  const sadia = lite.prepare('SELECT id, roll, name FROM students WHERE roll = 42').get();
+  const sadia = lite.prepare('SELECT id, roll, name, college FROM students WHERE roll = 42').get();
   assert.equal(sadia.name, 'সাদিয়া ইসলাম');
+  assert.equal(sadia.college, 'Chittagong College');
   assert.equal(lite.prepare("SELECT name FROM students WHERE name LIKE 'Rahim%'").get().name, "Rahim O'Neil", 'quotes survive');
   // Leaderboard-style query (window function) works and joins back to students.
   const board = lite.prepare(`SELECT s.name, a.score, row_number() OVER (ORDER BY a.score DESC, a.at) AS rank

@@ -7,7 +7,7 @@ import { json, readJSON } from '../http.js';
 import { requireAdmin } from '../admin.js';
 
 export const BACKUP_TABLES = {
-  students: 'SELECT id, name, name_key, roll, avatar, created_at, updated_at, last_seen_at FROM students ORDER BY roll',
+  students: 'SELECT id, name, name_key, roll, avatar, college, created_at, updated_at, last_seen_at FROM students ORDER BY roll',
   score_attempts: 'SELECT attempt_id, player_id, topic, mode, score, correct, wrong, total, best_streak, time_sec, at FROM score_attempts ORDER BY at',
   progress: 'SELECT id, payload, updated_at FROM progress',
   threads: 'SELECT id, author_id, topic, title, body, tags, question_id, resolved, solution_id, replies, created_at, active_at FROM threads ORDER BY id',

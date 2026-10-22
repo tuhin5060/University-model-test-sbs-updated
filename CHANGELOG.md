@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.7.0 — college on the profile
+* Registration asks for the college: type one word (“city”, “cadet”, “mohsin”,
+  “চট্টগ্রাম”) and every matching college from `data/colleges.js` (100 colleges:
+  Chattogram division in detail, the best-known in Dhaka and the other divisions,
+  all cadet colleges) is listed; a college not in the list can be kept as typed.
+* Students who registered earlier are asked once (“তোমার কলেজ যোগ করো”); signing
+  in with a roll adds it too if missing.
+* Leaderboard rows show the short form (“🏫 City College Ctg”); tapping a row
+  opens the full name, tests and date. The Score page shows it under the name.
+* Server: `students.college` (added automatically), returned by `/api/profile`
+  and the leaderboard; included in the backup and the D1 converter.
+
 ## 2.6.4 — timer in practice
 * আজকের চ্যালেঞ্জ now really is “৫টি প্রশ্ন, ২ মিনিট”: a 2:00 countdown in the
   top bar that submits automatically when it ends.

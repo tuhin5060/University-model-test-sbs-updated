@@ -102,6 +102,8 @@ document.addEventListener('click', e => {
   }
   const tab = e.target.closest('[data-lb-mode]');
   if (tab) return switchBoardMode(tab);
+  const row = e.target.closest('.lb-list li');
+  if (row) return row.setAttribute('aria-expanded', String(row.classList.toggle('open')));
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const action = el.dataset.action;

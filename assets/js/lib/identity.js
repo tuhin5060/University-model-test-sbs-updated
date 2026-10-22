@@ -12,6 +12,7 @@ import { state, save } from './store.js';
 import { saveProfile } from './api.js';
 import { playerFrom, syncCloud } from './cloud.js';
 import { showIdCard } from '../components.js';
+import { collegeField, wireCollege, readCollege } from './college.js';
 
 export const rollText = n => String(n).padStart(3, '0');
 const cleanRoll = v => String(v || '').replace(/\D/g, '').slice(0, 5);
@@ -22,7 +23,9 @@ export function identityFields({ mode = 'auto' } = {}) {
   const p = state.player;
   const signedIn = mode === 'auto' && p?.playerId && p.roll;
   const loginOnly = mode === 'login';
-  return `<div class="identity" data-identity data-state="${signedIn ? 'current' : 'form'}" ${loginOnly ? 'data-login-only' : ''}>
+  // The college is asked once: on registration, or from a signed-in student who has none yet.
+  const needsCollege = signedIn && !p.college;
+  return `<div class="identity" data-identity data-state="${signedIn ? 'current' : 'form'}" ${loginOnly ? 'data-login-only' : ''} ${needsCollege ? 'data-needs-college' : ''}>
     <div class="id-current">
       <span>✅ তুমি: <b>${esc(p?.tag || '')}</b></span>
       <button type="button" class="link-btn" data-id-switch>অন্য নাম/roll</button>
@@ -36,6 +39,7 @@ export function identityFields({ mode = 'auto' } = {}) {
         ? 'ID <b>Rahim Uddin.007</b> হলে নাম “Rahim Uddin”, roll “007”। পুরো ID নামের ঘরে paste করলেও চলবে।'
         : 'আগে খেলে থাকলে আগের roll দাও—সব score ফিরে আসবে। প্রথমবার হলে খালি রাখো, নতুন roll পাবে।'}</p>
     </div>
+    ${loginOnly ? '' : collegeField({ value: signedIn ? '' : p?.college || '', label: needsCollege ? 'তোমার কলেজ যোগ করো <small class="muted">(একবারই)</small>' : 'তোমার কলেজ' })}
     <p class="field-error" data-id-error hidden></p>
   </div>`;
 }
@@ -59,6 +63,7 @@ export function wireIdentity(root) {
     hideError(box);
   });
   rollInput.addEventListener('input', () => hideError(box));
+  wireCollege(box);
 }
 
 function hideError(box) {
@@ -82,17 +87,22 @@ function showError(box, message, field) {
 export async function signIn(root, { avatar } = {}) {
   const box = root.querySelector('[data-identity]');
   const p = state.player;
+  const college = readCollege(box);
   if (box.dataset.state === 'current') {
-    if (avatar && avatar !== p.avatar) return send({ playerId: p.playerId, name: p.name, roll: rollText(p.roll), avatar }, box);
+    const newCollege = college && college !== p.college;
+    if ((avatar && avatar !== p.avatar) || newCollege) {
+      return send({ playerId: p.playerId, name: p.name, roll: rollText(p.roll), avatar: avatar || p.avatar, college: college || undefined }, box);
+    }
     return p;
   }
   const name = cleanName(box.querySelector('input[name=name]').value);
   if (name.length < 2) return showError(box, 'তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।', 'name'), false;
   const roll = cleanRoll(box.querySelector('input[name=roll]').value);
-  if (roll) return send({ name, roll, login: true }, box);
+  if (roll) return send({ name, roll, login: true, college: college || undefined }, box);
   if (box.hasAttribute('data-login-only')) return showError(box, 'তোমার roll লেখো (যেমন 007)।', 'roll'), false;
+  if (!college) return showError(box, 'তোমার কলেজের নাম দাও—নামের একটা শব্দ লিখলেই তালিকা আসবে।', 'college'), false;
   // A new student: never send this device's old id, so a different person gets their own roll.
-  return send({ playerId: p?.name && cleanName(p.name).toLowerCase() === name.toLowerCase() ? p.playerId : undefined, name, avatar: avatar || '🚂' }, box);
+  return send({ playerId: p?.name && cleanName(p.name).toLowerCase() === name.toLowerCase() ? p.playerId : undefined, name, avatar: avatar || '🚂', college }, box);
 }
 
 async function send(body, box) {
