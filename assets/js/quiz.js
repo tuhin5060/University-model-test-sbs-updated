@@ -24,6 +24,9 @@ export function dailyIds(n = 5) {
   return shuffle(QUESTIONS, seeded('daily-' + today())).slice(0, n).map(q => q.id);
 }
 
+/** The daily challenge is 5 questions in 2 minutes (as the home card says). */
+export const DAILY_SECONDS = 120;
+
 /**
  * Start a new session and open the play screen.
  * opts: { mode, topic, count, settings, kind, ids, title, player }
@@ -54,7 +57,8 @@ export function startSession(opts) {
     started: now,
     settings,
     player: opts.player || null,
-    deadline: mode === 'exam' ? now + ids.length * EXAM_PACE[settings.pace] * 1000 : null,
+    // Model Test and the daily challenge count down; other practice shows the time taken.
+    deadline: mode === 'exam' ? now + ids.length * EXAM_PACE[settings.pace] * 1000 : opts.kind === 'daily' ? now + DAILY_SECONDS * 1000 : null,
     fun: mode === 'fun'
       ? { score: 0, streak: 0, best: 0, fifty: 1, freeze: 1, hidden: {}, frozen: false, timeouts: [], points: {}, qStart: now, qDeadline: now + settings.perQuestion * 1000 }
       : null,

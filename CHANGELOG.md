@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.4 — timer in practice
+* আজকের চ্যালেঞ্জ now really is “৫টি প্রশ্ন, ২ মিনিট”: a 2:00 countdown in the
+  top bar that submits automatically when it ends.
+* Other practice (e.g. “ভুলগুলো আবার”) shows a running clock of the time taken;
+  the result page shows the total, as before.
+
 ## 2.6.3 — simpler name + roll, open in Chrome, new footer photo
 * The sign-in block is now just “তোমার নাম লিখো”: name and an optional
   **আগের Roll (থাকলে)**. Empty → a new roll and the ID card; a roll → sign in to

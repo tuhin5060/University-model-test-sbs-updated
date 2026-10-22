@@ -95,8 +95,8 @@ export function render() {
       </div>`
     : '';
 
-  const timerChip = s.mode === 'exam'
-    ? `<span class="timer-chip" id="timer" aria-live="off">⏱️ <b>--:--</b></span>`
+  const timerChip = s.mode === 'exam' || s.mode === 'practice'
+    ? `<span class="timer-chip" id="timer" aria-live="off" title="${s.deadline ? 'বাকি সময়' : 'কত সময় লাগছে'}">⏱️ <b>--:--</b></span>`
     : s.mode === 'fun'
       ? `<span class="timer-chip" id="timer">${f.frozen ? '🧊 Frozen' : done ? '—' : `⏳ <b>${bn(s.settings.perQuestion)}</b>`}</span>`
       : '';
@@ -146,7 +146,12 @@ export function render() {
 function tick() {
   const s = state.session;
   if (!s) return stop();
-  if (s.mode === 'exam') {
+  if (s.mode === 'practice' && !s.deadline) {
+    const el = $('#timer');
+    if (el) el.innerHTML = `⏱️ <b>${clock((Date.now() - s.started) / 1000)}</b>`;
+    return;
+  }
+  if (s.mode === 'exam' || s.mode === 'practice') {
     const left = (s.deadline - Date.now()) / 1000;
     const el = $('#timer');
     if (el) {
@@ -155,7 +160,7 @@ function tick() {
     }
     if (left <= 0) {
       stop();
-      toast('⏰ সময় শেষ! তোমার উত্তর জমা হয়েছে।');
+      toast(s.mode === 'exam' ? '⏰ সময় শেষ! তোমার উত্তর জমা হয়েছে।' : '⏰ ২ মিনিট শেষ! যতটুকু করেছ তার ফলাফল দেখো।');
       quiz.finish({ auto: true });
     }
     return;
@@ -189,10 +194,8 @@ export function mount() {
   stop();
   const s = state.session;
   if (!s) return;
-  if (s.mode !== 'practice') {
-    tick();
-    timer = setInterval(tick, 200);
-  }
+  tick();
+  timer = setInterval(tick, 200);
   $('#next-btn')?.focus({ preventScroll: true });
 }
 
