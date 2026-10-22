@@ -3,7 +3,7 @@
   "version": "2.4.0",
   "private": true,
   "type": "module",
-  "description": "ক্যাম্পাস পথে — Bangla-first university admission practice: Fun Quiz, timed Model Test, tips blog, university links, Neon leaderboard",
+  "description": "ক্যাম্পাসের পথে — Bangla-first university admission practice: Fun Quiz, timed Model Test, tips blog, university links, Neon leaderboard",
   "scripts": {
     "dev": "node scripts/serve.mjs",
     "check": "node tests/check-content.mjs && node --test tests/*.test.mjs",

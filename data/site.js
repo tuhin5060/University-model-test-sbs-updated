@@ -1,7 +1,7 @@
 // SITE SETTINGS — names, credits and photos used across the site.
 
 export const SITE = {
-  name: 'ক্যাম্পাস পথে',
+  name: 'ক্যাম্পাসের পথে',
   nameEn: 'Campus Pothe',
   tagline: 'একটু একটু করে, স্বপ্নের ক্যাম্পাসের দিকে।',
   initiative: 'SBS Students’ Association',

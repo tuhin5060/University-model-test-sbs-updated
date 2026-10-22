@@ -138,7 +138,7 @@ export function onAction(action, el) {
   } else if (action === 'retry-save' && h) {
     sendScore(h.id);
   } else if (action === 'share' && h) {
-    const text = `আমি "ক্যাম্পাস পথে"-তে ${h.title} ${MODE_INFO[h.mode]?.label || ''}-এ ${h.correct}/${h.total} সঠিক করেছি${h.mode === 'fun' ? ` (${h.score} points)` : ''}! তুমি পারবে? 🎯`;
+    const text = `আমি "ক্যাম্পাসের পথে"-তে ${h.title} ${MODE_INFO[h.mode]?.label || ''}-এ ${h.correct}/${h.total} সঠিক করেছি${h.mode === 'fun' ? ` (${h.score} points)` : ''}! তুমি পারবে? 🎯`;
     const url = location.origin + location.pathname;
     if (navigator.share) navigator.share({ text, url }).catch(() => {});
     else navigator.clipboard?.writeText(`${text} ${url}`).then(() => toast('📋 Copy হয়েছে—যেকোনো জায়গায় paste করো'), () => toast(text));

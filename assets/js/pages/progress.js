@@ -93,6 +93,6 @@ export async function onChange(el) {
     document.getElementById('main').innerHTML = render();
     toast('✅ Backup import হয়েছে');
   } catch {
-    toast('⚠️ এটি সঠিক “ক্যাম্পাস পথে” backup file নয়।');
+    toast('⚠️ এটি সঠিক “ক্যাম্পাসের পথে” backup file নয়।');
   }
 }

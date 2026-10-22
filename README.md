@@ -1,4 +1,4 @@
-# ক্যাম্পাস পথে — University Admission Practice
+# ক্যাম্পাসের পথে — University Admission Practice
 
 A Bangla-first university admission companion, built around the University of
 Chittagong: English MCQ practice (Grammar + Memorising: vocabulary, BCS
