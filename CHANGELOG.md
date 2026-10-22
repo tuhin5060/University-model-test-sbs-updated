@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.1 — data backup and the way to Cloudflare D1
+* Admin **data backup** (`#backup`, link at the bottom of About): with the admin
+  password, every stored table (students, scores, progress, community,
+  notification subscriptions, settings) downloads as one JSON file.
+* `scripts/backup-to-d1.mjs` turns that file into SQL for Cloudflare D1 (same
+  tables and columns, ids and rolls kept). `tests/backup.test.mjs` loads the
+  result into SQLite and checks every row and link. Guide: `docs/MIGRATE_TO_D1.md`.
+* Admin password check moved to `server/admin.js` (community delete + backup).
+
 ## 2.6.0 — daily reminder notifications
 * 🔔 Browser notifications: every day at 8 PM (Bangladesh) a short practice
   reminder (rotating: Model Test, daily challenge, Fun Quiz, vocabulary). Students

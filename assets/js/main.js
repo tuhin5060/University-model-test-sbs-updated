@@ -18,7 +18,7 @@ import * as progress from './pages/progress.js';
 import * as vocab from './pages/vocab.js';
 import * as community from './pages/community.js';
 import VOCAB from '../../data/vocabulary.js';
-import { leaderboardPage, aboutPage, notFound, switchBoardMode } from './pages/misc.js';
+import { leaderboardPage, aboutPage, backupPage, notFound, switchBoardMode } from './pages/misc.js';
 import { loadLeaderboards } from './components.js';
 
 const ROUTES = {
@@ -35,6 +35,7 @@ const ROUTES = {
   leaderboard: leaderboardPage,
   score: leaderboardPage,
   about: aboutPage,
+  backup: backupPage,
 };
 
 // Old links from the previous version keep working.

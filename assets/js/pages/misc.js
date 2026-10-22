@@ -167,8 +167,60 @@ export const aboutPage = {
           <p>Initiative by <b>${esc(SITE.initiative)}</b><br>Developed by ${ext(SITE.developer.url, SITE.developer.name)}</p></div>
         <h2>Feedback</h2>
         <p>কোনো উত্তরে ভুল পেলে, নতুন প্রশ্ন বা topic চাইলে সরাসরি WhatsApp-এ জানাও: ${ext(SITE.feedback, 'WhatsApp-এ message পাঠাও')}</p>
+        <p class="muted small"><a href="#backup">🔒 Admin: data backup</a></p>
       </div>
     </div>`;
+  },
+};
+
+// Admin: download every stored table as one JSON file (keep it safe; see docs/MIGRATE_TO_D1.md).
+export const backupPage = {
+  render() {
+    return `<div class="container narrow">
+      ${pageHead('🔒 Data backup', 'সব শিক্ষার্থী, roll, score, অগ্রগতি আর কমিউনিটির লেখা একটা file-এ download হবে। শুধু admin-এর জন্য।', '', [[null, 'Backup']])}
+      <form class="card cm-form" id="backup-form">
+        <label class="label" for="backup-password">Admin password</label>
+        <input id="backup-password" type="password" name="password" autocomplete="current-password" required>
+        <p class="field-error" id="backup-error" hidden></p>
+        <button class="btn" type="submit">⬇️ Backup download করো</button>
+        <p class="muted small">File-টা নিরাপদ জায়গায় রাখো—এতে সবার নাম ও roll আছে। নতুন database-এ নেওয়ার নিয়ম: <code>docs/MIGRATE_TO_D1.md</code>।</p>
+      </form>
+    </div>`;
+  },
+  mount() {
+    const form = $('#backup-form');
+    form?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const error = $('#backup-error');
+      const btn = form.querySelector('[type=submit]');
+      error.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'তৈরি হচ্ছে…';
+      try {
+        const res = await fetch('/api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: form.elements.password.value }) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || `Backup failed (${res.status})`);
+        const { ok, ...backup } = data;
+        const a = Object.assign(document.createElement('a'), {
+          href: URL.createObjectURL(new Blob([JSON.stringify(backup, null, 1)], { type: 'application/json' })),
+          download: `campus-backup-${backup.exportedAt.slice(0, 10)}.json`,
+        });
+        a.click();
+        URL.revokeObjectURL(a.href);
+        const counts = Object.entries(backup.tables).map(([t, rows]) => `${t}: ${rows.length}`).join(', ');
+        error.textContent = `✅ Download হয়েছে (${counts})`;
+        error.style.color = 'var(--good)';
+        error.hidden = false;
+        form.elements.password.value = '';
+      } catch (err) {
+        error.textContent = err.message;
+        error.style.color = '';
+        error.hidden = false;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⬇️ Backup download করো';
+      }
+    });
   },
 };
 

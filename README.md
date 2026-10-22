@@ -158,5 +158,11 @@ for tests.)
 * Practice history, mistakes, stats and settings live in localStorage and are
   backed up as a private snapshot (`progress` table) for the student.
 
+## Backup and moving to Cloudflare D1
+
+Open `#backup`, enter the admin password and the whole database downloads as one
+JSON file. `docs/MIGRATE_TO_D1.md` explains how to load it into Cloudflare D1
+(`scripts/backup-to-d1.mjs`) — every student, roll, score and post carries over.
+
 See `CHANGELOG.md` for everything that changed in v2 and `CONTENT_GUIDE.md` for
 adding content.

@@ -12,6 +12,7 @@
 import { route } from '../route.js';
 import { json, clean, readJSON, query, iso, BadRequest } from '../http.js';
 import { resolvePlayerId, rollText } from './profile.js';
+import { requireAdmin } from '../admin.js';
 
 export const LIMITS = { title: 140, body: 2000, reply: 1500, tags: 5, tag: 24, page: 20 };
 const TOPIC_RE = /^[a-z0-9-]{2,40}$/;
@@ -85,20 +86,6 @@ async function rateLimit(db, sql, id, max, message) {
 
 const toId = v => (/^\d{1,15}$/.test(String(v ?? '')) ? Number(v) : 0);
 
-async function sha256(text) {
-  const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text))));
-  return [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-/** Compares digests so the answer time does not depend on how much of the password matched. */
-async function isAdmin(password, env) {
-  const secret = env?.ADMIN_PASSWORD || '';
-  if (!secret) throw new BadRequest('Admin password এই server-এ এখনো set করা হয়নি।', 503);
-  const [a, b] = await Promise.all([sha256(password), sha256(secret)]);
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
 
 async function getThread(db, id, viewer) {
   const [[t], replies] = await db.batch([
@@ -202,10 +189,7 @@ export default route('community', {
       }
 
       case 'delete': {
-        if (!(await isAdmin(body.password, env))) {
-          await new Promise(r => setTimeout(r, 800)); // slows down password guessing
-          throw new BadRequest('Admin password ভুল।', 403);
-        }
+        await requireAdmin(body.password, env);
         const id = toId(body.id);
         if (body.kind === 'thread') {
           await db.query('DELETE FROM threads WHERE id = $1', [id]);
