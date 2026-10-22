@@ -8,6 +8,7 @@ import { $, $$, esc } from './lib/dom.js';
 import { syncCloud } from './lib/cloud.js';
 import { startLive, paintLive } from './lib/live.js';
 import { onPushAction, refreshPush } from './lib/push.js';
+import { handleInApp } from './lib/inapp.js';
 import * as home from './pages/home.js';
 import * as start from './pages/start.js';
 import * as play from './pages/play.js';
@@ -183,6 +184,7 @@ syncCloud().then(() => {
 });
 startLive();
 window.__booted = true;
+handleInApp();
 
 // ---- Offline copy (sw.js) ----------------------------------------------------
 // After the first visit the site opens from the phone even on a weak connection.

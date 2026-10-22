@@ -54,7 +54,7 @@ export function render([mode = 'fun', topic = 'all']) {
       .join('')}</nav>
     <form class="setup" id="setup-form" data-mode="${mode}" novalidate>
       <section class="setup-name card">
-        <h2 class="step"><span>১</span> তুমি কে?</h2>
+        <h2 class="step"><span>১</span> তোমার নাম লিখো</h2>
         ${identityFields()}
         <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
       </section>

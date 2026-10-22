@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.6.3 — simpler name + roll, open in Chrome, new footer photo
+* The sign-in block is now just “তোমার নাম লিখো”: name and an optional
+  **আগের Roll (থাকলে)**. Empty → a new roll and the ID card; a roll → sign in to
+  that ID (never creates a new student). The ID is then kept in the browser, so the
+  form only shows “✅ তুমি: Name.007 · অন্য নাম/roll”.
+* Opened inside Messenger / Facebook / Instagram: on Android the site switches to
+  Chrome once (after it has loaded); a bar with “Chrome-এ খোলো” (Android) or
+  “Safari-তে খোলো” + menu hint (iPhone) stays as a fallback (`lib/inapp.js`).
+  Those in-app browsers keep storage apart from Chrome and have no notifications.
+* Footer: new developer photo — face and shoulders from the original photo,
+  160×160 WebP (7 KB), 60 px circle.
+
 ## 2.6.2 — clear sign-in on another phone
 * “তুমি কে?” block on the Fun Quiz / Model Test form and the community forms:
   signed in → “✅ তুমি: Name.007 · অন্য ID”; otherwise two choices —

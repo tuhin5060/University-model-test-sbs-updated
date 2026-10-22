@@ -5,7 +5,7 @@ export const SITE = {
   nameEn: 'Campus Pothe',
   tagline: 'একটু একটু করে, স্বপ্নের ক্যাম্পাসের দিকে।',
   initiative: 'SBS Students’ Association',
-  developer: { name: 'Misbahul Tuhin', url: 'https://web.facebook.com/misbahul.tuhin', photo: 'assets/img/developer-96.webp' },
+  developer: { name: 'Misbahul Tuhin', url: 'https://web.facebook.com/misbahul.tuhin', photo: 'assets/img/developer-face.webp' },
   // Feedback goes straight to the developer's WhatsApp.
   feedback: 'https://wa.me/8801729894327',
   url: 'https://sbs-university-admission-model-test.vercel.app/',

@@ -59,7 +59,7 @@ function questionBox(q, { answer = false } = {}) {
 }
 
 /** Who is posting: shown only to students not signed in on this device. */
-const profileFields = () => (state.player?.playerId ? '' : `<fieldset class="cm-profile"><legend>তোমার পরিচয়</legend>${identityFields()}</fieldset>`);
+const profileFields = () => (state.player?.playerId ? '' : `<fieldset class="cm-profile"><legend>তোমার নাম লিখো</legend>${identityFields()}</fieldset>`);
 
 /** Signs the student in from the identity block if needed. → true when posting can go ahead. */
 async function readyToPost(form) {

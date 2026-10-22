@@ -106,7 +106,7 @@ export default route('profile', {
       if (roll === null) throw new BadRequest('তোমার roll লেখো (যেমন 007)।');
       const owner = await byRoll(db, roll);
       if (!owner) {
-        return json({ ok: false, code: 'roll_not_found', error: `Roll ${rollText(roll)}-এ কোনো শিক্ষার্থী নেই। ID কার্ডে যে roll ছিল সেটা দাও, অথবা “প্রথমবার” বেছে নাও।` }, 404);
+        return json({ ok: false, code: 'roll_not_found', error: `Roll ${rollText(roll)}-এ কোনো শিক্ষার্থী নেই। ID কার্ডে যে roll ছিল সেটা দাও। প্রথমবার হলে roll-এর ঘর খালি রাখো।` }, 404);
       }
       if (owner.name_key !== key) {
         return json({ ok: false, code: 'name_mismatch', hint: maskName(owner.name), error: `Roll ${rollText(roll)}-এর সাথে এই নাম মিলছে না। প্রথমবার যে নাম দিয়েছিলে হুবহু সেটা লেখো (${maskName(owner.name)})।` }, 409);

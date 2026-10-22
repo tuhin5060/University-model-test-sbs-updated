@@ -8,7 +8,7 @@
 | `assets/img/logo.svg`, `favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | ক্যাম্পাসের পথে logo mark (CU gate, road, rising sun): header, favicon, home-screen icons | Original project asset, drawn for this site. |
 | `assets/img/campus-pothe-logo-{light,dark}.png` | Full logo (mark + name + tagline), 1200×420, for social media and print | Original project asset. |
 | `assets/img/og-image.jpg` | Link-preview image (1200×630 baseline JPEG under 100 KB, `og:image`, works for Facebook, Messenger and WhatsApp): CU main gate photo with a green overlay, the logo mark, site name and SBS line in the centre so a square crop (Messenger) still shows them | Made from `cu-gate-1113.webp` + `logo.svg`. |
-| `assets/img/developer-96.webp` | Developer photo in the footer | Supplied by the site owner. |
+| `assets/img/developer-face.webp` | Developer photo in the footer: face and shoulders cropped from the original graduation photo, 160×160 WebP (7 KB), shown as a 60 px circle | Supplied by the site owner. |
 
 ## Remote photos (Wikimedia Commons)
 

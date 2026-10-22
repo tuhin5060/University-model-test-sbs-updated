@@ -201,7 +201,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--brand); outline:
 .footer-brand { margin: 0; font-family: var(--display); font-weight: 800; font-size: 1.35rem; line-height: 1.2; }
 .footer-tagline { margin: 2px 0 18px; color: var(--muted); }
 .dev-card, .dev-credit { display: flex; align-items: center; gap: 12px; }
-.dev-card img, .dev-credit img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid var(--brand); }
+.dev-card img, .dev-credit img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid var(--brand); box-shadow: 0 2px 8px rgba(11, 70, 53, .2); }
 .dev-credit img { width: 44px; height: 44px; }
 .dev-credit p { margin: 0; }
 .dev-card div { display: grid; gap: 1px; line-height: 1.35; }
@@ -852,11 +852,13 @@ button.cm-tag { cursor: pointer; }
 .identity[data-state='current'] .id-current { display: flex; }
 .identity[data-state='current'] .id-choose { display: none; }
 .identity .id-choose { display: grid; gap: 8px; }
-.identity .id-modes { margin-bottom: 4px; }
-.identity .id-roll { display: none; gap: 8px; }
-.identity[data-state='login'] .id-roll { display: grid; }
-.identity[data-state='login'] .id-new-hint { display: none; }
 .identity .hint { margin: 0; }
 .login-card { display: grid; gap: 8px; margin-bottom: 16px; }
 .login-card .h3 { margin: 0; }
 .login-card .btn { justify-self: start; }
+/* Opened inside Messenger / Facebook / Instagram: suggest the real browser */
+.inapp-bar { display: grid; grid-template-columns: 1fr auto auto; gap: 8px 10px; align-items: center; padding: 10px 12px 10px 16px; background: var(--accent-soft); border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.inapp-bar small { display: block; color: var(--muted); font-size: .82rem; line-height: 1.45; }
+.inapp-bar .btn { white-space: nowrap; }
+.inapp-bar .icon-btn { width: 34px; height: 34px; }
+@media (max-width: 420px) { .inapp-bar { grid-template-columns: 1fr auto; } .inapp-bar .btn { grid-column: 1; justify-self: start; } .inapp-bar .icon-btn { grid-row: 1; grid-column: 2; } }
