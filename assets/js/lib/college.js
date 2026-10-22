@@ -58,13 +58,17 @@ export function wireCollege(root) {
     else if (e.key === 'Enter') { e.preventDefault(); choose(active < 0 ? 0 : active); }
     else if (e.key === 'Escape') close();
   });
-  // pointerdown (not click) so the choice lands before the input loses focus.
-  list.addEventListener('pointerdown', e => {
+  // Mouse: choose on pointerdown, before the input loses focus. Touch: only a real tap
+  // (click) chooses, so scrolling the list with a finger does not pick the college under it.
+  const pick = e => {
     const li = e.target.closest('li');
     if (!li) return;
     e.preventDefault();
     choose(Number(li.dataset.i));
-  });
+  };
+  list.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') pick(e); });
+  list.addEventListener('mousedown', e => e.preventDefault()); // keeps the input focused, so the list stays open for the tap
+  list.addEventListener('click', pick);
 }
 
 /** The typed or chosen college, tidied ('' when empty). */

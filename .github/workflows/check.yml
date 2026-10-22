@@ -1,13 +1,34 @@
 name: check
 on: [push, pull_request]
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-latest
+    # On main, files that `npm run sync` generates (preload list, sw.js version, CSP)
+    # are brought up to date and committed, so a push that only adds questions —
+    # even from the GitHub website — still reaches every phone (Cloudflare Pages has
+    # no build step; Vercel also runs sync in its build, see vercel.json).
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }} # the branch as it is now (a queued run then sees earlier generated-file commits)
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Update generated files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          npm run sync
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -am "Update generated files (npm run sync)"
+            git push
+          fi
       - run: npm run check

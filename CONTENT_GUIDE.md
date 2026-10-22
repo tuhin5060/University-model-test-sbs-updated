@@ -11,6 +11,12 @@ npm run check
 It tells you exactly which file and question number has a problem (missing
 answer, duplicate options, unknown topic in a post, non-https link, …).
 
+Forgot `npm run sync`, or added questions on the GitHub website? Nothing breaks:
+on every push to `main` GitHub Actions runs it and commits the result
+(“Update generated files”), and Vercel runs it in its build as well. A question
+that breaks the rules stops the Vercel deploy (the site stays on the last good
+version) and the GitHub check turns red with the reason.
+
 ```
 data/
 ├── questions/

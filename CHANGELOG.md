@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.9.1 — production checks, questions-only pushes
+* Phones: scrolling the college list with a finger no longer picks the college under
+  the finger (touch chooses on a real tap; the mouse still on press).
+* Generated files can no longer be forgotten: Vercel’s build runs
+  `npm run sync && npm run check` (vercel.json), and on every push to `main` the
+  GitHub check workflow runs `npm run sync` and commits the result for Cloudflare
+  Pages, so a push that only adds MCQs (even from the GitHub website) reaches phones.
+* Checked: all pages on PC, iPhone and Android sizes without errors or sideways
+  scrolling; sign-up → Model Test → leaderboard on each; Neon and the functions
+  both in iad1; Neon free quota not exceeded.
+
 ## 2.9.0 — works offline and through database trouble
 * Offline outbox (`assets/js/lib/outbox.js`): with no network or a failing server, a
   new student still starts (the sign-up waits on the phone with its `newId`) and every

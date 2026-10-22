@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run sync && npm run check",
   "headers": [
     {
       "source": "/(.*)",
