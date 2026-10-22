@@ -4,12 +4,11 @@
 
 import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { AVATARS } from '../../../data/site.js';
-import { esc, bn, $, toast } from '../lib/dom.js';
-import { state, save, mistakeIds } from '../lib/store.js';
-import { saveProfile } from '../lib/api.js';
-import { playerFrom, syncCloud } from '../lib/cloud.js';
+import { esc, bn, $ } from '../lib/dom.js';
+import { state, mistakeIds } from '../lib/store.js';
+import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { FUN_LIMIT, EXAM_SECONDS, EXAM_NEGATIVE } from '../shared/scoring.js';
-import { MODE_INFO, pageHead, topicAccuracy, topicTitle, showIdCard } from '../components.js';
+import { MODE_INFO, pageHead, topicAccuracy, topicTitle } from '../components.js';
 import { startSession } from '../quiz.js';
 
 const MODES = ['fun', 'exam'];
@@ -55,15 +54,8 @@ export function render([mode = 'fun', topic = 'all']) {
       .join('')}</nav>
     <form class="setup" id="setup-form" data-mode="${mode}" novalidate>
       <section class="setup-name card">
-        <h2 class="step"><span>১</span> তোমার নাম ও Roll</h2>
-        <label class="label" for="player-name">পুরো নাম</label>
-        <input id="player-name" name="name" maxlength="60" autocomplete="name" placeholder="যেমন: Rahim Uddin" value="${esc(p.name || '')}" required>
-        <p class="field-error" id="name-error" hidden>Leaderboard-এর জন্য তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।</p>
-        <label class="label" for="player-roll">Roll <small class="muted">(প্রথমবার খালি রাখলে নতুন roll নিজে থেকেই পাবে)</small></label>
-        <input id="player-roll" name="roll" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="যেমন: 007" value="${p.roll ? rollText(p.roll) : ''}">
-        <p class="hint">🔑 প্রথমবার roll খালি রাখো—নতুন একটা roll পাবে, সেটা মনে রাখো। পরে বা অন্য phone-এ একই নাম + roll দিলে সব score ফিরে পাবে।</p>
-        <p class="field-error" id="roll-error" hidden></p>
-        <p class="tag-preview" id="tag-preview">${tagPreview(p.name, p.roll)}</p>
+        <h2 class="step"><span>১</span> তুমি কে?</h2>
+        ${identityFields()}
         <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
       </section>
       <section class="setup-topic">
@@ -95,54 +87,10 @@ export function render([mode = 'fun', topic = 'all']) {
   </div>`;
 }
 
-const rollText = n => String(n).padStart(3, '0');
-const cleanRoll = v => String(v || '').replace(/\D/g, '').slice(0, 5);
-function tagPreview(name, roll) {
-  const n = String(name || '').replace(/\s+/g, ' ').trim();
-  if (n.length < 2) return '';
-  return `Leaderboard-এ দেখাবে: <b>${esc(n)}.${roll ? rollText(roll) : '<span class="muted">নতুন roll</span>'}</b>`;
-}
-
-/**
- * Save name + roll on the server. Returns the player, null (offline: play
- * without the leaderboard) or false (fix the form first, e.g. roll taken).
- */
-export async function ensureProfile({ name, roll, avatar }, showRollError) {
-  const p = state.player;
-  if (p?.playerId && p.roll && p.name === name && rollText(p.roll) === (roll && rollText(roll)) && p.avatar === avatar) return p;
-  try {
-    const res = await Promise.race([
-      saveProfile({ playerId: p?.playerId, name, roll, avatar }),
-      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
-    ]);
-    state.player = playerFrom(res.player);
-    save();
-    if (res.created) await showIdCard(res.player);
-    if (res.restored) {
-      toast('✅ আবার স্বাগতম! তোমার আগের score ও অগ্রগতি আনা হলো।');
-      syncCloud({ profile: false });
-    }
-    return state.player;
-  } catch (err) {
-    if (err.status === 409 || err.status === 400) {
-      showRollError(err.body?.error || err.message, err.body?.suggest);
-      return false;
-    }
-    toast('⚠️ Server-এ নাম save হয়নি—এবারের score শুধু এই device-এ থাকবে।');
-    if (p?.playerId) return p; // keep the existing identity; "retry save" works later
-    state.player = { name, avatar }; // remember the name for next time
-    save();
-    return null;
-  }
-}
-
 export function mount() {
   const form = $('#setup-form');
   if (!form) return;
   const mode = form.dataset.mode;
-  const nameInput = $('#player-name');
-  const nameError = $('#name-error');
-  const cleanName = () => String(nameInput.value || '').replace(/\s+/g, ' ').trim();
   const refresh = () => {
     const fd = new FormData(form);
     $('#start-summary').textContent = summary(mode, String(fd.get('topic') || 'all'), Number(fd.get('count')));
@@ -154,49 +102,16 @@ export function mount() {
     }
     refresh();
   });
-  const rollInput = $('#player-roll');
-  const rollError = $('#roll-error');
-  const preview = () => { $('#tag-preview').innerHTML = tagPreview(nameInput.value, cleanRoll(rollInput.value)); };
-  const showRollError = (message, suggest) => {
-    rollError.innerHTML = `${esc(message)}${suggest ? ` <button type="button" class="link-btn" data-roll="${suggest}">Roll ${rollText(suggest)} নাও</button>` : ''}`;
-    rollError.hidden = false;
-    rollInput.setAttribute('aria-invalid', 'true');
-    rollInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-  rollError.addEventListener('click', e => {
-    const b = e.target.closest('[data-roll]');
-    if (!b) return;
-    rollInput.value = rollText(b.dataset.roll);
-    rollError.hidden = true;
-    rollInput.removeAttribute('aria-invalid');
-    preview();
-  });
-  nameInput.addEventListener('input', () => {
-    if (cleanName().length >= 2) { nameError.hidden = true; nameInput.removeAttribute('aria-invalid'); }
-    preview();
-  });
-  rollInput.addEventListener('input', () => {
-    rollError.hidden = true;
-    rollInput.removeAttribute('aria-invalid');
-    preview();
-  });
+  wireIdentity(form);
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(form);
     const btn = form.querySelector('button[type=submit]');
-    const name = cleanName();
-    if (name.length < 2) {
-      nameError.hidden = false;
-      nameInput.setAttribute('aria-invalid', 'true');
-      nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      nameInput.focus({ preventScroll: true });
-      return;
-    }
     const count = Number(fd.get('count'));
     state.prefs = { ...state.prefs, [mode]: { count } };
     btn.disabled = true;
     btn.textContent = 'প্রস্তুত হচ্ছে…';
-    const player = await ensureProfile({ name, roll: cleanRoll(fd.get('roll')), avatar: String(fd.get('avatar') || '🚂') }, showRollError);
+    const player = await signIn(form, { avatar: String(fd.get('avatar') || '🚂') });
     btn.disabled = false;
     btn.textContent = 'শুরু করো →';
     if (player === false) return;

@@ -8,7 +8,7 @@ import { esc, bn, bnDate, $, toast } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { fetchThreads, fetchThread, communityAction } from '../lib/api.js';
 import { pageHead, topicById, empty } from '../components.js';
-import { ensureProfile } from './start.js';
+import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { explainBlock } from './play.js';
 
 const L = 'ABCD';
@@ -18,8 +18,6 @@ let threads = [];
 let current = null; // the open thread
 
 export const topicName = id => EXTRA_TOPICS[id] || (topicById(id) ? `${topicById(id).icon} ${topicById(id).title}` : id);
-const rollText = n => String(n).padStart(3, '0');
-const cleanRoll = v => String(v || '').replace(/\D/g, '').slice(0, 5);
 
 function ago(s) {
   const sec = (Date.now() - Date.parse(s)) / 1000;
@@ -60,43 +58,19 @@ function questionBox(q, { answer = false } = {}) {
   </div>`;
 }
 
-/** Name + roll fields, shown only to students who have not signed up yet. */
-function profileFields() {
-  if (state.player?.playerId) return '';
-  const p = state.player || {};
-  return `<fieldset class="cm-profile">
-    <legend>তোমার পরিচয়</legend>
-    <label class="label" for="cm-name">পুরো নাম</label>
-    <input id="cm-name" name="name" maxlength="60" autocomplete="name" placeholder="যেমন: Rahim Uddin" value="${esc(p.name || '')}">
-    <label class="label" for="cm-roll">Roll <small class="muted">(আগে খেলে থাকলে নিজের roll, নইলে খালি রাখো—নতুন roll পাবে)</small></label>
-    <input id="cm-roll" name="roll" inputmode="numeric" maxlength="5" placeholder="যেমন: 007">
-    <p class="field-error" id="cm-profile-error" hidden></p>
-  </fieldset>`;
-}
+/** Who is posting: shown only to students not signed in on this device. */
+const profileFields = () => (state.player?.playerId ? '' : `<fieldset class="cm-profile"><legend>তোমার পরিচয়</legend>${identityFields()}</fieldset>`);
 
-/** Signs the student up from the profile fields if needed. → true when posting can go ahead. */
+/** Signs the student in from the identity block if needed. → true when posting can go ahead. */
 async function readyToPost(form) {
   if (state.player?.playerId) return true;
-  const error = form.querySelector('#cm-profile-error');
-  const name = String(form.elements.name?.value || '').replace(/\s+/g, ' ').trim();
-  if (name.length < 2) {
-    error.textContent = 'তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।';
-    error.hidden = false;
-    form.elements.name.focus();
-    return false;
+  const player = await signIn(form);
+  if (player === null) {
+    const box = form.querySelector('[data-id-error]');
+    box.textContent = 'Server-এ পৌঁছানো গেল না—একটু পরে আবার চেষ্টা করো।';
+    box.hidden = false;
   }
-  const player = await ensureProfile({ name, roll: cleanRoll(form.elements.roll?.value), avatar: state.player?.avatar || '🚂' }, (message, suggest) => {
-    error.textContent = `${message}${suggest ? ` (খালি roll: ${rollText(suggest)})` : ''}`;
-    error.hidden = false;
-  });
-  if (!player?.playerId) {
-    if (player !== false) {
-      error.textContent = 'Server-এ নাম save করা গেল না—একটু পরে আবার চেষ্টা করো।';
-      error.hidden = false;
-    }
-    return false;
-  }
-  return true;
+  return !!player?.playerId;
 }
 
 const adminMenu = (kind, id) => `<details class="cm-menu"><summary aria-label="আরও অপশন">⋯</summary>
@@ -178,6 +152,7 @@ function newPage(topic = '', qid = '') {
 
 function mountNew() {
   const form = $('#cm-new');
+  if (form) wireIdentity(form);
   form?.addEventListener('submit', async e => {
     e.preventDefault();
     const error = $('#cm-error');
@@ -265,6 +240,7 @@ async function loadThread(id) {
 
 function mountReply() {
   const form = $('#cm-reply');
+  if (form) wireIdentity(form);
   form?.addEventListener('submit', async e => {
     e.preventDefault();
     const error = $('#cm-reply-error');

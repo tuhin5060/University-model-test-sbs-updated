@@ -30,9 +30,12 @@ export async function fetchProfile(playerId) {
   return (await call(`/api/profile${q}`)).player;
 }
 
-/** → { player, created?, restored? }. A taken roll throws with error.body = { code: 'roll_taken', suggest }. */
-export async function saveProfile({ playerId, name, roll, avatar }) {
-  return call('/api/profile', { method: 'POST', body: JSON.stringify({ playerId, name, roll, avatar }) });
+/**
+ * → { player, created?, restored? }. login: true only signs in to an existing name + roll
+ * (errors: roll_not_found 404, name_mismatch 409 with a masked hint).
+ */
+export async function saveProfile({ playerId, name, roll, avatar, login = false }) {
+  return call('/api/profile', { method: 'POST', body: JSON.stringify({ playerId, name, roll, avatar, login }) });
 }
 
 export async function submitScore(payload) {

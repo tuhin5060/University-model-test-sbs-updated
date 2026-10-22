@@ -847,3 +847,16 @@ button.cm-tag { cursor: pointer; }
 .push-ask-actions { grid-column: 1 / -1; display: flex; gap: 12px; align-items: center; justify-content: flex-end; }
 @keyframes push-in { from { transform: translateY(20px); opacity: 0; } }
 @media (min-width: 960px) { .push-ask { bottom: 20px; } }
+/* Who is playing: signed-in summary, or first time / returning */
+.identity .id-current { display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-radius: 12px; background: var(--brand-soft); }
+.identity[data-state='current'] .id-current { display: flex; }
+.identity[data-state='current'] .id-choose { display: none; }
+.identity .id-choose { display: grid; gap: 8px; }
+.identity .id-modes { margin-bottom: 4px; }
+.identity .id-roll { display: none; gap: 8px; }
+.identity[data-state='login'] .id-roll { display: grid; }
+.identity[data-state='login'] .id-new-hint { display: none; }
+.identity .hint { margin: 0; }
+.login-card { display: grid; gap: 8px; margin-bottom: 16px; }
+.login-card .h3 { margin: 0; }
+.login-card .btn { justify-self: start; }

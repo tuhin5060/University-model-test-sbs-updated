@@ -75,6 +75,23 @@ test('profile: same name + roll on another device logs in to the same student', 
   await call(profile, { method: 'POST', body: { name: 'Alice Rahman', roll: 1, avatar: '🦊' }, cookie: alice }); // rename back
 });
 
+test('profile: "আগে খেলেছি" sign-in never creates a student and explains what is wrong', async () => {
+  const before = (await db.query('SELECT count(*)::int AS n FROM students'))[0].n;
+  const ok = await call(profile, { method: 'POST', body: { login: true, name: '  ALICE   rahman ', roll: '001' } });
+  assert.equal(ok.statusCode, 200);
+  assert.equal(ok.body.player.playerId, alice);
+  assert.equal(ok.body.player.name, 'Alice Rahman', 'sign-in keeps the stored spelling');
+  const wrongName = await call(profile, { method: 'POST', body: { login: true, name: 'Alice', roll: '1' } });
+  assert.equal(wrongName.statusCode, 409);
+  assert.equal(wrongName.body.code, 'name_mismatch');
+  assert.equal(wrongName.body.hint, 'A•••• R••••');
+  const noRoll = await call(profile, { method: 'POST', body: { login: true, name: 'Alice Rahman', roll: '9999' } });
+  assert.equal(noRoll.statusCode, 404);
+  assert.equal(noRoll.body.code, 'roll_not_found');
+  assert.equal((await call(profile, { method: 'POST', body: { login: true, name: 'Alice Rahman' } })).statusCode, 400);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM students'))[0].n, before, 'no new student');
+});
+
 test('profile: cookie wins over a different id in the body; no roll + other name = new student', async () => {
   const bob = (await join({ name: 'Bob Ali' })).player;
   const r = await call(profile, { method: 'POST', body: { playerId: bob.playerId, name: 'Alice Rahman' }, cookie: alice });

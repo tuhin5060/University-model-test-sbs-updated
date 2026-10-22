@@ -3,7 +3,8 @@
 import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { UNIVERSITIES, CONTENT_UPDATED } from '../../../data/universities.js';
 import { SITE, CU_PHOTOS } from '../../../data/site.js';
-import { esc, bn, bnDate, duration, ext, $ } from '../lib/dom.js';
+import { esc, bn, bnDate, duration, ext, $, navigate } from '../lib/dom.js';
+import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { state, dailyStreak } from '../lib/store.js';
 import { fetchMyStats } from '../lib/api.js';
 import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
@@ -12,16 +13,27 @@ let lbMode = 'fun';
 let lbTopic = 'all';
 
 // "My score" block: personal bests and recent results from this browser.
+// Sign-in with an existing ID, for a student on a new phone or browser.
+function loginCard() {
+  if (state.player?.playerId) return '';
+  return `<form class="card login-card" id="login-form" novalidate>
+    <h3 class="h3">🔑 আগে খেলেছ?</h3>
+    <p class="muted small">অন্য phone বা browser-এ পাওয়া ID দিয়ে ঢোকো—সব score ও অগ্রগতি চলে আসবে।</p>
+    ${identityFields({ mode: 'login' })}
+    <button class="btn" type="submit">ঢোকো</button>
+  </form>`;
+}
+
 function myScores() {
   const ranked = state.history.filter(x => x.mode === 'fun' || x.mode === 'exam');
   if (!ranked.length && !state.player?.playerId) {
-    return empty('এখনো কোনো test দাওনি। একটা দিলেই তোমার score এখানে দেখাবে।', '<a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a> <a class="btn" href="#start/exam">⏱️ Model Test</a>');
+    return loginCard() + empty('এখনো কোনো test দাওনি। একটা দিলেই তোমার score এখানে দেখাবে।', '<a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a> <a class="btn" href="#start/exam">⏱️ Model Test</a>');
   }
   const best = mode => ranked.filter(x => x.mode === mode).reduce((m, x) => Math.max(m, mode === 'fun' ? x.score || 0 : x.percent || 0), -1);
   const fun = best('fun');
   const exam = best('exam');
   const p = state.player;
-  return `${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}</p>` : ''}
+  return `${loginCard()}${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}</p>` : ''}
     <div id="my-stats">${p?.playerId ? '<div class="skeleton"></div>' : ''}</div>
     <div class="stat-grid" id="local-stats">
       <div class="stat"><b>${fun < 0 ? '—' : bn(fun)}</b><small>Fun Quiz সেরা points</small></div>
@@ -111,6 +123,18 @@ export const leaderboardPage = {
     </div>`;
   },
   mount() {
+    const login = $('#login-form');
+    if (login) {
+      wireIdentity(login);
+      login.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = login.querySelector('[type=submit]');
+        btn.disabled = true;
+        const player = await signIn(login);
+        btn.disabled = false;
+        if (player?.playerId) navigate(location.hash || '#leaderboard');
+      });
+    }
     loadMyStats();
     loadLeaderboards();
     $('#lb-topic')?.addEventListener('change', e => {

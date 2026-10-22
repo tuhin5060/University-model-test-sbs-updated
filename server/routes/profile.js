@@ -77,6 +77,9 @@ async function insertStudent(db, { name, key, avatar, roll }) {
   return null;
 }
 
+/** "Rahim Uddin" → "R•••• U••••": enough to recognise your own name, not to read someone else's. */
+export const maskName = name => String(name).split(' ').map(w => { const c = Array.from(w); return c[0] + '•'.repeat(Math.min(4, c.length - 1)); }).join(' ');
+
 const ok = (student, status, extra = {}) =>
   json({ ok: true, player: view(student), ...extra }, status, { 'Set-Cookie': cookie(PLAYER_COOKIE, student.id) });
 
@@ -97,6 +100,20 @@ export default route('profile', {
     const avatar = ALLOWED_AVATARS.has(body.avatar) ? body.avatar : '🚂';
     const roll = parseRoll(body.roll);
     const myId = resolvePlayerId(request, body.playerId);
+
+    // "আগে খেলেছি": sign in to an existing name + roll only — never create a new student.
+    if (body.login === true) {
+      if (roll === null) throw new BadRequest('তোমার roll লেখো (যেমন 007)।');
+      const owner = await byRoll(db, roll);
+      if (!owner) {
+        return json({ ok: false, code: 'roll_not_found', error: `Roll ${rollText(roll)}-এ কোনো শিক্ষার্থী নেই। ID কার্ডে যে roll ছিল সেটা দাও, অথবা “প্রথমবার” বেছে নাও।` }, 404);
+      }
+      if (owner.name_key !== key) {
+        return json({ ok: false, code: 'name_mismatch', hint: maskName(owner.name), error: `Roll ${rollText(roll)}-এর সাথে এই নাম মিলছে না। প্রথমবার যে নাম দিয়েছিলে হুবহু সেটা লেখো (${maskName(owner.name)})।` }, 409);
+      }
+      return ok(owner, 200, { restored: owner.id !== myId });
+    }
+
     const me = myId ? await byId(db, myId) : null;
 
     const update = async (id, fields) => {

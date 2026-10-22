@@ -5,16 +5,17 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = '31582f8605f2';
+const VERSION = '20dcea4d2dee';
 const PRECACHE = [
   './',
-  'assets/css/styles.css?v=2.6.1',
-  'assets/js/main.js?v=2.6.1',
+  'assets/css/styles.css?v=2.6.2',
+  'assets/js/main.js?v=2.6.2',
   'assets/js/components.js',
   'assets/js/lib/api.js',
   'assets/js/lib/cloud.js',
   'assets/js/lib/dom.js',
   'assets/js/lib/fx.js',
+  'assets/js/lib/identity.js',
   'assets/js/lib/live.js',
   'assets/js/lib/push.js',
   'assets/js/lib/store.js',

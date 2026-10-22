@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.6.2 — clear sign-in on another phone
+* “তুমি কে?” block on the Fun Quiz / Model Test form and the community forms:
+  signed in → “✅ তুমি: Name.007 · অন্য ID”; otherwise two choices —
+  **🆕 প্রথমবার** (only a name; a new roll and the ID card) or **🔑 আগে খেলেছি**
+  (name + roll; pasting the whole ID “Name.007” fills both).
+* “আগে খেলেছি” never creates a new student. A wrong name says so with a hint
+  (“K•••• H••••”), an unknown roll says the roll has no student — instead of the
+  old “roll taken, take 003” that pushed people into a second profile.
+* Score page: “🔑 আগে খেলেছ?” sign-in card when nobody is signed in on the device.
+* Shared code: `assets/js/lib/identity.js`; server: `POST /api/profile { login: true }`.
+
 ## 2.6.1 — data backup and the way to Cloudflare D1
 * Admin **data backup** (`#backup`, link at the bottom of About): with the admin
   password, every stored table (students, scores, progress, community,
