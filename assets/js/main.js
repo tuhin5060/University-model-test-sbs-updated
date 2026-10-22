@@ -19,7 +19,7 @@ import * as progress from './pages/progress.js';
 import * as vocab from './pages/vocab.js';
 import * as community from './pages/community.js';
 import VOCAB from '../../data/vocabulary.js';
-import { leaderboardPage, aboutPage, backupPage, notFound, switchBoardMode } from './pages/misc.js';
+import { leaderboardPage, aboutPage, backupPage, sbsPage, notFound, switchBoardMode } from './pages/misc.js';
 import { loadLeaderboards } from './components.js';
 
 const ROUTES = {
@@ -36,6 +36,7 @@ const ROUTES = {
   leaderboard: leaderboardPage,
   score: leaderboardPage,
   about: aboutPage,
+  sbs: sbsPage,
   backup: backupPage,
 };
 
@@ -157,6 +158,7 @@ const INDEX = [
   { title: 'Fun Quiz', sub: 'Timer, points, streak, lifeline', href: '#start/fun', type: 'Mode', text: 'fun quiz game খেলা' },
   { title: 'Model Test', sub: 'ভর্তি পরীক্ষার মতো timed test', href: '#start/exam', type: 'Mode', text: 'model test exam পরীক্ষা timer negative' },
   { title: 'কমিউনিটি', sub: 'প্রশ্ন করো, উত্তর দাও', href: '#community', type: 'Page', text: 'community কমিউনিটি আলোচনা প্রশ্ন উত্তর forum discussion help' },
+  { title: 'SBS Students’ Association', sub: 'আমাদের সংগঠন · Facebook', href: '#sbs', type: 'Page', text: 'sbs students association সংগঠন ভাটিয়ারী সোনাইছড়ি সলিমপুর সীতাকুণ্ড facebook ভর্তি কোচিং' },
   { title: 'আমার অগ্রগতি', sub: 'ফলাফল, ভুল, backup', href: '#progress', type: 'Page', text: 'progress history backup ভুল mistakes' },
   { title: 'শব্দতালিকা (Vocabulary)', sub: 'বাংলা অর্থ, Synonym, Antonym', href: '#vocab', type: 'Page', text: 'vocabulary vocab word শব্দ synonym antonym শব্দতালিকা memorising' },
   ...VOCAB.map(v => ({ title: v.w, sub: v.bn, href: `#vocab/${encodeURIComponent(v.w)}`, type: 'শব্দ', text: `${v.w} ${v.bn}` })),

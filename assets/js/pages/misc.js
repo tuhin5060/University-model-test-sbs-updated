@@ -2,7 +2,7 @@
 
 import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
 import { UNIVERSITIES, CONTENT_UPDATED } from '../../../data/universities.js';
-import { SITE, CU_PHOTOS } from '../../../data/site.js';
+import { SITE, SBS, CU_PHOTOS } from '../../../data/site.js';
 import { esc, bn, bnDate, duration, ext, $, navigate } from '../lib/dom.js';
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { state, dailyStreak } from '../lib/store.js';
@@ -168,6 +168,33 @@ export function switchBoardMode(el) {
   loadLeaderboards(box.parentElement);
 }
 
+// The organisation behind the site, with its Facebook page (Facebook's own page box,
+// loaded only when it scrolls into view so the page stays fast).
+export const sbsPage = {
+  render() {
+    return `<div class="container narrow">
+      ${pageHead(SBS.name, SBS.intro, SBS.area, [[null, 'SBS']])}
+      <div class="sbs-work">${SBS.work.map(([icon, title, text]) => `<div class="card sbs-item"><span aria-hidden="true">${icon}</span><div><b>${esc(title)}</b><p>${esc(text)}</p></div></div>`).join('')}</div>
+      <p class="actions"><a class="btn fb-btn" href="${esc(SBS.facebook)}" target="_blank" rel="noopener noreferrer">📘 Facebook পেজে যাও ↗</a></p>
+      <section class="section-tight">
+        <h2 class="h3">📣 Facebook-এ সর্বশেষ</h2>
+        <div class="fb-embed" id="fb-embed"><p class="muted small">Facebook পেজ লোড হচ্ছে…</p></div>
+        <p class="muted small">পোস্ট দেখা না গেলে (নেট বা browser-এর কারণে) ${ext(SBS.facebook, 'সরাসরি Facebook-এ দেখো')}</p>
+      </section>
+      <p class="muted">“${esc(SITE.name)}” SBS-এর উদ্যোগ—ভর্তিচ্ছুরা যেন ঘরে বসেই প্রস্তুতি নিতে পারে।</p>
+    </div>`;
+  },
+  mount() {
+    const box = $('#fb-embed');
+    if (!box) return;
+    const width = Math.max(280, Math.min(500, Math.floor(box.clientWidth)));
+    const src = `https://www.facebook.com/plugins/page.php?${new URLSearchParams({
+      href: SBS.facebook, tabs: 'timeline', width, height: 620, small_header: 'true', adapt_container_width: 'true', hide_cover: 'false', show_facepile: 'false',
+    })}`;
+    box.innerHTML = `<iframe src="${esc(src)}" width="${width}" height="620" loading="lazy" title="${esc(SBS.name)} — Facebook" allow="encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  },
+};
+
 export const aboutPage = {
   render() {
     return `<div class="container narrow">
@@ -188,7 +215,7 @@ export const aboutPage = {
         <p class="muted small">Wikimedia Commons-এর ছবিগুলো তাদের নিজ নিজ licence (সাধারণত CC BY-SA) অনুযায়ী ব্যবহৃত; বিস্তারিত file page-এ।</p>
         <h2>উদ্যোগ</h2>
         <div class="dev-credit"><img src="${esc(SITE.developer.photo)}" width="44" height="44" alt="${esc(SITE.developer.name)}" loading="lazy" decoding="async">
-          <p>Initiative by <b>${esc(SITE.initiative)}</b><br>Developed by ${ext(SITE.developer.url, SITE.developer.name)}</p></div>
+          <p>Initiative by <a href="#sbs"><b>${esc(SITE.initiative)}</b></a> · ${ext(SBS.facebook, 'Facebook')}<br>Developed by ${ext(SITE.developer.url, SITE.developer.name)}</p></div>
         <h2>Feedback</h2>
         <p>কোনো উত্তরে ভুল পেলে, নতুন প্রশ্ন বা topic চাইলে সরাসরি WhatsApp-এ জানাও: ${ext(SITE.feedback, 'WhatsApp-এ message পাঠাও')}</p>
         <p class="muted small"><a href="#backup">🔒 Admin: data backup</a></p>

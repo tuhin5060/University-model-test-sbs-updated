@@ -11,6 +11,20 @@ export const SITE = {
   url: 'https://sbs-university-admission-model-test.vercel.app/',
 };
 
+// The organisation behind the site (page #sbs, home card, footer). Edit freely.
+export const SBS = {
+  name: 'SBS Students’ Association',
+  facebook: 'https://www.facebook.com/SBS1995.CU',
+  intro: 'চট্টগ্রাম বিশ্ববিদ্যালয়ে পড়ুয়া সীতাকুণ্ডের ভাটিয়ারী, সোনাইছড়ি ও সলিমপুর এলাকার শিক্ষার্থীদের সংগঠন। এলাকার শিক্ষার্থীদের উচ্চশিক্ষায় এগিয়ে নেওয়া, দক্ষতা বাড়ানো আর সামাজিক দায়বদ্ধতা থেকে নানা কাজ করে।',
+  area: 'ভাটিয়ারী · সোনাইছড়ি · সলিমপুর (সীতাকুণ্ড)',
+  work: [
+    ['🎓', 'ভর্তি সহায়তা', 'ভর্তিচ্ছু পরীক্ষার্থীদের জন্য সচেতনতা কার্যক্রম ও ভর্তি কোচিং; পরীক্ষার দিন ভাটিয়ারী থেকে ক্যাম্পাস পর্যন্ত যাওয়া-আসার পুরো তদারকি।'],
+    ['🛠️', 'দক্ষতা উন্নয়ন', 'বছরজুড়ে প্রতি মাসে skill development সেশন, আর চট্টগ্রাম বিশ্ববিদ্যালয়-ভিত্তিক নানা কাজ।'],
+    ['🤝', 'সামাজিক দায়বদ্ধতা', 'এলাকার SSC-HSC শিক্ষার্থীদের নিয়ে কাজ—সীতাকুণ্ডে উচ্চশিক্ষার পথে মানুষকে এগিয়ে নেওয়া; বিভিন্ন সামাজিক কাজ।'],
+    ['🎉', 'মিলনমেলা', 'বার্ষিক সভা, ইফতার মাহফিল, পিকনিকসহ নানা আয়োজনে সবাই একসাথে।'],
+  ],
+};
+
 export const commons = (file, width = 1280) =>
   `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 export const commonsPage = file => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, '_'))}`;

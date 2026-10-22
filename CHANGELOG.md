@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.8.2 — SBS Students’ Association
+* New page `#sbs`: who SBS is (Chattogram University students from Bhatiary,
+  Sonaichhari and Salimpur, Sitakunda), what it does (admission help and exam-day
+  travel, skill sessions, social work, SSC outreach, iftar and picnics) and
+  Facebook’s own page box with the latest posts of facebook.com/SBS1995.CU.
+* Home page card, hero line, About page and footer link to it.
+* CSP allows framing from www.facebook.com / web.facebook.com only (`frame-src`).
+
 ## 2.8.1 — a roll you were given, or an automatic one
 * New students can type a roll the admin handed out (e.g. 2150): if nobody has it,
   the form asks “এই roll দিয়ে নতুন ID খুলবে?” and registers with it. An empty roll

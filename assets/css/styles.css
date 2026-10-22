@@ -878,3 +878,20 @@ button.cm-tag { cursor: pointer; }
 .lb-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .my-name .my-college { display: block; color: var(--muted); font-size: .88rem; margin: 2px 0 0 30px; }
 .lb-name { min-width: 0; }
+/* SBS Students' Association: home card and #sbs page */
+.sbs-card { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+.sbs-card h2 { margin: 4px 0 6px; }
+.sbs-card p { margin: 0 0 10px; }
+.sbs-badge { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, var(--brand-2), var(--brand)); color: #fff; font-family: var(--display); font-weight: 800; font-size: 1.25rem; letter-spacing: .04em; box-shadow: var(--shadow); }
+.sbs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sbs-chips span { font-size: .85rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; background: var(--brand-soft); color: var(--brand); }
+.fb-btn { background: #1877f2; color: #fff; border-color: #1877f2; }
+.btn.ghost.fb-btn { background: transparent; color: #1877f2; border-color: #1877f2; }
+.sbs-work { display: grid; gap: 12px; margin: 6px 0 16px; }
+.sbs-item { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 14px 16px; }
+.sbs-item > span { font-size: 1.6rem; line-height: 1; }
+.sbs-item p { margin: 4px 0 0; color: var(--muted); }
+.fb-embed { display: grid; justify-items: center; margin: 8px 0; min-height: 120px; }
+.fb-embed iframe { border: 0; border-radius: 12px; max-width: 100%; background: var(--surface); }
+@media (min-width: 700px) { .sbs-work { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .sbs-card { grid-template-columns: 1fr; } }

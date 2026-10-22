@@ -4,7 +4,7 @@ import { TOPICS, QUESTIONS } from '../../../data/questions/index.js';
 import VOCAB from '../../../data/vocabulary.js';
 import { POSTS, QUICK_TIPS } from '../../../data/posts.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
-import { SITE, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
+import { SITE, SBS, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
 import { esc, bn, today, safeURL } from '../lib/dom.js';
 import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
 import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, MODE_INFO, topicTitle } from '../components.js';
@@ -89,6 +89,21 @@ function memorising() {
   </section>`;
 }
 
+function sbsCard() {
+  return `<section class="container section">
+    <div class="card sbs-card">
+      <span class="sbs-badge" aria-hidden="true">SBS</span>
+      <div>
+        <span class="eyebrow">এই উদ্যোগের পেছনে</span>
+        <h2>${esc(SBS.name)}</h2>
+        <p>${esc(SBS.intro)}</p>
+        <p class="sbs-chips">${SBS.work.map(([icon, title]) => `<span>${icon} ${esc(title)}</span>`).join('')}</p>
+        <div class="actions"><a class="btn" href="#sbs">SBS সম্পর্কে →</a><a class="btn ghost fb-btn" href="${esc(SBS.facebook)}" target="_blank" rel="noopener noreferrer">📘 Facebook ↗</a></div>
+      </div>
+    </div>
+  </section>`;
+}
+
 function cuSpotlight() {
   const cu = UNIVERSITIES.find(u => u.id === 'cu');
   const facts = cu?.campusStory?.facts || [];
@@ -115,7 +130,7 @@ export function render() {
   <section class="hero">
     <div class="container hero-grid">
     <div class="hero-inner">
-      <span class="eyebrow light">${esc(SITE.initiative)}</span>
+      <a class="eyebrow light" href="#sbs">${esc(SITE.initiative)}</a>
       <h1>স্বপ্নটা সেরা ক্যাম্পাসের,<br>প্রস্তুতিও হোক সেরা।</h1>
       <p>বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English MCQ—খেলার মতো মজায়, পরীক্ষার মতো নিয়মে। প্রতিটি উত্তরের সঙ্গে সহজ বাংলা ব্যাখ্যা।</p>
       <div class="hero-cta">
@@ -142,6 +157,7 @@ export function render() {
   </section>
   ${memorising()}
   ${cuSpotlight()}
+  ${sbsCard()}
   <section class="container section">
     <div class="section-head"><div><h2>Tips & Tricks</h2><p>কী পড়বে, কীভাবে পড়বে, পরীক্ষার হলে কী করবে।</p></div><a class="text-link" href="#tips">সব লেখা →</a></div>
     <div class="post-grid">${featured.map((p, i) => postCard(p, i === 0)).join('')}</div>

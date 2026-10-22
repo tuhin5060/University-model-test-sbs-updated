@@ -80,6 +80,7 @@ export function cspValue(html) {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org",
     "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
+    "frame-src https://www.facebook.com https://web.facebook.com", // the SBS Facebook page box on #sbs
     "manifest-src 'self'",
     "worker-src 'self'",
     "frame-ancestors 'none'",
