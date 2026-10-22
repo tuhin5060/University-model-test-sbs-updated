@@ -153,6 +153,17 @@ for tests.)
   per student per 10 minutes, 6 replies per 2 minutes. Deleting checks
   `ADMIN_PASSWORD` on the server (digest comparison, a short delay after a
   wrong password); the password never reaches the browser code or the repo.
+* Hardening (2.8): a strict Content-Security-Policy (only our files, the inline
+  scripts listed by hash — written by `npm run sync` — Google Fonts and the
+  Wikimedia photos; no framing), `X-Frame-Options: DENY`,
+  `Cross-Origin-Opener-Policy`, HSTS on Cloudflare. Every POST from another
+  website is refused. Per-address limits (`server/ratelimit.js`, hashed
+  addresses kept a day): 10 wrong admin passwords per 15 min then a lock-out,
+  40 new students per hour, 60 sign-ins per 10 min, 40 community posts per
+  10 min, 150 scores per 10 min, notification sign-ups. The leaderboard is
+  identical for everyone and kept 20 s at Vercel's edge, so a request flood
+  barely reaches the database. All SQL is parameterised; all text is escaped
+  when shown; secrets live only in the host settings.
 * Only topic-based Fun Quiz and Model Test results are ranked; mistakes practice,
   retries and the daily challenge are personal.
 * Practice history, mistakes, stats and settings live in localStorage and are

@@ -27,7 +27,8 @@ export function json(body, status = 200, extra = {}) {
     'X-Content-Type-Options': 'nosniff',
   });
   for (const [k, v] of Object.entries(extra)) {
-    for (const value of [].concat(v)) headers.append(k, value);
+    if (k.toLowerCase() === 'cache-control') headers.set(k, v); // a route may allow caching
+    else for (const value of [].concat(v)) headers.append(k, value);
   }
   return new Response(JSON.stringify(body), { status, headers });
 }

@@ -70,6 +70,9 @@ export const SCHEMA = [
     last_sent_at timestamptz
   )`,
   'CREATE TABLE IF NOT EXISTS settings (key text PRIMARY KEY, value jsonb NOT NULL)',
+  // Rate limits (server/ratelimit.js): one row per counted request, kept for a day.
+  "CREATE TABLE IF NOT EXISTS hits (key text NOT NULL, at timestamptz NOT NULL DEFAULT now())",
+  'CREATE INDEX IF NOT EXISTS hits_key ON hits (key, at)',
   `CREATE TABLE IF NOT EXISTS events (
     id bigserial PRIMARY KEY,
     kind text NOT NULL,

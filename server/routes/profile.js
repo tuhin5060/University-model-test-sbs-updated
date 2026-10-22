@@ -7,6 +7,7 @@
 // with the nearest free roll as a suggestion.
 import { AVATARS } from '../../data/site.js';
 import { route } from '../route.js';
+import { limit } from '../ratelimit.js';
 import { json, clean, readCookie, readJSON, query, cookie, iso, ID_RE, PLAYER_COOKIE, BadRequest } from '../http.js';
 
 const ALLOWED_AVATARS = new Set(AVATARS);
@@ -63,7 +64,8 @@ async function rollTaken(db, roll) {
   }, 409);
 }
 
-async function insertStudent(db, { name, key, avatar, roll, college }) {
+async function insertStudent(db, { name, key, avatar, roll, college }, request) {
+  await limit(db, request, 'signup', 40, 3600, 'এই network থেকে অনেক নতুন নাম হয়েছে—এক ঘণ্টা পরে আবার চেষ্টা করো।');
   // roll === null → next number after the highest one. A parallel sign-up can
   // take the same number first; then try again with the new highest.
   for (let i = 0; i < 5; i++) {
@@ -106,6 +108,7 @@ export default route('profile', {
     // "আগে খেলেছি": sign in to an existing name + roll only — never create a new student.
     if (body.login === true) {
       if (roll === null) throw new BadRequest('তোমার roll লেখো (যেমন 007)।');
+      await limit(db, request, 'login', 60, 600); // stops guessing name + roll pairs
       const owner = await byRoll(db, roll);
       if (!owner) {
         return json({ ok: false, code: 'roll_not_found', error: `Roll ${rollText(roll)}-এ কোনো শিক্ষার্থী নেই। ID কার্ডে যে roll ছিল সেটা দাও। প্রথমবার হলে roll-এর ঘর খালি রাখো।` }, 404);
@@ -141,12 +144,12 @@ export default route('profile', {
         // Same student moving to a free roll they prefer.
         try { return ok(await update(me.id, { name, key, avatar, roll }), 200); } catch { return rollTaken(db, roll); }
       }
-      const created = await insertStudent(db, { name, key, avatar, roll, college });
+      const created = await insertStudent(db, { name, key, avatar, roll, college }, request);
       return created ? ok(created, 201, { created: true }) : rollTaken(db, roll);
     }
 
     if (me && me.name_key === key) return ok(await update(me.id, { name, key, avatar }), 200);
-    const created = await insertStudent(db, { name, key, avatar, roll: null, college });
+    const created = await insertStudent(db, { name, key, avatar, roll: null, college }, request);
     if (!created) throw new Error('Could not assign a roll number');
     return ok(created, 201, { created: true });
   },

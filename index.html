@@ -31,20 +31,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Fonts load without blocking: if Google Fonts is slow, the page shows at once in the phone's own Bangla font. -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" media="print" id="font-css">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/css/styles.css?v=2.7.0">
+  <link rel="stylesheet" href="assets/css/styles.css?v=2.8.0">
   <link rel="preload" as="image" href="assets/img/cu-gate-1113.webp" imagesrcset="assets/img/cu-gate-480.webp 480w, assets/img/cu-gate-768.webp 768w, assets/img/cu-gate-1113.webp 1113w" imagesizes="(min-width: 900px) 560px, 100vw" fetchpriority="high">
   <script>
     try { var t = localStorage.getItem('campus-theme') || 'auto'; document.documentElement.dataset.theme = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t; } catch (e) {}
+    // The font stylesheet loads as "print" (never blocks the page) and switches on when ready.
+    var f = document.getElementById('font-css');
+    if (f) { if (f.sheet) f.media = 'all'; else f.addEventListener('load', function () { f.media = 'all'; }); }
   </script>
-  <script type="module" src="assets/js/main.js?v=2.7.0"></script>
+  <script type="module" src="assets/js/main.js?v=2.8.0"></script>
   <script>
     // If the app has not started after 12 s (very weak connection), say so and offer a retry.
     setTimeout(function () {
       if (window.__booted) return;
       var p = document.querySelector('#main p');
-      if (p) p.innerHTML = 'নেট সংযোগ ধীর—লোড হতে সময় লাগছে। <button class="btn small" onclick="location.reload()">আবার চেষ্টা করো</button>';
+      if (!p) return;
+      p.innerHTML = 'নেট সংযোগ ধীর—লোড হতে সময় লাগছে। <button class="btn small" type="button">আবার চেষ্টা করো</button>';
+      p.querySelector('button').addEventListener('click', function () { location.reload(); });
     }, 12000);
   </script>
   <!-- modulepreload:start -->

@@ -6,6 +6,7 @@ import { scoreAttempt, MAX_QUESTIONS, FUN_LIMIT, EXAM_NEGATIVE, EXAM_PACE } from
 import { route } from '../route.js';
 import { json, clean, readCookie, readJSON, query, iso, ID_RE } from '../http.js';
 import { rollText } from './profile.js';
+import { limit } from '../ratelimit.js';
 
 const RATE_WINDOW_MIN = 10;
 const RATE_MAX = 20; // submissions per student per window
@@ -125,8 +126,10 @@ export default route('scores', {
     }
     const mode = q.mode === 'exam' ? 'exam' : 'fun';
     const topic = TOPIC_IDS.has(q.topic) ? q.topic : 'all';
-    const rows = (await db.query(BOARD, [mode, topic])).map(r => row(r, me));
-    return json({ ok: true, mode, topic, rows });
+    // The same for everyone (the browser marks its own row), so Vercel's edge can keep it
+    // for 20 s: a flood of leaderboard requests then barely reaches the database.
+    const rows = (await db.query(BOARD, [mode, topic])).map(r => row(r, null));
+    return json({ ok: true, mode, topic, rows }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
   },
 
   async POST(request, db) {
@@ -137,6 +140,7 @@ export default route('scores', {
     if (cookieId && cookieId !== playerId) return json({ ok: false, error: 'This score belongs to a different student on this browser.' }, 403);
     const invalid = validateSubmission(body);
     if (invalid) return json({ ok: false, error: invalid }, 400);
+    await limit(db, request, 'score', 150, 600);
 
     const attemptId = clean(body.attemptId, 100) || crypto.randomUUID();
     const [students, existing, recent, prev] = await db.batch([

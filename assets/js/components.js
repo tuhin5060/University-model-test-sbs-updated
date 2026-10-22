@@ -121,6 +121,7 @@ export async function loadLeaderboards(root = document, fresh = false) {
       if (box.dataset.mode !== mode) continue; // tab switched meanwhile
       rowsEl.innerHTML = rows.length
         ? `<ol class="lb-list">${rows
+            .map(r => ({ ...r, me: r.me || (!!state.player?.tag && r.tag === state.player.tag) }))
             .map((r, i) => `<li class="${r.me ? 'me' : ''}" tabindex="0" aria-expanded="false" title="বিস্তারিত দেখতে চাপো">
               <span class="lb-rank">${['🥇', '🥈', '🥉'][i] || bn(i + 1)}</span>
               <span class="lb-avatar" aria-hidden="true">${esc(r.avatar || '🚂')}</span>

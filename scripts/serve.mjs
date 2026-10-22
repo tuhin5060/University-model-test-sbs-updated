@@ -14,6 +14,10 @@ const types = {
   '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json', '.webp': 'image/webp',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json', '.md': 'text/plain; charset=utf-8',
 };
+// The same security headers as on Vercel (vercel.json), so problems show up locally too.
+const VERCEL_HEADERS = JSON.parse(await fs.readFile(path.join(root, 'vercel.json'), 'utf8')).headers
+  .map(rule => ({ re: new RegExp(`^${rule.source}$`), headers: rule.headers }));
+const securityHeaders = pathname => Object.fromEntries(VERCEL_HEADERS.filter(r => r.re.test(pathname)).flatMap(r => r.headers.map(h => [h.key, h.value])));
 const ROUTES = ['profile', 'scores', 'visitors', 'progress', 'community', 'push', 'backup'];
 
 let apiReady = null;
@@ -37,7 +41,7 @@ async function runRoute(handler, req, res, url) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
   const body = ['GET', 'HEAD'].includes(req.method) ? undefined : Buffer.concat(chunks);
-  const out = await handler(new Request(`https://localhost${url.pathname}${url.search}`, { method: req.method, headers: req.headers, body }), process.env);
+  const out = await handler(new Request(`http://${req.headers.host || 'localhost'}${url.pathname}${url.search}`, { method: req.method, headers: req.headers, body }), process.env);
   res.writeHead(out.status, Object.fromEntries(out.headers));
   res.end(Buffer.from(await out.arrayBuffer()));
 }
@@ -55,7 +59,7 @@ http.createServer(async (req, res) => {
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!file.startsWith(root + path.sep)) { res.writeHead(403); return res.end('Forbidden'); }
     const bytes = await fs.readFile(file);
-    res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-cache' });
+    res.writeHead(200, { ...securityHeaders(pathname), 'Content-Type': types[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
     res.end(bytes);
   } catch (error) {
     if (!res.headersSent) res.writeHead(error?.code === 'ENOENT' || error?.code === 'EISDIR' ? 404 : 500);

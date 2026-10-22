@@ -1,16 +1,17 @@
 // Colleges students pick from when they register (a college not listed can be typed in).
 // n = full name (stored and shown in details), s = short form for the leaderboard,
-// p = district. Typing any word — of the name, short form or district — lists every
+// p = district, b = Bangla name (optional, shown in the list and searchable).
+// Typing any word — of the name, short form, Bangla name or district — lists every
 // college containing it. Add new ones anywhere; order does not matter.
 
 export const COLLEGES = [
   // ---- Chattogram city ----
-  { n: 'Chittagong College', s: 'Ctg College', p: 'Chattogram' },
-  { n: 'Government Hazi Mohammad Mohsin College', s: 'Mohsin College', p: 'Chattogram' },
-  { n: 'Government City College, Chattogram', s: 'City College Ctg', p: 'Chattogram' },
-  { n: 'Government Commerce College, Chattogram', s: 'Commerce College Ctg', p: 'Chattogram' },
-  { n: 'Chattogram Cantonment Public College', s: 'CCPC', p: 'Chattogram' },
-  { n: 'BAF Shaheen College Chattogram', s: 'BAF Shaheen Ctg', p: 'Chattogram' },
+  { n: 'Chittagong College', s: 'Ctg College', p: 'Chattogram', b: 'চট্টগ্রাম কলেজ' },
+  { n: 'Government Hazi Mohammad Mohsin College', s: 'Mohsin College', p: 'Chattogram', b: 'সরকারি হাজী মুহাম্মদ মহসিন কলেজ' },
+  { n: 'Government City College, Chattogram', s: 'City College Ctg', p: 'Chattogram', b: 'সরকারি সিটি কলেজ, চট্টগ্রাম' },
+  { n: 'Government Commerce College, Chattogram', s: 'Commerce College Ctg', p: 'Chattogram', b: 'সরকারি কমার্স কলেজ, চট্টগ্রাম' },
+  { n: 'Chattogram Cantonment Public College', s: 'CCPC', p: 'Chattogram', b: 'চট্টগ্রাম ক্যান্টনমেন্ট পাবলিক কলেজ' },
+  { n: 'BAF Shaheen College Chattogram', s: 'BAF Shaheen Ctg', p: 'Chattogram', b: 'বিএএফ শাহীন কলেজ চট্টগ্রাম' },
   { n: 'Navy Anchorage School and College, Chattogram', s: 'Navy Anchorage', p: 'Chattogram' },
   { n: 'Chattogram Collegiate School and College', s: 'Collegiate Ctg', p: 'Chattogram' },
   { n: 'Ispahani Public School and College', s: 'Ispahani Ctg', p: 'Chattogram' },
@@ -18,10 +19,22 @@ export const COLLEGES = [
   { n: 'Bangladesh Mohila Samity Girls\' High School and College', s: 'Mohila Samity', p: 'Chattogram' },
   { n: 'Hazera-Taju Degree College', s: 'Hazera-Taju', p: 'Chattogram' },
   { n: 'Omargani M.E.S. College', s: 'MES College', p: 'Chattogram' },
-  { n: 'Agrabad Mohila College', s: 'Agrabad Mohila', p: 'Chattogram' },
+  { n: 'Agrabad Mohila College', s: 'Agrabad Mohila', p: 'Chattogram', b: 'আগ্রাবাদ মহিলা কলেজ' },
   { n: 'Kazem Ali School and College', s: 'Kazem Ali', p: 'Chattogram' },
   { n: 'Chittagong City Corporation Municipal Model School and College', s: 'Municipal Model', p: 'Chattogram' },
   { n: 'Faujdarhat Cadet College', s: 'FCC', p: 'Chattogram' },
+  { n: 'Chattogram Government Women\'s College', s: 'Ctg Govt Women\'s', p: 'Chattogram', b: 'চট্টগ্রাম সরকারি মহিলা কলেজ' },
+  { n: 'Bakalia Government College', s: 'Bakalia Govt', p: 'Chattogram', b: 'বাকলিয়া সরকারি কলেজ' },
+  { n: 'Bakalia Shaheed N.M.M.J. College', s: 'Bakalia NMMJ', p: 'Chattogram', b: 'বাকলিয়া শহীদ এন.এম.এম.জে. কলেজ' },
+  { n: 'Chattogram Port College', s: 'Port College', p: 'Chattogram', b: 'চট্টগ্রাম পোর্ট কলেজ' },
+  { n: 'Halishahar Mohila College', s: 'Halishahar Mohila', p: 'Chattogram', b: 'হালিশহর মহিলা কলেজ' },
+  { n: 'Halishahar Central College', s: 'Halishahar Central', p: 'Chattogram', b: 'হালিশহর সেন্ট্রাল কলেজ' },
+  { n: 'Pahartali College', s: 'Pahartali College', p: 'Chattogram', b: 'পাহাড়তলী কলেজ' },
+  { n: 'Kapasgola City Corporation Mohila College', s: 'Kapasgola Mohila', p: 'Chattogram', b: 'কাপাসগোলা সিটি কর্পোরেশন মহিলা কলেজ' },
+  { n: 'Patharghata City Corporation College', s: 'Patharghata College', p: 'Chattogram', b: 'পাথরঘাটা সিটি কর্পোরেশন কলেজ' },
+  { n: 'Chattogram City Public College', s: 'City Public Ctg', p: 'Chattogram', b: 'চট্টগ্রাম সিটি পাবলিক কলেজ' },
+  { n: 'Chattogram Mohanagar College', s: 'Mohanagar College', p: 'Chattogram', b: 'চট্টগ্রাম মহানগর কলেজ' },
+  { n: 'Chattogram City Corporation Kaiser-Nilufar College', s: 'Kaiser-Nilufar', p: 'Chattogram', b: 'চট্টগ্রাম সিটি কর্পোরেশন কায়সার-নীলুফার কলেজ' },
   // ---- Chattogram district ----
   { n: 'Patiya Government College', s: 'Patiya Govt', p: 'Chattogram' },
   { n: 'Satkania Government College', s: 'Satkania Govt', p: 'Chattogram' },
@@ -138,7 +151,7 @@ export function searchColleges(text, limit = 30) {
   const words = String(text || '').toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return [];
   return COLLEGES.filter(c => {
-    const hay = `${c.n} ${c.s} ${c.p} ${PLACE_BN[c.p] || ''}`.toLowerCase().replace(/[.'’]/g, '');
+    const hay = `${c.n} ${c.s} ${c.b || ''} ${c.p} ${PLACE_BN[c.p] || ''} মহানগর`.toLowerCase().replace(/[.'’]/g, '');
     return words.every(w => hay.includes(w.replace(/[.'’]/g, '')));
   }).slice(0, limit);
 }

@@ -38,7 +38,7 @@ export function wireCollege(root) {
     const text = input.value.trim();
     const hits = searchColleges(text);
     const exact = COLLEGES.some(c => c.n.toLowerCase() === text.toLowerCase());
-    items = hits.map(c => ({ n: c.n, sub: `${c.s} · ${c.p}` }));
+    items = hits.map(c => ({ n: c.n, sub: c.b ? `${c.b} · ${c.p}` : `${c.s} · ${c.p}` }));
     // A typed name is offered as-is when nothing matches, or once it looks like a full name (two words or more).
     if (text.length >= 3 && !exact && (!hits.length || /\s/.test(text))) items.push({ n: text, sub: 'তালিকায় নেই—এই নামেই রাখো', custom: true });
     if (!items.length) return close();

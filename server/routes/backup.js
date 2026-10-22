@@ -19,7 +19,7 @@ export const BACKUP_TABLES = {
 export default route('backup', {
   async POST(request, db, env) {
     const body = await readJSON(request, 2_000);
-    await requireAdmin(body.password, env);
+    await requireAdmin(body.password, env, db, request);
     const names = Object.keys(BACKUP_TABLES);
     const results = await db.batch(names.map(name => [BACKUP_TABLES[name]]));
     const tables = Object.fromEntries(names.map((name, i) => [name, results[i]]));

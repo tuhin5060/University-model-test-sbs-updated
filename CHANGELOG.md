@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.8.0 — security layers, Chattogram city colleges
+* Strict Content-Security-Policy on Vercel and Cloudflare (hashes of the inline
+  scripts kept current by `npm run sync`, checked by the tests), no framing,
+  `Cross-Origin-Opener-Policy`; inline `onclick`/`onload` handlers removed.
+* POST requests from other websites are refused (CSRF).
+* Rate limits per address (`server/ratelimit.js`, table `hits`): admin password
+  lock-out after 10 wrong tries in 15 min (backup + community delete), sign-ups,
+  sign-ins, community posts, scores, notification sign-ups.
+* The leaderboard response is the same for everyone (the browser marks its own
+  row) and cached 20 s at the edge — a flood of requests no longer reaches Neon.
+* `npm run dev` sends the same security headers as Vercel.
+* Colleges: 12 more Chattogram city colleges with Bangla names (Bangla names are
+  shown in the picker and searchable), 112 in all.
+
 ## 2.7.0 — college on the profile
 * Registration asks for the college: type one word (“city”, “cadet”, “mohsin”,
   “চট্টগ্রাম”) and every matching college from `data/colleges.js` (100 colleges:

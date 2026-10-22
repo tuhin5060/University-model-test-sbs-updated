@@ -16,6 +16,7 @@ import { getDb, NotConfigured } from '../db.js';
 import { route } from '../route.js';
 import { json, readJSON, query, BadRequest } from '../http.js';
 import { resolvePlayerId } from './profile.js';
+import { limit } from '../ratelimit.js';
 
 export const SITE_URL = 'https://sbs-university-admission-model-test.vercel.app/';
 // Only real browser push services are contacted (never an arbitrary URL).
@@ -166,6 +167,7 @@ export default route('push', {
     const endpoint = validEndpoint(body.subscription?.endpoint ?? body.endpoint);
     if (!endpoint) throw new BadRequest('Unsupported notification service.');
     if (body.action === 'subscribe') {
+      await limit(db, request, 'push', 30, 3600);
       const id = resolvePlayerId(request, body.playerId);
       const player = id ? (await db.query('SELECT id FROM students WHERE id = $1', [id]))[0]?.id || null : null;
       await db.query(
@@ -179,6 +181,7 @@ export default route('push', {
       return json({ ok: true });
     }
     if (body.action === 'test') {
+      await limit(db, request, 'push-test', 10, 3600);
       const keys = vapidKeys(env);
       if (!keys) throw new BadRequest('Notification এই server-এ এখনো চালু হয়নি।', 503);
       const [row] = await db.query(

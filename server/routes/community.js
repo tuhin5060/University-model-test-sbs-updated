@@ -13,6 +13,7 @@ import { route } from '../route.js';
 import { json, clean, readJSON, query, iso, BadRequest } from '../http.js';
 import { resolvePlayerId, rollText } from './profile.js';
 import { requireAdmin } from '../admin.js';
+import { limit } from '../ratelimit.js';
 
 export const LIMITS = { title: 140, body: 2000, reply: 1500, tags: 5, tag: 24, page: 20 };
 const TOPIC_RE = /^[a-z0-9-]{2,40}$/;
@@ -144,6 +145,7 @@ export default route('community', {
     switch (body.action) {
       case 'thread': {
         const author = await requireStudent(request, db, body);
+        await limit(db, request, 'post', 40, 600);
         const topic = TOPIC_RE.test(String(body.topic || '')) ? body.topic : '';
         if (!topic) throw new BadRequest('একটি topic বেছে নাও।');
         const title = cleanText(body.title, LIMITS.title).replace(/\n/g, ' ');
@@ -161,6 +163,7 @@ export default route('community', {
 
       case 'reply': {
         const author = await requireStudent(request, db, body);
+        await limit(db, request, 'post', 40, 600);
         const threadId = toId(body.threadId);
         const text = cleanText(body.body, LIMITS.reply);
         if (text.length < 2) throw new BadRequest('উত্তরটা লেখো।');
@@ -189,7 +192,7 @@ export default route('community', {
       }
 
       case 'delete': {
-        await requireAdmin(body.password, env);
+        await requireAdmin(body.password, env, db, request);
         const id = toId(body.id);
         if (body.kind === 'thread') {
           await db.query('DELETE FROM threads WHERE id = $1', [id]);

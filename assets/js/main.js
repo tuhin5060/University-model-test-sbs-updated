@@ -198,6 +198,7 @@ if ('serviceWorker' in navigator && !local) {
   // A new version finished downloading: offer a reload (never forced, a test may be running).
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hadWorker || $('.update-bar')) return;
-    document.body.insertAdjacentHTML('beforeend', '<div class="update-bar" role="status">✨ নতুন আপডেট এসেছে <button class="btn small" onclick="location.reload()">রিফ্রেশ করো</button></div>');
+    document.body.insertAdjacentHTML('beforeend', '<div class="update-bar" role="status">✨ নতুন আপডেট এসেছে <button class="btn small" type="button">রিফ্রেশ করো</button></div>');
+    $('.update-bar button').addEventListener('click', () => location.reload());
   });
 }

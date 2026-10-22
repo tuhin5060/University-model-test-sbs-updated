@@ -4,6 +4,8 @@
 //    once instead of discovering them one import level at a time.
 // 2. sw.js: the files kept on the phone (PRECACHE) and VERSION, a hash of their
 //    contents — any change to them gives a new version, so phones update.
+// 3. The Content-Security-Policy in vercel.json and _headers, with the hash of
+//    every inline <script> in index.html (only those may run besides our files).
 //   node scripts/preload.mjs          → rewrite both
 //   node scripts/preload.mjs --check  → exit 1 if either is out of date
 import fs from 'node:fs';
@@ -66,6 +68,38 @@ export function currentSwBlock(sw) {
   return a < 0 || b < 0 ? null : sw.slice(a, b + SW_END.length);
 }
 
+// Only our own files, the inline scripts listed by hash, Google Fonts and the
+// Wikimedia campus photos. No other site can run code here or frame the page.
+export function cspValue(html) {
+  const hashes = [...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)]
+    .map(m => `'sha256-${crypto.createHash('sha256').update(m[1]).digest('base64')}'`);
+  return [
+    "default-src 'self'",
+    `script-src 'self' ${hashes.join(' ')}`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org",
+    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
+    "manifest-src 'self'",
+    "worker-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+  ].join('; ');
+}
+
+/** vercel.json and _headers with the current CSP. */
+export function withCsp(vercelText, headersText, html) {
+  const csp = cspValue(html);
+  const vercel = JSON.parse(vercelText);
+  for (const rule of vercel.headers) for (const h of rule.headers) if (h.key === 'Content-Security-Policy') h.value = csp;
+  return {
+    vercel: `${JSON.stringify(vercel, null, 2)}\n`,
+    headers: headersText.replace(/^(  Content-Security-Policy: ).*$/m, `$1${csp}`),
+  };
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const file = path.join(root, 'index.html');
   const swFile = path.join(root, 'sw.js');
@@ -88,5 +122,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!check) {
     fs.writeFileSync(swFile, sw.replace(swNow, swWant));
     console.log(`sw.js: ${precacheList(html).length} files, version ${swWant.match(/VERSION = '(\w+)'/)[1]}`);
+  }
+  const vercelFile = path.join(root, 'vercel.json');
+  const headersFile = path.join(root, '_headers');
+  const vercelNow = fs.readFileSync(vercelFile, 'utf8');
+  const headersNow = fs.readFileSync(headersFile, 'utf8');
+  const want2 = withCsp(vercelNow, headersNow, html);
+  if (check && (want2.vercel !== vercelNow || want2.headers !== headersNow)) { console.error('Content-Security-Policy is out of date — run: npm run sync'); process.exit(1); }
+  if (!check) {
+    fs.writeFileSync(vercelFile, want2.vercel);
+    fs.writeFileSync(headersFile, want2.headers);
+    console.log('vercel.json, _headers: Content-Security-Policy updated');
   }
 }

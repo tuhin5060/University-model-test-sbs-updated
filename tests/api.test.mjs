@@ -158,7 +158,7 @@ test('scores: group topics (Grammar / Memorising) are accepted', async () => {
   }
 });
 
-test('leaderboard: best score per student with roll tag and "me" flag', async () => {
+test('leaderboard: best score per student with roll tag, no personal data', async () => {
   await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'e1', mode: 'exam', topic: 'tense', settings: { negative: 0 }, answers: sheet() } });
   await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'e2', mode: 'exam', topic: 'tense', answers: sheet(q => (q.a + 1) % 4) } });
   const r = await call(scores, { query: { mode: 'exam', topic: 'all' }, cookie: alice });
@@ -167,7 +167,7 @@ test('leaderboard: best score per student with roll tag and "me" flag', async ()
   assert.equal(mine.length, 1, 'one row per student');
   assert.equal(mine[0].score, 100);
   assert.equal(mine[0].attempts, 2);
-  assert.equal(mine[0].me, true);
+  assert.equal(mine[0].me, false, 'the board is the same for everyone (cacheable); the browser marks its own row by tag');
   assert.equal(mine[0].tag, 'Alice Rahman.001');
   assert.ok(r.body.rows.every(x => !('playerId' in x) && !('player_id' in x)));
   const fun = await call(scores, { query: { mode: 'fun', topic: 'tense' } });
