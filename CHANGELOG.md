@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.10.0 — points add up; Model Test skip and submit; tidier setup
+* Leaderboard: every test’s points are added to the student’s total (more tests, more
+  points), one main board “🏅 সব test” with Fun / Model Test filters and the topic
+  filter. Rows show total points, number of tests and accuracy. Fun Quiz keeps its
+  points; Model Test gives +20 per correct and −5 per wrong (the −0.25 rule ×20),
+  never below 0 (`attemptPoints` in shared/scoring.js and the same rule in SQL).
+  Nothing in the database changed: totals are computed from the stored tests, so all
+  earlier tests count under the same rule. Score page: total points and position,
+  then Fun / Model Test, then position per topic. A result shows “+N points”, the
+  new total and the position.
+* Model Test: “এড়িয়ে যাও” moves forward only; at the end of the paper it offers to
+  submit (after 10 skips in a 10-question test) instead of cycling back to the start.
+  A “✅ এখনই Submit করো” button is always under the question.
+* Setup: 1 name → 2 number of questions → 3 topic, with a search box over the topics.
+* A phone whose student the database does not know (e.g. signed up before the move to
+  Neon) signs up again with the same id, name and roll, then sends its scores; a score
+  refused because the browser’s cookie belongs to another student signs in again with
+  name + roll and is resent.
+
 ## 2.9.3 — every name and score reaches the database (review fixes)
 * Merging the server’s progress copy sorted by a number read as a date (no effect), so a
   result finished offline could land past the 15 kept answer sheets and lose its answers —

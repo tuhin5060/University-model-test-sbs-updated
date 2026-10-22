@@ -7,9 +7,10 @@ import { esc, bn, bnDate, duration, ext, $, navigate, toast } from '../lib/dom.j
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { state, dailyStreak } from '../lib/store.js';
 import { fetchMyStats } from '../lib/api.js';
+import { attemptPoints } from '../shared/scoring.js';
 import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
 
-let lbMode = 'fun';
+let lbMode = 'all';
 let lbTopic = 'all';
 
 // "My score" block: personal bests and recent results from this browser.
@@ -29,38 +30,43 @@ function myScores() {
   if (!ranked.length && !state.player?.playerId) {
     return loginCard() + empty('এখনো কোনো test দাওনি। একটা দিলেই তোমার score এখানে দেখাবে।', '<a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a> <a class="btn" href="#start/exam">⏱️ Model Test</a>');
   }
-  const best = mode => ranked.filter(x => x.mode === mode).reduce((m, x) => Math.max(m, mode === 'fun' ? x.score || 0 : x.percent || 0), -1);
-  const fun = best('fun');
-  const exam = best('exam');
+  const total = ranked.reduce((n, x) => n + attemptPoints(x), 0);
   const p = state.player;
   return `${loginCard()}${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}${p.college ? `<small class="my-college">🏫 ${esc(p.college)}</small>` : ''}</p>` : ''}
     <div id="my-stats">${p?.playerId ? '<div class="skeleton"></div>' : ''}</div>
     <div class="stat-grid" id="local-stats">
-      <div class="stat"><b>${fun < 0 ? '—' : bn(fun)}</b><small>Fun Quiz সেরা points</small></div>
-      <div class="stat"><b>${exam < 0 ? '—' : `${bn(exam)}%`}</b><small>Model Test সেরা নম্বর</small></div>
+      <div class="stat"><b>${bn(total)}</b><small>মোট points (এই device-এ)</small></div>
       <div class="stat"><b>${bn(ranked.length)}</b><small>মোট test</small></div>
       <div class="stat"><b>🔥 ${bn(dailyStreak())}</b><small>দৈনিক streak</small></div>
     </div>
     <div class="history">${ranked.slice(0, 5).map(x => {
       const m = MODE_INFO[x.mode];
-      return `<a class="history-row" href="#result/${esc(x.id)}"><span class="h-icon" aria-hidden="true">${m.icon}</span><span><b>${esc(x.title)}</b><small>${esc(m.label)} · ${bnDate(x.finished)} · ${duration(x.timeSec)}</small></span><span class="h-score">${x.mode === 'fun' ? `${bn(x.score)} pts` : `${bn(x.percent ?? 0)}%`}${x.saved === 'saved' ? ' <small title="Leaderboard-এ save">🏆</small>' : ''}</span></a>`;
+      return `<a class="history-row" href="#result/${esc(x.id)}"><span class="h-icon" aria-hidden="true">${m.icon}</span><span><b>${esc(x.title)}</b><small>${esc(m.label)} · ${x.mode === 'exam' ? `${bn(x.percent ?? 0)}% · ` : ''}${bnDate(x.finished)} · ${duration(x.timeSec)}</small></span><span class="h-score">+${bn(attemptPoints(x))} pts${x.saved === 'saved' ? ' <small title="Leaderboard-এ save">🏆</small>' : ''}</span></a>`;
     }).join('')}</div>
     <p><a class="text-link" href="#progress">সব ফলাফল, ভুল ও topic অনুযায়ী অগ্রগতি →</a></p>`;
 }
 
-// Server stats: tests taken, marks and leaderboard position per mode.
-function rankCard(mode, s) {
+// Server stats: total points and position overall, then per mode.
+function rankCard(s) {
+  if (!s) return '';
+  return `<div class="rank-card rank-main">
+    <span class="rank-mode">🏅 সব test মিলিয়ে</span>
+    <b>${bn(s.points)} <small>points</small></b><small>অবস্থান <b>#${bn(s.rank)}</b> · ${bn(s.players)} জনের মধ্যে</small>
+    <dl>
+      <div><dt>মোট test</dt><dd>${bn(s.tests)}</dd></div>
+      <div><dt>সঠিক / ভুল</dt><dd>${bn(s.correct)} / ${bn(s.wrong)}</dd></div>
+    </dl>
+  </div>`;
+}
+function modeCard(mode, s) {
   const m = MODE_INFO[mode];
-  const unit = v => (mode === 'fun' ? `${bn(v)}` : `${bn(v)}%`);
   if (!s) return `<div class="rank-card t-${m.color}"><span class="rank-mode">${m.icon} ${esc(m.label)}</span><b>—</b><small>এখনো দাওনি</small></div>`;
   return `<div class="rank-card t-${m.color}">
     <span class="rank-mode">${m.icon} ${esc(m.label)}</span>
-    <b>#${bn(s.rank)}</b><small>সব topic মিলিয়ে · ${bn(s.players)} জনের মধ্যে</small>
+    <b>${bn(s.points)} <small>pts</small></b><small>#${bn(s.rank)} · ${bn(s.players)} জনের মধ্যে</small>
     <dl>
-      <div><dt>মোট test</dt><dd>${bn(s.tests)}</dd></div>
-      <div><dt>সেরা</dt><dd>${unit(s.best)}</dd></div>
-      <div><dt>গড়</dt><dd>${unit(s.avg)}</dd></div>
-      <div><dt>সঠিক / ভুল</dt><dd>${bn(s.correct)} / ${bn(s.wrong)}</dd></div>
+      <div><dt>test</dt><dd>${bn(s.tests)}</dd></div>
+      <div><dt>সেরা</dt><dd>${mode === 'fun' ? bn(s.best) : `${bn(s.best)}%`}</dd></div>
     </dl>
   </div>`;
 }
@@ -68,21 +74,17 @@ function rankCard(mode, s) {
 /** Bangla ordinal: ১ম, ২য়, ৩য়, ৪র্থ, ৬ষ্ঠ, ১১তম … */
 const ordinal = n => `${bn(n)}${{ 1: 'ম', 2: 'য়', 3: 'য়', 4: 'র্থ', 6: 'ষ্ঠ' }[n] || (n <= 10 ? 'ম' : 'তম')}`;
 
-// Position on each board (mode + topic) the student has played; a tap opens that leaderboard.
+// Position on each topic's board the student has played; a tap opens that leaderboard.
 function topicRanks(list) {
   if (!list.length) return '';
-  const rows = list.map(t => {
-    const m = MODE_INFO[t.mode];
-    const unit = v => (t.mode === 'fun' ? `${bn(v)} pts` : `${bn(v)}%`);
-    return `<li><button class="tr-row" data-action="lb-board" data-mode="${esc(t.mode)}" data-topic="${esc(t.topic)}">
+  const rows = list.map(t => `<li><button class="tr-row" data-action="lb-board" data-mode="all" data-topic="${esc(t.topic)}">
       <span class="tr-rank">${['🥇', '🥈', '🥉'][t.rank - 1] || `#${bn(t.rank)}`}</span>
-      <span class="tr-text"><b lang="en">${esc(topicTitle(t.topic))}</b><small>${m.icon} ${esc(m.label)} · ${bn(t.players)} জনের মধ্যে ${ordinal(t.rank)} · ${bn(t.tests)} বার</small></span>
-      <span class="tr-score"><small>সেরা</small>${unit(t.best)}</span>
-    </button></li>`;
-  }).join('');
+      <span class="tr-text"><b lang="en">${esc(topicTitle(t.topic))}</b><small>${bn(t.players)} জনের মধ্যে ${ordinal(t.rank)} · ${bn(t.tests)}টি test</small></span>
+      <span class="tr-score"><small>points</small>${bn(t.points)}</span>
+    </button></li>`).join('');
   return `<div class="topic-ranks">
     <h3 class="h3">📚 Topic অনুযায়ী অবস্থান</h3>
-    <p class="muted small">যে topic-এ test দিয়েছ, সেই topic-এর সবার মধ্যে তুমি কততম। চাপ দিলে ওই topic-এর leaderboard দেখাবে।</p>
+    <p class="muted small">যে topic-এ test দিয়েছ, সেই topic-এ সবার মধ্যে তুমি কততম (ওই topic-এর সব test-এর points যোগ করে)। চাপ দিলে ওই topic-এর leaderboard দেখাবে।</p>
     <ul class="tr-list">${rows}</ul>
   </div>`;
 }
@@ -93,7 +95,7 @@ async function loadMyStats() {
   try {
     const { stats, topics = [] } = await fetchMyStats();
     if (!stats) { box.innerHTML = ''; return; }
-    box.innerHTML = `<div class="rank-cards">${rankCard('fun', stats.fun)}${rankCard('exam', stats.exam)}</div>${topicRanks(topics)}`;
+    box.innerHTML = `${rankCard(stats.all)}<div class="rank-cards">${modeCard('fun', stats.fun)}${modeCard('exam', stats.exam)}</div>${topicRanks(topics)}`;
     $('#local-stats')?.remove();
   } catch {
     box.innerHTML = '';
@@ -113,7 +115,7 @@ export const leaderboardPage = {
         <div class="field"><label class="label" for="lb-topic">Topic</label>
           <select id="lb-topic"><option value="all">সব topic</option>${Object.values(GROUPS).map(g => `<optgroup label="${esc(g.short)}"><option value="${g.id}" ${lbTopic === g.id ? 'selected' : ''}>${esc(g.title)}</option>${TOPICS.filter(t => t.group === g.id).map(t => `<option value="${esc(t.id)}" ${lbTopic === t.id ? 'selected' : ''}>${esc(t.title)}</option>`).join('')}</optgroup>`).join('')}</select></div>
         ${leaderboard({ mode: lbMode, topic: lbTopic, limit: 50, tabs: true })}
-        <p class="muted small">প্রত্যেকের সেরা score দেখানো হয়। Fun Quiz-এ points, Model Test-এ শতকরা নম্বর (প্রতি ভুলে −০.২৫)। নাম দিয়ে শুরু করা Fun Quiz ও Model Test-এর score এখানে আসে।</p>
+        <p class="muted small">প্রতিটা test-এর points যোগ হয়—যত test, তত points। Fun Quiz: দ্রুত সঠিক উত্তরে বেশি points। Model Test: প্রতি সঠিক +২০, প্রতি ভুল −৫ (ভর্তি পরীক্ষার −০.২৫ নিয়মে)। আগের সব test-ও একই নিয়মে গোনা হয়েছে। নাম দিয়ে শুরু করা Fun Quiz ও Model Test এখানে আসে।</p>
       </section>
       <section class="section-tight card feedback-card">
         <h2 class="h3">মতামত দাও</h2>

@@ -3,6 +3,7 @@
 import { QUESTION_MAP } from '../../../data/questions/index.js';
 import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
 import { state, updateHistory } from '../lib/store.js';
+import { attemptPoints } from '../shared/scoring.js';
 import { celebrate, beep } from '../lib/fx.js';
 import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
 import { startSession } from '../quiz.js';
@@ -24,7 +25,7 @@ function saveStatus(h) {
   }
   const map = {
     saving: '<p class="notice" id="save-status">⏳ Leaderboard-এ score পাঠানো হচ্ছে…</p>',
-    saved: `<p class="notice good" id="save-status">${h.newTop ? '🏆 নতুন সর্বোচ্চ score! ' : '✅ '}Leaderboard-এ save হয়েছে${h.rank?.rank ? ` · এই topic-এ তোমার অবস্থান <b>#${bn(h.rank.rank)}</b> (${bn(h.rank.players)} জনের মধ্যে)` : ''}। <a class="text-link" href="#score">আমার score →</a></p>`,
+    saved: `<p class="notice good" id="save-status">${h.newTop ? '🏆 এই topic-এ নতুন সর্বোচ্চ score! ' : '✅ '}Leaderboard-এ যোগ হয়েছে: <b>+${bn(attemptPoints(h))} points</b>${h.rank?.points !== undefined ? ` · তোমার মোট <b>${bn(h.rank.points)} points</b>, সবার মধ্যে <b>#${bn(h.rank.rank)}</b> (${bn(h.rank.players)} জন)` : ''}${h.topicRank?.rank ? ` · এই topic-এ #${bn(h.topicRank.rank)}` : ''}। <a class="text-link" href="#score">আমার score →</a></p>`,
     local: `<p class="notice warn" id="save-status">📴 Score এই phone-এ জমা আছে—নেট বা server ঠিক হলে নিজে থেকেই leaderboard-এ যাবে। <button class="link-btn" data-action="retry-save" data-id="${esc(h.id)}">এখনই পাঠাও</button></p>`,
     failed: `<p class="notice warn" id="save-status">⚠️ Server এই score নেয়নি (${esc(h.saveError || '')})।</p>`,
   };
@@ -117,7 +118,7 @@ export function render([id]) {
       </div>
       ${answers.length ? `<div class="reviews" data-filter="${filter}">${answers.map((a, i) => reviewItem(a, i, h)).join('')}</div>` : '<p class="empty">এই পুরোনো ফলাফলের উত্তরপত্র সংরক্ষিত নেই।</p>'}
     </section>
-    ${h.kind === 'topic' && h.mode !== 'practice' ? `<section class="section"><div class="section-head"><h2>এই topic-এর leaderboard</h2></div>${leaderboard({ mode: h.mode, topic: h.topic, limit: 10 })}</section>` : ''}
+    ${h.kind === 'topic' && h.mode !== 'practice' ? `<section class="section"><div class="section-head"><h2>এই topic-এর leaderboard</h2></div>${leaderboard({ mode: 'all', topic: h.topic, limit: 10 })}</section>` : ''}
   </div>`;
 }
 

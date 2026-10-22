@@ -163,8 +163,8 @@ export function render() {
     <div class="post-grid">${featured.map((p, i) => postCard(p, i === 0)).join('')}</div>
   </section>
   <section class="container section">
-    <div class="section-head"><div><h2>🏆 Leaderboard</h2><p>সব topic মিলিয়ে সেরা শিক্ষার্থীরা।</p></div><a class="text-link" href="#leaderboard">পুরো তালিকা →</a></div>
-    ${leaderboard({ mode: 'fun', limit: 5, tabs: true })}
+    <div class="section-head"><div><h2>🏆 Leaderboard</h2><p>প্রতিটা test-এর points যোগ হয়—যত test, তত points।</p></div><a class="text-link" href="#leaderboard">পুরো তালিকা →</a></div>
+    ${leaderboard({ mode: 'all', limit: 5, tabs: true })}
   </section>
   <section class="container section">
     <div class="section-head"><div><h2>Official ভর্তি তথ্য</h2><p>তারিখ, যোগ্যতা ও আবেদন—শুধু official site থেকে যাচাই করো।</p></div><a class="text-link" href="#universities">সব বিশ্ববিদ্যালয় →</a></div>

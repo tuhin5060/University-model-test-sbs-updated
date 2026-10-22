@@ -2,7 +2,7 @@
 // Scores are always recomputed here from the answer sheet (shared/scoring.js);
 // the browser's own score is never trusted.
 import { QUESTION_MAP, TOPICS, GROUPS, inTopic } from '../../data/questions/index.js';
-import { scoreAttempt, MAX_QUESTIONS, FUN_LIMIT, EXAM_NEGATIVE, EXAM_PACE } from '../../assets/js/shared/scoring.js';
+import { scoreAttempt, attemptPoints, MAX_QUESTIONS, FUN_LIMIT, EXAM_NEGATIVE, EXAM_PACE, EXAM_POINTS } from '../../assets/js/shared/scoring.js';
 import { route } from '../route.js';
 import { json, clean, readCookie, readJSON, query, iso, ID_RE } from '../http.js';
 import { rollText } from './profile.js';
@@ -11,7 +11,6 @@ import { limit } from '../ratelimit.js';
 const RATE_WINDOW_MIN = 10;
 const RATE_MAX = 20; // submissions per student per window
 export const TOPIC_IDS = new Set(['all', ...Object.keys(GROUPS), ...TOPICS.map(t => t.id)]);
-const ORDER = 'score DESC, correct DESC, time_sec ASC, at ASC';
 
 /** Validate the submitted answer sheet. Returns an error string or null. */
 export function validateSubmission(body) {
@@ -52,67 +51,76 @@ export function buildEntry(body, playerId, attemptId) {
   };
 }
 
-// Each student's best attempt on one board (mode + topic; topic 'all' = every topic).
-const BEST = `SELECT DISTINCT ON (player_id) player_id, topic, score, correct, total, best_streak, time_sec, at
-  FROM score_attempts WHERE mode = $1 AND ($2 = 'all' OR topic = $2)
-  ORDER BY player_id, ${ORDER}`;
+// Points of one stored attempt — the SQL twin of attemptPoints() in shared/scoring.js.
+const POINTS = (t = '') => `(CASE WHEN ${t}mode = 'fun' THEN ${t}score ELSE GREATEST(0, ${t}correct * ${EXAM_POINTS.correct} - ${t}wrong * ${EXAM_POINTS.wrong}) END)`;
+export const BOARD_MODES = new Set(['all', 'fun', 'exam']);
+// A board = the tests of one mode ('all' = both) on one topic ('all' = every topic).
+// Each student's points from those tests are added up; ties go to more correct answers,
+// then to whoever got there first.
+const TOTALS = `SELECT player_id, sum(${POINTS()}) AS pts, count(*)::int AS attempts, sum(correct)::int AS correct, sum(total)::int AS total, max(at) AS at
+  FROM score_attempts WHERE ($1 = 'all' OR mode = $1) AND ($2 = 'all' OR topic = $2) GROUP BY player_id`;
+const ORDER_TOTAL = 'pts DESC, correct DESC, at ASC';
 
-const BOARD = `WITH best AS (${BEST}),
-  n AS (SELECT player_id, count(*)::int AS attempts FROM score_attempts WHERE mode = $1 AND ($2 = 'all' OR topic = $2) GROUP BY player_id)
-  SELECT b.*, n.attempts, s.name, s.roll, s.avatar, s.college
-  FROM best b JOIN n USING (player_id) JOIN students s ON s.id = b.player_id
-  ORDER BY ${ORDER} LIMIT 100`;
+const BOARD = `WITH t AS (${TOTALS})
+  SELECT t.*, round(t.pts)::int AS points, s.name, s.roll, s.avatar, s.college
+  FROM t JOIN students s ON s.id = t.player_id
+  ORDER BY ${ORDER_TOTAL} LIMIT 100`;
 
-const RANK = `WITH best AS (${BEST}),
-  r AS (SELECT player_id, row_number() OVER (ORDER BY ${ORDER})::int AS rank, count(*) OVER ()::int AS players FROM best)
-  SELECT rank, players FROM r WHERE player_id = $3`;
+const RANK = `WITH t AS (${TOTALS}),
+  r AS (SELECT player_id, round(pts)::int AS points, row_number() OVER (ORDER BY ${ORDER_TOTAL})::int AS rank, count(*) OVER ()::int AS players FROM t)
+  SELECT rank, players, points FROM r WHERE player_id = $3`;
 
-const row = (r, me) => ({
+const row = r => ({
   name: r.name,
   roll: r.roll,
   tag: `${r.name}.${rollText(r.roll)}`,
   avatar: r.avatar || '🚂',
   college: r.college || null,
-  topic: r.topic,
-  score: Number(r.score),
+  points: r.points,
+  score: r.points, // (older pages read `score`)
+  attempts: r.attempts,
   correct: r.correct,
   total: r.total,
-  bestStreak: r.best_streak,
-  timeSec: r.time_sec,
   at: iso(r.at),
-  attempts: r.attempts,
-  me: !!me && r.player_id === me,
+  me: false, // the same for everyone (cacheable); the browser marks its own row by tag
 });
 
 async function myStats(db, me) {
-  const [modes, ranks, recent, topics] = await db.batch([
+  const [modes, boards, recent, topics] = await db.batch([
     [`SELECT mode, count(*)::int AS tests, max(score)::float AS best, round(avg(score)::numeric, 1)::float AS avg,
         sum(correct)::int AS correct, sum(wrong)::int AS wrong, sum(total)::int AS answered
       FROM score_attempts WHERE player_id = $1 GROUP BY mode`, [me]],
-    [`WITH best AS (SELECT DISTINCT ON (mode, player_id) mode, player_id, score, correct, time_sec, at FROM score_attempts ORDER BY mode, player_id, ${ORDER}),
-      r AS (SELECT mode, player_id, row_number() OVER (PARTITION BY mode ORDER BY ${ORDER})::int AS rank, count(*) OVER (PARTITION BY mode)::int AS players FROM best)
-      SELECT mode, rank, players FROM r WHERE player_id = $1`, [me]],
+    // Total points and position on the all-topics boards: both modes ('all'), Fun, Model Test.
+    [`WITH b AS (
+        SELECT 'all' AS board, player_id, sum(${POINTS()}) AS pts, sum(correct) AS correct, max(at) AS at FROM score_attempts GROUP BY player_id
+        UNION ALL
+        SELECT mode, player_id, sum(${POINTS()}), sum(correct), max(at) FROM score_attempts GROUP BY mode, player_id),
+      r AS (SELECT board, player_id, round(pts)::int AS points, row_number() OVER (PARTITION BY board ORDER BY ${ORDER_TOTAL})::int AS rank,
+        count(*) OVER (PARTITION BY board)::int AS players FROM b)
+      SELECT board, points, rank, players FROM r WHERE player_id = $1`, [me]],
     [`SELECT attempt_id, topic, mode, score, correct, wrong, total, time_sec, at FROM score_attempts WHERE player_id = $1 ORDER BY at DESC LIMIT 20`, [me]],
-    // Per board (mode + topic) this student played: tests, best, average and position on that board.
-    [`WITH mine AS (SELECT mode, topic, count(*)::int AS tests, max(score)::float AS best, round(avg(score)::numeric, 1)::float AS avg, max(at) AS last
-        FROM score_attempts WHERE player_id = $1 GROUP BY mode, topic),
-      best AS (SELECT DISTINCT ON (a.mode, a.topic, a.player_id) a.mode, a.topic, a.player_id, a.score, a.correct, a.time_sec, a.at
-        FROM score_attempts a JOIN mine m ON m.mode = a.mode AND m.topic = a.topic ORDER BY a.mode, a.topic, a.player_id, ${ORDER}),
-      r AS (SELECT mode, topic, player_id, row_number() OVER (PARTITION BY mode, topic ORDER BY ${ORDER})::int AS rank,
-        count(*) OVER (PARTITION BY mode, topic)::int AS players FROM best)
-      SELECT m.mode, m.topic, m.tests, m.best, m.avg, r.rank, r.players FROM mine m
-      JOIN r ON r.mode = m.mode AND r.topic = m.topic AND r.player_id = $1 ORDER BY m.last DESC LIMIT 40`, [me]],
+    // Every topic this student played (both modes): tests, points and position on that topic's board.
+    [`WITH mine AS (SELECT topic, count(*)::int AS tests, max(at) AS last FROM score_attempts WHERE player_id = $1 GROUP BY topic),
+      b AS (SELECT a.topic, a.player_id, sum(${POINTS('a.')}) AS pts, sum(a.correct) AS correct, max(a.at) AS at
+        FROM score_attempts a JOIN mine m ON m.topic = a.topic GROUP BY a.topic, a.player_id),
+      r AS (SELECT topic, player_id, round(pts)::int AS points, row_number() OVER (PARTITION BY topic ORDER BY ${ORDER_TOTAL})::int AS rank,
+        count(*) OVER (PARTITION BY topic)::int AS players FROM b)
+      SELECT m.topic, m.tests, r.points, r.rank, r.players FROM mine m
+      JOIN r ON r.topic = m.topic AND r.player_id = $1 ORDER BY m.last DESC LIMIT 40`, [me]],
   ]);
   const stats = {};
-  for (const m of ['fun', 'exam']) {
-    const s = modes.find(x => x.mode === m);
-    const r = ranks.find(x => x.mode === m);
-    stats[m] = s ? { tests: s.tests, best: s.best, avg: s.avg, correct: s.correct, wrong: s.wrong, answered: s.answered, rank: r?.rank ?? null, players: r?.players ?? null } : null;
+  for (const m of ['all', 'fun', 'exam']) {
+    const board = boards.find(x => x.board === m);
+    const rows = m === 'all' ? modes : modes.filter(x => x.mode === m);
+    if (!board || !rows.length) { stats[m] = null; continue; }
+    const sum = k => rows.reduce((n, x) => n + (x[k] || 0), 0);
+    stats[m] = { points: board.points, rank: board.rank, players: board.players, tests: sum('tests'), correct: sum('correct'), wrong: sum('wrong'), answered: sum('answered') };
+    if (m !== 'all') Object.assign(stats[m], { best: rows[0].best, avg: rows[0].avg });
   }
   return {
     stats,
-    topics: topics.map(t => ({ mode: t.mode, topic: t.topic, tests: t.tests, best: t.best, avg: t.avg, rank: t.rank, players: t.players })),
-    recent: recent.map(a => ({ id: a.attempt_id, topic: a.topic, mode: a.mode, score: Number(a.score), correct: a.correct, wrong: a.wrong, total: a.total, timeSec: a.time_sec, at: iso(a.at) })),
+    topics: topics.map(t => ({ topic: t.topic, tests: t.tests, points: t.points, rank: t.rank, players: t.players })),
+    recent: recent.map(a => ({ id: a.attempt_id, topic: a.topic, mode: a.mode, score: Number(a.score), points: attemptPoints({ ...a, score: Number(a.score) }), correct: a.correct, wrong: a.wrong, total: a.total, timeSec: a.time_sec, at: iso(a.at) })),
   };
 }
 
@@ -124,11 +132,11 @@ export default route('scores', {
       if (!me) return json({ ok: true, stats: null, recent: [] });
       return json({ ok: true, ...(await myStats(db, me)) });
     }
-    const mode = q.mode === 'exam' ? 'exam' : 'fun';
+    const mode = BOARD_MODES.has(q.mode) ? q.mode : 'all';
     const topic = TOPIC_IDS.has(q.topic) ? q.topic : 'all';
     // The same for everyone (the browser marks its own row), so Vercel's edge can keep it
     // for 20 s: a flood of leaderboard requests then barely reaches the database.
-    const rows = (await db.query(BOARD, [mode, topic])).map(r => row(r, null));
+    const rows = (await db.query(BOARD, [mode, topic])).map(row);
     return json({ ok: true, mode, topic, rows }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
   },
 
@@ -168,7 +176,8 @@ export default route('scores', {
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (attempt_id) DO NOTHING`,
         [attemptId, playerId, entry.topic, entry.mode, entry.score, entry.correct, entry.wrong, entry.total, entry.bestStreak, entry.timeSec]],
       ['UPDATE students SET last_seen_at = now() WHERE id = $1', [playerId]],
-      [RANK, [entry.mode, entry.topic, playerId]],
+      [RANK, ['all', 'all', playerId]], // total points and position among everyone
+      [RANK, ['all', entry.topic, playerId]], // … and on this topic's board
     ];
     if (newTop) {
       writes.push(['INSERT INTO events (kind, payload) VALUES ($1, $2)',
@@ -176,6 +185,7 @@ export default route('scores', {
     }
     const results = await db.batch(writes);
     const { playerId: _p, ...safe } = entry;
-    return json({ ok: true, entry: safe, rank: results[2][0] || null, newTop }, 201);
+    safe.points = attemptPoints(entry);
+    return json({ ok: true, entry: safe, rank: results[2][0] || null, topicRank: results[3][0] || null, newTop }, 201);
   },
 }, 'Could not read or save the leaderboard right now.');

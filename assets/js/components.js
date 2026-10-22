@@ -103,10 +103,12 @@ export function scoreRing(percent, label, sub = '') {
     <div><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
 }
 
-export function leaderboard({ mode = 'fun', topic = 'all', limit = 10, tabs = false } = {}) {
+// One board: every student's points from all their tests added up ('all' = Fun + Model Test).
+export function leaderboard({ mode = 'all', topic = 'all', limit = 10, tabs = false } = {}) {
   return `<div class="lb" data-mode="${esc(mode)}" data-topic="${esc(topic)}" data-limit="${limit}">
     ${tabs ? `<div class="seg" role="tablist" aria-label="Leaderboard mode">
-      <button role="tab" data-lb-mode="fun" aria-selected="${mode === 'fun'}">🎮 Fun points</button>
+      <button role="tab" data-lb-mode="all" aria-selected="${mode === 'all'}">🏅 সব test</button>
+      <button role="tab" data-lb-mode="fun" aria-selected="${mode === 'fun'}">🎮 Fun</button>
       <button role="tab" data-lb-mode="exam" aria-selected="${mode === 'exam'}">⏱️ Model Test</button></div>` : ''}
     <div class="lb-rows"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div></div>`;
 }
@@ -126,9 +128,9 @@ export async function loadLeaderboards(root = document, fresh = false) {
             .map((r, i) => `<li class="${r.me ? 'me' : ''}" tabindex="0" aria-expanded="false" title="বিস্তারিত দেখতে চাপো">
               <span class="lb-rank">${['🥇', '🥈', '🥉'][i] || bn(i + 1)}</span>
               <span class="lb-avatar" aria-hidden="true">${esc(r.avatar || '🚂')}</span>
-              <span class="lb-name"><b>${esc(r.tag || r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${r.college ? `🏫 ${esc(collegeShort(r.college))} · ` : ''}${bn(r.correct)}/${bn(r.total)} সঠিক</small></span>
-              <span class="lb-score">${mode === 'fun' ? bn(r.score) : `${bn(r.score)}%`}</span>
-              <span class="lb-detail">${r.college ? `🏫 <b>${esc(r.college)}</b><br>` : ''}${bn(r.correct)}/${bn(r.total)} সঠিক · ${bn(r.attempts || 1)} বার test · ${bnDate(r.at)}</span></li>`)
+              <span class="lb-name"><b>${esc(r.tag || r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${r.college ? `🏫 ${esc(collegeShort(r.college))} · ` : ''}${bn(r.attempts || 1)}টি test · ${bn(r.total ? Math.round((r.correct / r.total) * 100) : 0)}% সঠিক</small></span>
+              <span class="lb-score">${bn(r.points ?? r.score)}<small>pts</small></span>
+              <span class="lb-detail">${r.college ? `🏫 <b>${esc(r.college)}</b><br>` : ''}${bn(r.attempts || 1)}টি test · ${bn(r.correct)}/${bn(r.total)} সঠিক · শেষ test ${bnDate(r.at)}</span></li>`)
             .join('')}</ol>`
         : `<p class="empty">এখনো কেউ score করেনি—প্রথম হওয়ার সুযোগ তোমার! 🏁</p>`;
       if (all.offline) rowsEl.insertAdjacentHTML('afterbegin', '<p class="muted small">📴 শেষবার লোড হওয়া তালিকা—নেট এলে নতুনটা দেখাবে।</p>');

@@ -1,5 +1,5 @@
 // Setup screen for a new Fun Quiz / Model Test.
-// Order on every screen: 1 name → 2 topic → 3 number of questions → one start button.
+// Order on every screen: 1 name → 2 number of questions → 3 topic (with a search box) → one start button.
 // Timer and negative marking are fixed (see shared/scoring.js), so there is nothing else to pick.
 
 import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
@@ -58,8 +58,14 @@ export function render([mode = 'fun', topic = 'all']) {
         ${identityFields()}
         <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
       </section>
+      <section class="setup-count card">
+        <h2 class="step"><span>২</span> কয়টি প্রশ্ন?</h2>
+        ${seg('count', COUNTS[mode], count, v => bn(v))}
+      </section>
       <section class="setup-topic">
-        <h2 class="step"><span>২</span> Topic বেছে নাও</h2>
+        <h2 class="step"><span>৩</span> Topic বেছে নাও</h2>
+        <input class="topic-search" id="topic-search" type="search" autocomplete="off" placeholder="🔍 Topic খুঁজো—যেমন tense, article, synonym" aria-label="Topic খুঁজো">
+        <p class="muted small" id="topic-none" hidden>এই নামে কোনো topic নেই।</p>
         <div class="picks">
           ${topicOption('all', 'সব topic (মিশ্র)', 'পুরো question bank থেকে', QUESTIONS.length, '🎲', topic === 'all')}
           ${mistakes ? topicOption('mistakes', 'আমার ভুলগুলো', 'আগে যেগুলো ভুল করেছ (leaderboard-এ যায় না)', mistakes, '🔁', topic === 'mistakes', '#d64545') : ''}
@@ -74,10 +80,6 @@ export function render([mode = 'fun', topic = 'all']) {
             ${list.map(t => topicOption(t.id, t.title, t.bn, t.count, t.icon, topic === t.id, t.color)).join('')}
           </div>`;
         }).join('')}
-      </section>
-      <section class="setup-count card">
-        <h2 class="step"><span>৩</span> কয়টি প্রশ্ন?</h2>
-        ${seg('count', COUNTS[mode], count, v => bn(v))}
       </section>
       <div class="start-bar">
         <span class="start-summary" id="start-summary">${esc(summary(mode, topic, count))}</span>
@@ -103,6 +105,26 @@ export function mount() {
     refresh();
   });
   wireIdentity(form);
+  // Topic search: hides topics (and empty group headings) that do not match the typed text.
+  $('#topic-search')?.addEventListener('input', e => {
+    const words = e.target.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    form.querySelectorAll('.setup-topic .picks').forEach(list => {
+      let any = false;
+      list.querySelectorAll('.pick').forEach(label => {
+        const hit = words.every(w => label.textContent.toLowerCase().includes(w));
+        label.hidden = !hit;
+        any ||= hit;
+        shown += hit;
+      });
+      list.hidden = !any;
+      const head = list.previousElementSibling;
+      if (head?.classList.contains('pick-group')) head.hidden = !any;
+    });
+    $('#topic-none').hidden = shown > 0;
+  });
+  // Enter in the search box must not start the test.
+  $('#topic-search')?.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(form);

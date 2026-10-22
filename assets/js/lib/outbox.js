@@ -6,8 +6,9 @@
 // has (attemptId) and a sign-up it already made (newId), so sending twice is safe.
 
 import { state, updateHistory } from './store.js';
-import { submitScore, clearBoardCache, noteProblem } from './api.js';
+import { submitScore, saveProfile, clearBoardCache, noteProblem } from './api.js';
 import { finishPendingSignUp } from './identity.js';
+import { markUnknown } from './cloud.js';
 import { bn } from './dom.js';
 
 const RANKED = h => h.kind === 'topic' && ['fun', 'exam'].includes(h.mode) && h.answers && h.player?.playerId;
@@ -22,8 +23,20 @@ const pending = () => pendingScores() + (state.player?.pending ? 1 : 0);
 
 const tell = id => window.dispatchEvent(new CustomEvent('score-status', { detail: { id } }));
 
+/**
+ * This browser's cookie belongs to another student than the one signed in here (the
+ * server then refuses the score): sign in again with name + roll, which resets it.
+ */
+async function reclaimCookie(p) {
+  if (!p?.roll || p.pending) return false;
+  try {
+    const res = await saveProfile({ name: p.name, roll: String(p.roll).padStart(3, '0'), login: true });
+    return res.player?.playerId === p.playerId;
+  } catch { return false; }
+}
+
 /** Send one stored result to the leaderboard. */
-export async function sendScore(id) {
+export async function sendScore(id, retried = false) {
   const h = state.history.find(x => x.id === id);
   if (!h || !h.answers || !h.player?.playerId) return;
   if (h.player.pending) {
@@ -43,15 +56,19 @@ export async function sendScore(id) {
       timeSec: h.timeSec,
       answers: h.answers.map(({ id: qid, choice, sec, frozen }) => ({ id: qid, choice, sec, frozen })),
     });
-    updateHistory(id, { saved: 'saved', serverScore: res.entry?.score, rank: res.rank || null, newTop: !!res.newTop, saveError: undefined });
+    updateHistory(id, { saved: 'saved', serverScore: res.entry?.score, rank: res.rank || null, topicRank: res.topicRank || null, newTop: !!res.newTop, saveError: undefined });
     clearBoardCache();
   } catch (err) {
     // The server answered "no" for good (e.g. a different student on this browser): do not retry forever.
     // (A 403 for a student who is not the one signed in now is tried again once they are.)
-    const otherStudent = err.status === 403 && h.player.playerId !== state.player?.playerId;
+    const current = h.player.playerId === state.player?.playerId;
+    if (err.status === 403 && current && !retried && (await reclaimCookie(state.player))) return sendScore(id, true);
+    const otherStudent = err.status === 403 && !current;
     const final = err.status >= 400 && err.status < 500 && ![401, 408, 429].includes(err.status) && !otherStudent;
     updateHistory(id, { saved: final ? 'failed' : 'local', saveError: String(err.message || err).slice(0, 140) });
     noteProblem('score', err);
+    // The server does not know this student any more: sign up again (same id), then resend.
+    if (err.status === 401 && current) markUnknown();
   }
   tell(id);
   paint();

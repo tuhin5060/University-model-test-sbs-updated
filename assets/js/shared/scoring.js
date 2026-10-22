@@ -29,6 +29,16 @@ export function maxFunScore(n, limit = 30) {
   return total;
 }
 
+// Leaderboard points: every test adds its points to the student's total.
+// Fun Quiz: its own points (speed + streak). Model Test: +20 per correct, −5 per wrong
+// (the same −0.25 marks rule, ×20), never below 0. server/routes/scores.js uses the
+// same rule in SQL (POINTS), so old and new tests are counted alike.
+export const EXAM_POINTS = { correct: 20, wrong: 5 };
+export function attemptPoints({ mode, score, correct, wrong }) {
+  if (mode === 'fun') return Math.round(Number(score) || 0);
+  return Math.max(0, (Number(correct) || 0) * EXAM_POINTS.correct - (Number(wrong) || 0) * EXAM_POINTS.wrong);
+}
+
 /**
  * Score one attempt.
  * @param {object} attempt { mode, settings:{perQuestion, negative}, answers:[{id, choice, sec, frozen}] }

@@ -136,7 +136,9 @@ export function render() {
           ${s.mode === 'exam' && quiz.isAnswered(s, q.id) ? '<button class="link-btn clear-btn" data-action="clear">উত্তর মুছে ফেলো</button>' : ''}
         </article>
         <div class="play-nav">${nav}</div>
-        ${s.mode !== 'exam' ? `<button class="link-btn end-btn" data-action="end">এখনই শেষ করে ফলাফল দেখো</button>` : ''}
+        ${s.mode !== 'exam'
+          ? '<button class="link-btn end-btn" data-action="end">এখনই শেষ করে ফলাফল দেখো</button>'
+          : '<button class="link-btn end-btn" data-action="submit">✅ এখনই Submit করো—যতটুকু দিয়েছ তার ফলাফল</button>'}
       </section>
       ${s.mode === 'exam' ? palette(s, qs) : ''}
     </div>
@@ -222,12 +224,14 @@ function goNext() {
   $('#qcard')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-/** Model Test: leave this question unanswered and go to the next unanswered one (or offer to submit). */
+/**
+ * Model Test: leave this question unanswered and go to the next unanswered one further on.
+ * At the end of the paper it offers to submit instead of starting over from the top
+ * (skipped questions stay reachable from the question list).
+ */
 function skipExam() {
   const s = state.session;
-  const n = s.ids.length;
-  for (let step = 1; step < n; step++) {
-    const i = (s.index + step) % n;
+  for (let i = s.index + 1; i < s.ids.length; i++) {
     if (!quiz.isAnswered(s, s.ids[i])) {
       quiz.go(i);
       refresh();

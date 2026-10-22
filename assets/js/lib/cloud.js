@@ -5,6 +5,18 @@
 import { state, save, replaceState, trimHistory } from './store.js';
 import { fetchProfile, restoreProgress, enableProgressSync, queueProgressSync } from './api.js';
 
+/**
+ * The server does not know this browser's student (e.g. signed up before the move to the
+ * current database): sign up again with the same id, name and roll — the outbox sends it,
+ * then the scores, so nothing played on this phone is lost.
+ */
+export function markUnknown() {
+  const p = state.player;
+  if (!p?.playerId || p.pending) return;
+  state.player = { ...p, pending: true, newId: p.playerId, wantedRoll: p.roll ? String(p.roll) : undefined, roll: undefined, tag: p.name };
+  save();
+}
+
 /** Keep only what the browser needs from a server profile. */
 export const playerFrom = p => ({ playerId: p.playerId, name: p.name, roll: p.roll, tag: p.tag, avatar: p.avatar, college: p.college || null });
 
@@ -53,6 +65,8 @@ export async function syncCloud({ profile = true } = {}) {
       if (p?.playerId) {
         state.player = playerFrom(p);
         save();
+      } else if (p === null && state.player?.playerId) {
+        markUnknown();
       }
     } catch { /* offline: keep the local copy */ }
   }

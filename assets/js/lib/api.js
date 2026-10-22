@@ -78,7 +78,7 @@ export async function fetchMyStats() {
 }
 
 const boardCache = new Map();
-export async function fetchLeaderboard(mode = 'fun', topic = 'all', { fresh = false } = {}) {
+export async function fetchLeaderboard(mode = 'all', topic = 'all', { fresh = false } = {}) {
   const key = `${mode}:${topic}`;
   const hit = boardCache.get(key);
   if (!fresh && hit && Date.now() - hit.at < 30000) return hit.rows;
