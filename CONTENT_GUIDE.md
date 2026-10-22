@@ -4,6 +4,7 @@ Everything students see comes from the `data/` folder. You never need to touch
 the app code to add content. After any change run:
 
 ```bash
+npm run sync    # updates the preload list and the offline copy's version (sw.js)
 npm run check
 ```
 
@@ -67,8 +68,8 @@ deleting or reordering questions never breaks students' saved progress.
    import preposition from './preposition.js';
    export const TOPICS_RAW = [ tense, …, preposition ];
    ```
-4. Run `node scripts/preload.mjs` so `index.html` preloads the new file
-   (`npm run check` reminds you if you forget).
+4. Run `npm run sync` so `index.html` preloads the new file and phones get
+   the new version (`npm run check` reminds you if you forget).
 
 The new topic then appears automatically on the home page, the Fun Quiz /
 Model Test / Practice setup, search, progress bars and the leaderboard filter.

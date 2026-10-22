@@ -836,3 +836,5 @@ button.cm-tag { cursor: pointer; }
 .tr-text small { color: var(--muted); font-size: .82rem; }
 .tr-score { display: grid; text-align: right; font-weight: 800; color: var(--brand); }
 .tr-score small { color: var(--muted); font-weight: 600; font-size: .75rem; }
+.update-bar { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-h) + 14px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 10px; align-items: center; padding: 8px 10px 8px 16px; border-radius: 99px; background: var(--ink); color: var(--bg); box-shadow: var(--shadow-lg); font-weight: 600; white-space: nowrap; }
+@media (min-width: 960px) { .update-bar { bottom: 20px; } }

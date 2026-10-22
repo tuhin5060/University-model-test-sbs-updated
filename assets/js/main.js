@@ -179,3 +179,18 @@ syncCloud().then(() => {
   if (['progress', 'result', 'leaderboard', 'score'].includes(parse().name)) render(false);
 });
 startLive();
+window.__booted = true;
+
+// ---- Offline copy (sw.js) ----------------------------------------------------
+// After the first visit the site opens from the phone even on a weak connection.
+// Skipped on localhost so local edits show up at once (add ?sw to test it there).
+const local = ['localhost', '127.0.0.1'].includes(location.hostname) && !location.search.includes('sw');
+if ('serviceWorker' in navigator && !local) {
+  const hadWorker = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  // A new version finished downloading: offer a reload (never forced, a test may be running).
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadWorker || $('.update-bar')) return;
+    document.body.insertAdjacentHTML('beforeend', '<div class="update-bar" role="status">✨ নতুন আপডেট এসেছে <button class="btn small" onclick="location.reload()">রিফ্রেশ করো</button></div>');
+  });
+}

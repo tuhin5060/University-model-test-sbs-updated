@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.5.3 — opens even on a weak connection
+* Offline copy (`sw.js`): after the first visit, the page, styles, all
+  modules and the hero photo are kept on the phone and served from there, so
+  one stuck download on a weak mobile connection no longer leaves the page
+  loading. The whole set of one version is stored together; a deploy changes
+  `VERSION` (a hash of the files, written by `npm run sync`), the new set
+  downloads in the background and a “নতুন আপডেট এসেছে · রিফ্রেশ করো” bar
+  appears. `/api` is never cached. Google Fonts are kept on the phone too.
+* If the app has not started after 12 s, the page says the connection is slow
+  and offers a retry button instead of loading forever.
+* `npm run check` fails if `sw.js` or the preload list is out of date.
+
 ## 2.5.2 — rank per topic on the Score page
 * Score page: new **📚 Topic অনুযায়ী অবস্থান** list — for every topic (and
   mode) the student has played: the topic name, position among everyone on
