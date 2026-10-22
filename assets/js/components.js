@@ -136,3 +136,29 @@ export async function loadLeaderboards(root = document, fresh = false) {
 export function empty(text, cta = '') {
   return `<div class="empty-box"><p>${esc(text)}</p>${cta}</div>`;
 }
+
+/**
+ * Shown once when a student gets a new roll: the ID to remember, with a copy
+ * button. Resolves when closed, so a test starts only after it was read.
+ */
+export function showIdCard(player) {
+  const roll = String(player.roll).padStart(3, '0');
+  const dlg = document.createElement('dialog');
+  dlg.className = 'id-card';
+  dlg.innerHTML = `<form method="dialog">
+    <span class="id-emoji" aria-hidden="true">🎉</span>
+    <h3>তোমার Roll: ${roll.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d])}</h3>
+    <p class="id-tag">${esc(player.tag)}</p>
+    <p>এটাই তোমার ID। অন্য phone বা browser-এ <b>এই নাম আর roll</b> দিলেই সব score ও অগ্রগতি ফিরে পাবে।</p>
+    <p class="muted">📸 Screenshot নিয়ে রাখো, বা কোথাও লিখে রাখো।</p>
+    <div class="actions"><button type="button" class="btn ghost" data-copy>📋 ID কপি করো</button><button class="btn">ঠিক আছে</button></div>
+  </form>`;
+  document.body.append(dlg);
+  dlg.querySelector('[data-copy]').addEventListener('click', async e => {
+    try { await navigator.clipboard.writeText(player.tag); e.target.textContent = '✅ কপি হয়েছে'; } catch { e.target.textContent = player.tag; }
+  });
+  return new Promise(resolve => {
+    dlg.addEventListener('close', () => { dlg.remove(); resolve(); }, { once: true });
+    dlg.showModal();
+  });
+}

@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.5.1 — fixes after 2.5.0
+* Code, styles and data are no longer served from a stale browser cache
+  (only images are cached); `styles.css` / `main.js` carry `?v=` so a deploy
+  reaches every phone at once. A stale style file had pushed the 6th bottom
+  menu item onto a second row and hidden the community page.
+* Bottom menu fits any number of items in one row.
+* Home: Fun Quiz / Model Test buttons are smaller and side by side on phones.
+* New roll: a card shows the student's ID (`Name.007`) with a copy button
+  and a reminder to keep it; shorter roll instructions on the forms.
+* Link preview: baseline JPEG `og-image.jpg` (90 KB), `og:image:secure_url`,
+  shorter description — WhatsApp shows it reliably.
+* Community page: shorter intro, status chips in one scrollable row.
+
 ## 2.5.0 — community, skip in Model Test, faster first load
 * **Community** (`#community`, in the top and bottom menus and on the home
   page): ask a question under a topic with tags (or from any question in the

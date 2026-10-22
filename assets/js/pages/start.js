@@ -9,7 +9,7 @@ import { state, save, mistakeIds } from '../lib/store.js';
 import { saveProfile } from '../lib/api.js';
 import { playerFrom, syncCloud } from '../lib/cloud.js';
 import { FUN_LIMIT, EXAM_SECONDS, EXAM_NEGATIVE } from '../shared/scoring.js';
-import { MODE_INFO, pageHead, topicAccuracy, topicTitle } from '../components.js';
+import { MODE_INFO, pageHead, topicAccuracy, topicTitle, showIdCard } from '../components.js';
 import { startSession } from '../quiz.js';
 
 const MODES = ['fun', 'exam'];
@@ -61,7 +61,7 @@ export function render([mode = 'fun', topic = 'all']) {
         <p class="field-error" id="name-error" hidden>Leaderboard-এর জন্য তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।</p>
         <label class="label" for="player-roll">Roll <small class="muted">(প্রথমবার খালি রাখলে নতুন roll নিজে থেকেই পাবে)</small></label>
         <input id="player-roll" name="roll" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="যেমন: 007" value="${p.roll ? rollText(p.roll) : ''}">
-        <p class="hint">🔑 নিজের roll ব্যবহার করো, প্রতিবার একই roll দিয়ো। অন্য phone-এ একই নাম + roll দিলে তোমার সব score ফিরে পাবে।</p>
+        <p class="hint">🔑 প্রথমবার roll খালি রাখো—নতুন একটা roll পাবে, সেটা মনে রাখো। পরে বা অন্য phone-এ একই নাম + roll দিলে সব score ফিরে পাবে।</p>
         <p class="field-error" id="roll-error" hidden></p>
         <p class="tag-preview" id="tag-preview">${tagPreview(p.name, p.roll)}</p>
         <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
@@ -117,7 +117,7 @@ export async function ensureProfile({ name, roll, avatar }, showRollError) {
     ]);
     state.player = playerFrom(res.player);
     save();
-    if (res.created) toast(`🎉 তোমার roll ${rollText(res.player.roll)}—পরের বার একই নাম আর roll দিয়ো।`);
+    if (res.created) await showIdCard(res.player);
     if (res.restored) {
       toast('✅ আবার স্বাগতম! তোমার আগের score ও অগ্রগতি আনা হলো।');
       syncCloud({ profile: false });

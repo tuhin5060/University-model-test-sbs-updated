@@ -68,7 +68,7 @@ function profileFields() {
     <legend>তোমার পরিচয়</legend>
     <label class="label" for="cm-name">পুরো নাম</label>
     <input id="cm-name" name="name" maxlength="60" autocomplete="name" placeholder="যেমন: Rahim Uddin" value="${esc(p.name || '')}">
-    <label class="label" for="cm-roll">Roll <small class="muted">(আগে খেলে থাকলে নিজের roll, নইলে খালি রাখো)</small></label>
+    <label class="label" for="cm-roll">Roll <small class="muted">(আগে খেলে থাকলে নিজের roll, নইলে খালি রাখো—নতুন roll পাবে)</small></label>
     <input id="cm-roll" name="roll" inputmode="numeric" maxlength="5" placeholder="যেমন: 007">
     <p class="field-error" id="cm-profile-error" hidden></p>
   </fieldset>`;
@@ -117,13 +117,13 @@ const adminDialog = () => `<dialog id="cm-admin-dialog" class="cm-dialog" aria-l
 function listPage() {
   const chip = (value, label) => `<button class="chip ${filters.status === value ? 'active' : ''}" data-action="cm-status" data-status="${value}">${label}</button>`;
   return `<div class="container narrow">
-    ${pageHead('💬 কমিউনিটি', 'পড়তে গিয়ে আটকে গেলে প্রশ্ন করো, অন্যদের প্রশ্নের উত্তর দাও। যার প্রশ্ন, সে সঠিক উত্তরটাকে “সমাধান” হিসেবে চিহ্ন দেয়।')}
+    ${pageHead('💬 কমিউনিটি', 'আটকে গেলে প্রশ্ন করো, জানা থাকলে উত্তর দাও।')}
     <div class="cm-toolbar">
       <a class="btn" href="#community/new${filters.topic ? `/${esc(filters.topic)}` : ''}">✍️ প্রশ্ন করো</a>
       <input type="search" id="cm-search" placeholder="আলোচনা খুঁজুন…" value="${esc(filters.q)}" aria-label="আলোচনা খুঁজুন">
     </div>
     <div class="cm-filters">
-      <div class="chips" role="group" aria-label="অবস্থা">${chip('', 'সব')}${chip('open', '❓ উত্তর খুঁজছে')}${chip('resolved', '✅ সমাধান হয়েছে')}</div>
+      <div class="chips scroll" role="group" aria-label="অবস্থা">${chip('', 'সব')}${chip('open', '❓ উত্তর খুঁজছে')}${chip('resolved', '✅ সমাধান হয়েছে')}</div>
       <select id="cm-topic" aria-label="Topic">${topicOptions(filters.topic, { any: true })}</select>
     </div>
     <div class="chips scroll" id="cm-tags" aria-label="জনপ্রিয় tag"></div>

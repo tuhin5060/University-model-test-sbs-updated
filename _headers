@@ -1,7 +1,5 @@
-# Cloudflare Pages headers (Vercel uses vercel.json). Code and data are reused
-# from the browser cache at once and refreshed in the background, so a repeat
-# visit opens without waiting for the network; index.html is always fresh.
-/assets/*
-  Cache-Control: public, max-age=300, stale-while-revalidate=604800
-/data/*
-  Cache-Control: public, max-age=300, stale-while-revalidate=604800
+# Cloudflare Pages headers (Vercel uses vercel.json). Images are reused from
+# the browser cache; code, styles and data are always checked for a newer
+# version so a deploy never mixes old and new files.
+/assets/img/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
