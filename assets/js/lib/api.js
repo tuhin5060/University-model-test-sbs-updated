@@ -16,6 +16,8 @@ async function call(url, options = {}) {
   }
   let body = null;
   try { body = await res.json(); } catch { /* not JSON: API not deployed here */ }
+  // sw.js answered from its saved copy (offline or server trouble).
+  if (body && res.headers.get('x-offline-copy')) body.offline = true;
   if (!res.ok || !body?.ok) {
     const error = new Error(body?.error || (res.status >= 500 ? 'Leaderboard service is not available right now' : `Request failed (${res.status})`));
     error.status = res.status;
@@ -23,6 +25,26 @@ async function call(url, options = {}) {
     throw error;
   }
   return body;
+}
+
+// Why saving failed on this phone (kept briefly, sent with the next heartbeat and
+// written to the server log), so problems on one kind of phone can be found.
+const PROBLEMS = 'campus-pothe.problems';
+export function noteProblem(what, err) {
+  try {
+    const list = JSON.parse(localStorage.getItem(PROBLEMS) || '[]').slice(-4);
+    list.push(`${what}: ${err?.status || (navigator.onLine === false ? 'offline' : 'network')} ${String(err?.message || err).slice(0, 80)}`);
+    localStorage.setItem(PROBLEMS, JSON.stringify(list));
+  } catch { /* storage blocked */ }
+}
+export function peekProblems() {
+  try {
+    const list = JSON.parse(localStorage.getItem(PROBLEMS) || '[]');
+    return Array.isArray(list) ? list.slice(-5) : [];
+  } catch { return []; }
+}
+export function clearProblems() {
+  try { localStorage.removeItem(PROBLEMS); } catch { /* storage blocked */ }
 }
 
 export async function fetchProfile(playerId) {
@@ -53,8 +75,10 @@ export async function fetchLeaderboard(mode = 'fun', topic = 'all', { fresh = fa
   const hit = boardCache.get(key);
   if (!fresh && hit && Date.now() - hit.at < 30000) return hit.rows;
   const body = await call(`/api/scores?mode=${encodeURIComponent(mode)}&topic=${encodeURIComponent(topic)}`);
-  boardCache.set(key, { at: Date.now(), rows: body.rows || [] });
-  return body.rows || [];
+  const rows = body.rows || [];
+  if (body.offline) rows.offline = true; // the saved copy (sw.js): shown with a note
+  else boardCache.set(key, { at: Date.now(), rows });
+  return rows;
 }
 export const clearBoardCache = () => boardCache.clear();
 

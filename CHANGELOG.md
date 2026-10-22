@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.9.0 — works offline and through database trouble
+* Offline outbox (`assets/js/lib/outbox.js`): with no network or a failing server, a
+  new student still starts (the sign-up waits on the phone with its `newId`) and every
+  Fun Quiz / Model Test score is kept; both go out by themselves at start, when the
+  phone is back online, when the tab is shown again and every minute while waiting.
+  The server ignores repeats, so nothing is counted twice.
+* A bar under the header: “📴 অফলাইন …” or “⏳ … পাঠানোর অপেক্ষায় · এখনই পাঠাও”.
+  A score the server refuses for good (e.g. another student’s cookie) is not retried.
+* sw.js keeps the last leaderboard and community lists (nothing personal) and shows them
+  when offline or when the server fails (“📴 শেষবার লোড হওয়া তালিকা”); images are
+  kept after the first view. All questions were already stored, so every practice mode,
+  Fun Quiz and Model Test runs offline.
+* Why saving failed on a phone is noted there and sent with the next heartbeat to the
+  server log as “client save problem (iPhone/Android …)”, to find device-specific issues.
+* Older iPhones: no `Array.prototype.at`, and the new-roll card falls back to an alert
+  where `<dialog>` is missing (before iOS 15.4).
+
 ## 2.8.4 — names and scores reach the server on slow networks and iPhones
 * Sign-up waits up to 15 s and tries once more by itself; the browser picks the new
   student’s id, so a sign-up sent twice still makes one student (`newId`).

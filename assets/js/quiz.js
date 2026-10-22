@@ -5,7 +5,7 @@ import { QUESTIONS, QUESTION_MAP, inTopic } from '../../data/questions/index.js'
 import { scoreAttempt, funPoints, EXAM_PACE, FUN_LIMIT, EXAM_NEGATIVE, MAX_QUESTIONS } from './shared/scoring.js';
 import { state, save, recordAttempt, updateHistory, mistakeIds } from './lib/store.js';
 import { shuffle, seeded, today, uid, toast, navigate, ask } from './lib/dom.js';
-import { submitScore, clearBoardCache } from './lib/api.js';
+import { sendScore, flush } from './lib/outbox.js';
 import { topicTitle } from './components.js';
 
 export const session = () => state.session;
@@ -209,33 +209,11 @@ export function finish({ auto = false } = {}) {
     saved: 'none',
   };
   const ranked = ['fun', 'exam'].includes(s.mode) && s.kind === 'topic' && s.player?.playerId && result.total > 0;
-  if (ranked) entry.saved = 'saving';
+  if (ranked) entry.saved = 'local';
   state.session = null;
   recordAttempt(entry, reached);
   navigate(`#result/${entry.id}`);
-  if (ranked) sendScore(entry.id);
+  // A student signed up offline goes to the server first (flush), then the score.
+  if (ranked) (s.player.pending ? flush() : sendScore(entry.id));
   return entry;
-}
-
-export async function sendScore(id) {
-  const h = state.history.find(x => x.id === id);
-  if (!h || !h.answers || !h.player?.playerId) return;
-  updateHistory(id, { saved: 'saving' });
-  window.dispatchEvent(new CustomEvent('score-status', { detail: { id } }));
-  try {
-    const res = await submitScore({
-      playerId: h.player.playerId,
-      attemptId: h.id,
-      mode: h.mode,
-      topic: h.topic,
-      settings: h.settings,
-      timeSec: h.timeSec,
-      answers: h.answers.map(({ id: qid, choice, sec, frozen }) => ({ id: qid, choice, sec, frozen })),
-    });
-    updateHistory(id, { saved: 'saved', serverScore: res.entry?.score, rank: res.rank || null, newTop: !!res.newTop });
-    clearBoardCache();
-  } catch (err) {
-    updateHistory(id, { saved: 'local', saveError: String(err.message || err).slice(0, 140) });
-  }
-  window.dispatchEvent(new CustomEvent('score-status', { detail: { id } }));
 }

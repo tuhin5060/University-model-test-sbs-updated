@@ -279,3 +279,18 @@ test('a sign-up sent twice (answer lost on a slow network) gives one student, no
   assert.equal(other.statusCode, 201);
   assert.notEqual(other.body.player.playerId, newId);
 });
+
+test('visitors: why saving failed on a phone goes to the server log (short, at most 5)', async () => {
+  const logged = [];
+  const original = console.error;
+  console.error = (...args) => logged.push(args.join(' '));
+  try {
+    const r = await call(visitors, { method: 'POST', body: { sid: 'd'.repeat(24), problems: ['profile: network timeout', 'x'.repeat(500), '3', '4', '5', '6'] } });
+    assert.equal(r.statusCode, 200);
+  } finally {
+    console.error = original;
+  }
+  assert.equal(logged.length, 1);
+  assert.match(logged[0], /client save problem \(other\) profile: network timeout/);
+  assert.ok(logged[0].length < 800);
+});

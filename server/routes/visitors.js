@@ -17,6 +17,13 @@ export default route('visitors', {
       await db.query('DELETE FROM presence WHERE sid = $1', [sid]);
       return json({ ok: true });
     }
+    // Why saving failed on a student's phone (noted there, sent once it is back online): to the server log.
+    if (Array.isArray(body.problems) && body.problems.length) {
+      const ua = request.headers.get('user-agent') || '';
+      const phone = /iPhone|iPad/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : 'other';
+      const inApp = /FBAN|FBAV|FB_IAB|Instagram|WhatsApp/.test(ua) ? ' in-app' : '';
+      console.error(`client save problem (${phone}${inApp})`, body.problems.slice(0, 5).map(p => String(p).slice(0, 120)).join(' | '));
+    }
     const since = Number.isSafeInteger(body.since) && body.since >= 0 ? body.since : null;
     const [, , , [count], events, [last]] = await db.batch([
       ['INSERT INTO presence (sid, at) VALUES ($1, now()) ON CONFLICT (sid) DO UPDATE SET at = now()', [sid]],

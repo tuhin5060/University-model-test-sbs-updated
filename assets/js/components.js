@@ -117,7 +117,8 @@ export async function loadLeaderboards(root = document, fresh = false) {
     const { mode, topic } = box.dataset;
     const limit = Number(box.dataset.limit) || 10;
     try {
-      const rows = (await fetchLeaderboard(mode, topic, { fresh })).slice(0, limit);
+      const all = await fetchLeaderboard(mode, topic, { fresh });
+      const rows = all.slice(0, limit);
       if (box.dataset.mode !== mode) continue; // tab switched meanwhile
       rowsEl.innerHTML = rows.length
         ? `<ol class="lb-list">${rows
@@ -130,6 +131,7 @@ export async function loadLeaderboards(root = document, fresh = false) {
               <span class="lb-detail">${r.college ? `🏫 <b>${esc(r.college)}</b><br>` : ''}${bn(r.correct)}/${bn(r.total)} সঠিক · ${bn(r.attempts || 1)} বার test · ${bnDate(r.at)}</span></li>`)
             .join('')}</ol>`
         : `<p class="empty">এখনো কেউ score করেনি—প্রথম হওয়ার সুযোগ তোমার! 🏁</p>`;
+      if (all.offline) rowsEl.insertAdjacentHTML('afterbegin', '<p class="muted small">📴 শেষবার লোড হওয়া তালিকা—নেট এলে নতুনটা দেখাবে।</p>');
     } catch {
       rowsEl.innerHTML = `<p class="empty">Leaderboard এই মুহূর্তে লোড হচ্ছে না। তোমার score এই device-এ save আছে। <button class="link-btn" data-action="lb-retry">আবার চেষ্টা করো</button></p>`;
     }
@@ -156,6 +158,10 @@ export function showIdCard(player) {
     <p class="muted">📸 Screenshot নিয়ে রাখো, বা কোথাও লিখে রাখো।</p>
     <div class="actions"><button type="button" class="btn ghost" data-copy>📋 ID কপি করো</button><button class="btn">ঠিক আছে</button></div>
   </form>`;
+  if (typeof dlg.showModal !== 'function') { // older iPhones (before iOS 15.4)
+    alert(`🎉 তোমার Roll: ${roll}\nID: ${player.tag}\n\nএই নাম আর roll লিখে রাখো—অন্য phone-এ দিলেই সব score ফিরে পাবে।`);
+    return Promise.resolve();
+  }
   document.body.append(dlg);
   dlg.querySelector('[data-copy]').addEventListener('click', async e => {
     try { await navigator.clipboard.writeText(player.tag); e.target.textContent = '✅ কপি হয়েছে'; } catch { e.target.textContent = player.tag; }

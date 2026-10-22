@@ -4,6 +4,7 @@
 
 import { MODE_INFO, topicTitle } from '../components.js';
 import { esc, bn } from './dom.js';
+import { peekProblems, clearProblems } from './api.js';
 
 const KEY = 'campus-pothe.visitor';
 const BEAT_MS = 60 * 1000;
@@ -47,7 +48,7 @@ function popup(html) {
 }
 
 function announce(events) {
-  const e = events.filter(x => x.kind === 'top' && !x.mine).at(-1);
+  const e = events.filter(x => x.kind === 'top' && !x.mine).pop();
   if (!e) return;
   const m = MODE_INFO[e.mode] || MODE_INFO.fun;
   const score = e.mode === 'exam' ? `${bn(e.score)}%` : `${bn(e.score)} points`;
@@ -55,17 +56,19 @@ function announce(events) {
 }
 
 async function beat() {
+  const problems = peekProblems();
   try {
     const res = await fetch('/api/visitors', {
       method: 'POST',
       cache: 'no-store',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sid: visitorId(), since: lastEvent }),
+      body: JSON.stringify({ sid: visitorId(), since: lastEvent, problems: problems.length ? problems : undefined }),
     });
     const body = await res.json();
     online = res.ok && body?.ok && Number.isInteger(body.online) ? Math.max(1, body.online) : null;
     if (res.ok && body?.ok) {
+      if (problems.length) clearProblems();
       if (lastEvent !== null && body.events?.length) announce(body.events);
       lastEvent = Math.max(lastEvent || 0, body.lastEvent || 0);
     }

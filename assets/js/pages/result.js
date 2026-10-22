@@ -5,7 +5,8 @@ import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
 import { state, updateHistory } from '../lib/store.js';
 import { celebrate, beep } from '../lib/fx.js';
 import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
-import { startSession, sendScore } from '../quiz.js';
+import { startSession } from '../quiz.js';
+import { sendScore, flush } from '../lib/outbox.js';
 import { explainBlock } from './play.js';
 import { maybeAskPush } from '../lib/push.js';
 
@@ -24,7 +25,8 @@ function saveStatus(h) {
   const map = {
     saving: '<p class="notice" id="save-status">⏳ Leaderboard-এ score পাঠানো হচ্ছে…</p>',
     saved: `<p class="notice good" id="save-status">${h.newTop ? '🏆 নতুন সর্বোচ্চ score! ' : '✅ '}Leaderboard-এ save হয়েছে${h.rank?.rank ? ` · এই topic-এ তোমার অবস্থান <b>#${bn(h.rank.rank)}</b> (${bn(h.rank.players)} জনের মধ্যে)` : ''}। <a class="text-link" href="#score">আমার score →</a></p>`,
-    local: `<p class="notice warn" id="save-status">⚠️ Server-এ save হয়নি (${esc(h.saveError || 'offline')})। <button class="link-btn" data-action="retry-save" data-id="${esc(h.id)}">আবার চেষ্টা করো</button></p>`,
+    local: `<p class="notice warn" id="save-status">📴 Score এই phone-এ জমা আছে—নেট বা server ঠিক হলে নিজে থেকেই leaderboard-এ যাবে। <button class="link-btn" data-action="retry-save" data-id="${esc(h.id)}">এখনই পাঠাও</button></p>`,
+    failed: `<p class="notice warn" id="save-status">⚠️ Server এই score নেয়নি (${esc(h.saveError || '')})।</p>`,
   };
   return map[h.saved] || '';
 }
@@ -142,7 +144,7 @@ export function onAction(action, el) {
     const ids = (h.answers || []).filter(a => { const q = QUESTION_MAP.get(a.id); return q && a.choice !== q.a; }).map(a => a.id);
     startSession({ mode: 'practice', topic: h.topic, ids, kind: 'retry', title: 'ভুলগুলো আবার' });
   } else if (action === 'retry-save' && h) {
-    sendScore(h.id);
+    flush();
   } else if (action === 'attach-save' && h && state.player?.playerId) {
     updateHistory(h.id, { player: state.player });
     sendScore(h.id);

@@ -46,7 +46,8 @@ function mergeProgress(remote) {
 
 /** Pull the profile (unless skipped) and the progress backup, then keep syncing changes. */
 export async function syncCloud({ profile = true } = {}) {
-  if (profile) {
+  // A sign-up still waiting in the outbox must not be replaced by this browser's older cookie profile.
+  if (profile && !state.player?.pending) {
     try {
       const p = await fetchProfile(state.player?.playerId);
       if (p?.playerId) {

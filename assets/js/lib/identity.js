@@ -10,7 +10,7 @@
 
 import { esc, toast, ask } from './dom.js';
 import { state, save } from './store.js';
-import { saveProfile } from './api.js';
+import { saveProfile, noteProblem } from './api.js';
 import { playerFrom, syncCloud } from './cloud.js';
 import { showIdCard } from '../components.js';
 import { collegeField, wireCollege, readCollege } from './college.js';
@@ -22,13 +22,14 @@ const cleanName = v => String(v || '').replace(/\s+/g, ' ').trim();
 /** The identity block's HTML. mode: 'auto' (signed-in summary or the form) | 'login' (sign-in only, roll required). */
 export function identityFields({ mode = 'auto' } = {}) {
   const p = state.player;
-  const signedIn = mode === 'auto' && p?.playerId && p.roll;
+  // pending: signed up while the server could not be reached; the roll comes once it is sent.
+  const signedIn = mode === 'auto' && p?.playerId && (p.roll || p.pending);
   const loginOnly = mode === 'login';
   // The college is asked once: on registration, or from a signed-in student who has none yet.
   const needsCollege = signedIn && !p.college;
   return `<div class="identity" data-identity data-state="${signedIn ? 'current' : 'form'}" ${loginOnly ? 'data-login-only' : ''} ${needsCollege ? 'data-needs-college' : ''}>
     <div class="id-current">
-      <span>✅ তুমি: <b>${esc(p?.tag || '')}</b></span>
+      <span>✅ তুমি: <b>${esc(p?.tag || '')}</b>${p?.pending ? ' <small class="muted">(⏳ roll আসবে নেট এলে)</small>' : ''}</span>
       <button type="button" class="link-btn" data-id-switch>অন্য নাম/roll</button>
     </div>
     <div class="id-choose">
@@ -90,6 +91,11 @@ export async function signIn(root, { avatar } = {}) {
   const p = state.player;
   const college = readCollege(box);
   if (box.dataset.state === 'current') {
+    if (p.pending) {
+      state.player = { ...p, avatar: avatar || p.avatar, college: college || p.college };
+      save();
+      return state.player;
+    }
     const newCollege = college && college !== p.college;
     if ((avatar && avatar !== p.avatar) || newCollege) {
       return send({ playerId: p.playerId, name: p.name, roll: rollText(p.roll), avatar: avatar || p.avatar, college: college || undefined }, box);
@@ -111,7 +117,7 @@ export async function signIn(root, { avatar } = {}) {
   if (loginOnly) return showError(box, 'তোমার roll লেখো (যেমন 007)।', 'roll'), false;
   if (!college) return showError(box, 'তোমার কলেজের নাম দাও—নামের একটা শব্দ লিখলেই তালিকা আসবে।', 'college'), false;
   // A new student: never send this device's old id, so a different person gets their own roll.
-  return send({ playerId: p?.name && cleanName(p.name).toLowerCase() === name.toLowerCase() ? p.playerId : undefined, name, avatar: avatar || '🚂', college }, box);
+  return send({ playerId: p?.name && !p.pending && cleanName(p.name).toLowerCase() === name.toLowerCase() ? p.playerId : undefined, name, avatar: avatar || '🚂', college }, box);
 }
 
 const NOT_FOUND = Symbol('roll not found');
@@ -119,13 +125,13 @@ const NOT_FOUND = Symbol('roll not found');
 const uuid = () => crypto.randomUUID?.()
   ?? '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16));
 
-/** saveProfile, waiting up to 15 s; a slow or dropped answer (network, server busy) is tried once more. */
+/** saveProfile, waiting up to 10 s; a slow or dropped answer (network, server busy) is tried once more. */
 async function saveWithRetry(body) {
   for (let attempt = 1; ; attempt++) {
     try {
       return await Promise.race([
         saveProfile(body),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000)),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 10000)),
       ]);
     } catch (err) {
       if (attempt >= 2 || (err.status && err.status < 500)) throw err;
@@ -153,11 +159,37 @@ async function send(body, box, { quietNotFound = false } = {}) {
       showError(box, err.body?.error || err.message, err.body?.code === 'name_mismatch' ? 'name' : 'roll');
       return false;
     }
-    if (state.player?.playerId) return state.player;
-    if (body.name && !body.login) {
-      state.player = { name: body.name, avatar: body.avatar, newId: body.newId };
+    noteProblem('profile', err);
+    if (body.newId) {
+      // Server unreachable (no network, or the database having trouble): keep the sign-up on
+      // this phone and play on; the outbox sends it, then the scores, once it can.
+      state.player = { playerId: body.newId, newId: body.newId, name: body.name, tag: body.name, avatar: body.avatar, college: body.college || null, pending: true };
       save();
+      toast('📴 Server-এ এখন পৌঁছানো যাচ্ছে না—তোমার নাম আর score এই phone-এ জমা থাকছে, নেট এলে নিজে থেকেই পাঠানো হবে।');
+      return state.player;
     }
-    return null;
+    return state.player?.playerId ? state.player : null;
+  }
+}
+
+/**
+ * The outbox (outbox.js) calls this once the server may be reachable: sends a sign-up
+ * made offline. → true when nothing is pending any more.
+ */
+export async function finishPendingSignUp() {
+  const p = state.player;
+  if (!p?.pending) return true;
+  try {
+    const res = await saveWithRetry({ name: p.name, avatar: p.avatar, college: p.college || undefined, newId: p.newId });
+    state.player = playerFrom(res.player);
+    // Results played meanwhile belong to this student (the server may have given another id).
+    for (const h of state.history) if (h.player?.playerId === p.playerId) h.player = state.player;
+    save();
+    if (res.created && !location.hash.startsWith('#play')) showIdCard(res.player);
+    else toast(`✅ তোমার নাম server-এ save হয়েছে: ${res.player.tag}`);
+    return true;
+  } catch (err) {
+    noteProblem('pending profile', err);
+    return false;
   }
 }

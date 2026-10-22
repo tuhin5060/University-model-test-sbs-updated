@@ -254,7 +254,7 @@ function mountReply() {
       current = res.thread;
       paintThread();
       toast('✅ উত্তর দেওয়া হয়েছে');
-      $(`#reply-${current.replyList.at(-1)?.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      $(`#reply-${current.replyList[current.replyList.length - 1]?.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     } catch (err) {
       error.textContent = err.message;
       error.hidden = false;

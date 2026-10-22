@@ -1,15 +1,17 @@
 // Offline copy of the site, so a weak connection never leaves the page loading.
 // Every file of one version (index.html, styles, all modules) is stored together
 // and served from the phone; a new deploy changes VERSION, the new set is
-// downloaded in the background and the page offers a reload. /api is never cached.
+// downloaded in the background and the page offers a reload. Of /api only the
+// leaderboard and community lists are kept (last good answer, shown when offline
+// or when the server has trouble); nothing personal is cached.
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = '26a96dc303d7';
+const VERSION = 'b0a94c266656';
 const PRECACHE = [
   './',
-  'assets/css/styles.css?v=2.8.4',
-  'assets/js/main.js?v=2.8.4',
+  'assets/css/styles.css?v=2.9.0',
+  'assets/js/main.js?v=2.9.0',
   'assets/js/components.js',
   'assets/js/lib/api.js',
   'assets/js/lib/cloud.js',
@@ -19,6 +21,7 @@ const PRECACHE = [
   'assets/js/lib/identity.js',
   'assets/js/lib/inapp.js',
   'assets/js/lib/live.js',
+  'assets/js/lib/outbox.js',
   'assets/js/lib/push.js',
   'assets/js/lib/store.js',
   'assets/js/pages/community.js',
@@ -70,6 +73,7 @@ const PRECACHE = [
 
 const CACHE = `campus-${VERSION}`;
 const RUNTIME = 'campus-runtime';
+const API = 'campus-api';
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'no-cache' })))).then(() => self.skipWaiting()));
@@ -78,7 +82,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== RUNTIME).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => ![CACHE, RUNTIME, API].includes(k)).map(k => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -98,16 +102,51 @@ async function staleWhileRevalidate(request) {
   return fresh;
 }
 
+/** Leaderboard / community lists: the server's answer when it comes in time, else the last good one. */
+async function networkFirst(request) {
+  const cache = await caches.open(API);
+  const fromCache = async () => {
+    const hit = await cache.match(request);
+    if (!hit) return null;
+    const headers = new Headers(hit.headers);
+    headers.set('x-offline-copy', '1');
+    return new Response(hit.body, { status: 200, headers });
+  };
+  try {
+    const res = await Promise.race([fetch(request), new Promise((_, rej) => setTimeout(() => rej(new Error('slow')), 8000))]);
+    if (res.ok) {
+      cache.put(request, res.clone());
+      return res;
+    }
+    return (await fromCache()) || res;
+  } catch (err) {
+    const copy = await fromCache();
+    if (copy) return copy;
+    throw err;
+  }
+}
+
+const shared = url => (url.pathname === '/api/scores' && !url.searchParams.has('me')) || url.pathname === '/api/community';
+
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
 
   if (url.origin === self.location.origin) {
-    if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_vercel/')) return;
+    if (url.pathname.startsWith('/api/')) {
+      if (shared(url)) event.respondWith(networkFirst(request));
+      return;
+    }
+    if (url.pathname.startsWith('/_vercel/')) return;
     if (request.mode === 'navigate') {
       if (url.pathname !== '/' && url.pathname !== '/index.html') return;
       event.respondWith(caches.open(CACHE).then(c => c.match('./')).then(hit => hit || fetch(request)));
+      return;
+    }
+    // Other images (photos further down the pages) are kept after the first view.
+    if (url.pathname.startsWith('/assets/img/')) {
+      event.respondWith(caches.open(CACHE).then(c => c.match(request)).then(hit => hit || staleWhileRevalidate(request)));
       return;
     }
     event.respondWith(caches.open(CACHE).then(c => c.match(request)).then(hit => hit || fetch(request)));
