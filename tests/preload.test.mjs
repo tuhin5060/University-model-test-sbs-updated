@@ -15,6 +15,7 @@ test('sw.js lists the current files and a version matching their contents', () =
 
 test('the Content-Security-Policy lists the current inline scripts (vercel.json and _headers)', () => {
   const want = withCsp(read('vercel.json'), read('_headers'), read('index.html'));
-  assert.equal(read('vercel.json'), want.vercel, 'out of date — run: npm run sync');
+  // Compared as data: Vercel rewrites vercel.json (compact) before the build runs the tests.
+  assert.deepEqual(JSON.parse(read('vercel.json')), JSON.parse(want.vercel), 'out of date — run: npm run sync');
   assert.equal(read('_headers'), want.headers, 'out of date — run: npm run sync');
 });

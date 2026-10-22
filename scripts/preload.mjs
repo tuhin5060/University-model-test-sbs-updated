@@ -128,7 +128,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const vercelNow = fs.readFileSync(vercelFile, 'utf8');
   const headersNow = fs.readFileSync(headersFile, 'utf8');
   const want2 = withCsp(vercelNow, headersNow, html);
-  if (check && (want2.vercel !== vercelNow || want2.headers !== headersNow)) { console.error('Content-Security-Policy is out of date — run: npm run sync'); process.exit(1); }
+  const vercelSame = JSON.stringify(JSON.parse(want2.vercel)) === JSON.stringify(JSON.parse(vercelNow));
+  if (check && (!vercelSame || want2.headers !== headersNow)) { console.error('Content-Security-Policy is out of date — run: npm run sync'); process.exit(1); }
   if (!check) {
     fs.writeFileSync(vercelFile, want2.vercel);
     fs.writeFileSync(headersFile, want2.headers);
