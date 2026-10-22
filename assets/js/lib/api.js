@@ -4,18 +4,26 @@
 
 async function call(url, options = {}) {
   let res;
-  try {
-    res = await fetch(url, {
-      cache: 'no-store',
-      credentials: 'same-origin',
-      ...options,
-      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    });
-  } catch {
-    throw new Error('Network unavailable');
-  }
+  // A stalled request (weak signal) gives up after 20 s, so the page and the outbox move on.
+  const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctrl && setTimeout(() => ctrl.abort(), 20000);
   let body = null;
-  try { body = await res.json(); } catch { /* not JSON: API not deployed here */ }
+  try {
+    try {
+      res = await fetch(url, {
+        cache: 'no-store',
+        credentials: 'same-origin',
+        signal: ctrl?.signal,
+        ...options,
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      });
+    } catch {
+      throw new Error('Network unavailable');
+    }
+    try { body = await res.json(); } catch { /* not JSON: API not deployed here */ }
+  } finally {
+    clearTimeout(timer);
+  }
   // sw.js answered from its saved copy (offline or server trouble).
   if (body && res.headers.get('x-offline-copy')) body.offline = true;
   if (!res.ok || !body?.ok) {
@@ -104,7 +112,7 @@ export function queueProgressSync(state) {
 // Community: threads by topic with tags, replies, "resolved", admin delete.
 export async function fetchThreads({ topic = '', tag = '', status = '', q = '', page = 0 } = {}) {
   const qs = new URLSearchParams(Object.entries({ topic, tag, status, q, page }).filter(([, v]) => v !== '' && v !== 0));
-  return call(`/api/community${qs.size ? `?${qs}` : ''}`);
+  return call(`/api/community${qs.toString() ? `?${qs}` : ''}`); // (not qs.size: missing on older iPhones)
 }
 export async function fetchThread(id) {
   return (await call(`/api/community?id=${encodeURIComponent(id)}`)).thread;

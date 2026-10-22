@@ -129,8 +129,17 @@ export function recordAttempt(entry, answers) {
     state.daily.done = { ...Object.fromEntries(Object.entries(state.daily.done || {}).slice(-30)), [d]: entry.correct };
   }
   state.history.unshift({ ...entry, answers });
-  state.history = state.history.slice(0, MAX_HISTORY).map((h, i) => (i < KEEP_ANSWERS ? h : { ...h, answers: undefined }));
+  state.history = trimHistory(state.history);
   save();
+}
+
+// A result not yet on the server keeps its answer sheet (needed to send it) and is never dropped.
+const unsent = h => h.saved === 'local' || h.saved === 'saving';
+/** Newest first: keep MAX_HISTORY results, full answer sheets only for the latest KEEP_ANSWERS. */
+export function trimHistory(list) {
+  return list
+    .filter((h, i) => i < MAX_HISTORY || unsent(h))
+    .map((h, i) => (i < KEEP_ANSWERS || unsent(h) ? h : { ...h, answers: undefined }));
 }
 
 export function updateHistory(id, patch) {

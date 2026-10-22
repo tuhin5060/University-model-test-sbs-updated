@@ -9,7 +9,7 @@ import { syncCloud } from './lib/cloud.js';
 import { startLive, paintLive } from './lib/live.js';
 import { onPushAction, refreshPush } from './lib/push.js';
 import { handleInApp } from './lib/inapp.js';
-import { startOutbox } from './lib/outbox.js';
+import { startOutbox, flush } from './lib/outbox.js';
 import * as home from './pages/home.js';
 import * as start from './pages/start.js';
 import * as play from './pages/play.js';
@@ -184,9 +184,10 @@ $('#search-results')?.addEventListener('click', e => { if (e.target.closest('a')
 
 // ---- Cloud sync: profile (name + roll) and progress backup -----------------
 render(false);
+startOutbox(); // results and a sign-up made offline go out now / when back online
 syncCloud().then(() => {
   if (['progress', 'result', 'leaderboard', 'score'].includes(parse().name)) render(false);
-  startOutbox(); // results and a sign-up made offline go out now / when back online
+  flush();
 });
 startLive();
 window.__booted = true;

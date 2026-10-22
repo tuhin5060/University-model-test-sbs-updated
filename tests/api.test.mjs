@@ -294,3 +294,15 @@ test('visitors: why saving failed on a phone goes to the server log (short, at m
   assert.match(logged[0], /client save problem \(other\) profile: network timeout/);
   assert.ok(logged[0].length < 800);
 });
+
+test('a shared phone: another student\'s cookie does not turn a repeated sign-up into two students', async () => {
+  const first = await join({ name: 'Phone Owner', college: 'Chittagong College' });
+  const newId = '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f';
+  const body = { name: 'Second Student', newId, college: 'Chittagong College' };
+  const a = await call(profile, { method: 'POST', body, cookie: first.player.playerId });
+  const b = await call(profile, { method: 'POST', body, cookie: first.player.playerId });
+  assert.equal(a.statusCode, 201);
+  assert.equal(a.body.player.playerId, newId);
+  assert.equal(b.body.player.playerId, newId);
+  assert.equal(b.body.player.roll, a.body.player.roll);
+});

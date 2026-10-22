@@ -7,6 +7,7 @@ import { TOPICS, GROUPS, QUESTION_MAP } from '../../../data/questions/index.js';
 import { esc, bn, bnDate, $, toast } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { fetchThreads, fetchThread, communityAction } from '../lib/api.js';
+import { flush } from '../lib/outbox.js';
 import { pageHead, topicById, empty } from '../components.js';
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { explainBlock } from './play.js';
@@ -63,6 +64,11 @@ const profileFields = () => (state.player?.playerId ? '' : `<fieldset class="cm-
 
 /** Signs the student in from the identity block if needed. → true when posting can go ahead. */
 async function readyToPost(form) {
+  if (state.player?.pending) await flush(); // a name saved offline goes to the server first
+  if (state.player?.pending) {
+    toast('📴 তোমার নাম এখনো server-এ যায়নি (নেট নেই)—নেট এলে আবার পোস্ট করো।');
+    return false;
+  }
   if (state.player?.playerId) return true;
   const player = await signIn(form);
   if (player === null) {

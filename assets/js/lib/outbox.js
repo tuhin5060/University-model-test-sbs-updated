@@ -15,6 +15,9 @@ const RANKED = h => h.kind === 'topic' && ['fun', 'exam'].includes(h.mode) && h.
 const waiting = h => RANKED(h) && (h.saved === 'local' || (h.saved === 'saving' && Date.now() - (h.sentAt || 0) > 60_000));
 
 export const pendingScores = () => state.history.filter(waiting).length;
+/** This student's sign-up or scores are still only on this phone. */
+export const hasUnsent = playerId =>
+  (state.player?.pending && state.player.playerId === playerId) || state.history.some(h => waiting(h) && h.player.playerId === playerId);
 const pending = () => pendingScores() + (state.player?.pending ? 1 : 0);
 
 const tell = id => window.dispatchEvent(new CustomEvent('score-status', { detail: { id } }));
@@ -44,7 +47,9 @@ export async function sendScore(id) {
     clearBoardCache();
   } catch (err) {
     // The server answered "no" for good (e.g. a different student on this browser): do not retry forever.
-    const final = err.status >= 400 && err.status < 500 && ![401, 408, 429].includes(err.status);
+    // (A 403 for a student who is not the one signed in now is tried again once they are.)
+    const otherStudent = err.status === 403 && h.player.playerId !== state.player?.playerId;
+    const final = err.status >= 400 && err.status < 500 && ![401, 408, 429].includes(err.status) && !otherStudent;
     updateHistory(id, { saved: final ? 'failed' : 'local', saveError: String(err.message || err).slice(0, 140) });
     noteProblem('score', err);
   }
@@ -56,7 +61,8 @@ let running = null;
 /** Send everything that is waiting (one run at a time). */
 export function flush() {
   running ||= (async () => {
-    if (navigator.onLine === false) return;
+    // Only the tab in front sends (a background tab could write an older copy of the progress).
+    if (navigator.onLine === false || document.visibilityState === 'hidden') return;
     if (state.player?.pending && !(await finishPendingSignUp())) return;
     for (const h of state.history.filter(waiting)) {
       if (h.player.pending) {

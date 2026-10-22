@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.9.3 — every name and score reaches the database (review fixes)
+* Merging the server’s progress copy sorted by a number read as a date (no effect), so a
+  result finished offline could land past the 15 kept answer sheets and lose its answers —
+  never sent. Fixed the sort; a result not yet sent always keeps its answers and is never
+  trimmed (`trimHistory`).
+* A test finished offline no longer comes back as “unfinished” from the older server copy.
+* Another name on a browser whose previous student still has a sign-up or scores waiting:
+  those go first; while that is impossible (offline) the switch is refused with the reason.
+  A failed sign-in with a roll never continues as the previous student.
+* Sign-up with `newId` is also idempotent when the browser holds another student’s cookie
+  (shared phones); a pending sign-up keeps a handed-out roll; a test running while it
+  completes is credited to the right id; a 403 for a student not signed in now is retried
+  later instead of given up.
+* Community posts wait for a pending sign-up. API calls give up after 20 s; the outbox
+  starts at once and sends only from the tab in front.
+* sw.js: only the leaderboard is kept for offline (community answers carry a per-viewer
+  flag); images are cache-first. Community filters work on older iPhones (no `qs.size`).
+
 ## 2.9.2 — updates reach desktop tabs too
 * A tab left open (typical on desktop) now looks for a new version when it is shown
   again and every 30 minutes, not only when the page is opened.

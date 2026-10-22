@@ -2,16 +2,16 @@
 // Every file of one version (index.html, styles, all modules) is stored together
 // and served from the phone; a new deploy changes VERSION, the new set is
 // downloaded in the background and the page offers a reload. Of /api only the
-// leaderboard and community lists are kept (last good answer, shown when offline
-// or when the server has trouble); nothing personal is cached.
+// leaderboard is kept (last good answer, shown when offline or when the server
+// has trouble); it is the same for everyone, so nothing personal is cached.
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = '581ff576a85a';
+const VERSION = 'af08ae82250f';
 const PRECACHE = [
   './',
-  'assets/css/styles.css?v=2.9.2',
-  'assets/js/main.js?v=2.9.2',
+  'assets/css/styles.css?v=2.9.3',
+  'assets/js/main.js?v=2.9.3',
   'assets/js/components.js',
   'assets/js/lib/api.js',
   'assets/js/lib/cloud.js',
@@ -102,7 +102,7 @@ async function staleWhileRevalidate(request) {
   return fresh;
 }
 
-/** Leaderboard / community lists: the server's answer when it comes in time, else the last good one. */
+/** Leaderboard: the server's answer when it comes in time, else the last good one. */
 async function networkFirst(request) {
   const cache = await caches.open(API);
   const fromCache = async () => {
@@ -126,7 +126,7 @@ async function networkFirst(request) {
   }
 }
 
-const shared = url => (url.pathname === '/api/scores' && !url.searchParams.has('me')) || url.pathname === '/api/community';
+const shared = url => url.pathname === '/api/scores' && !url.searchParams.has('me');
 
 self.addEventListener('fetch', event => {
   const request = event.request;
@@ -146,7 +146,10 @@ self.addEventListener('fetch', event => {
     }
     // Other images (photos further down the pages) are kept after the first view.
     if (url.pathname.startsWith('/assets/img/')) {
-      event.respondWith(caches.open(CACHE).then(c => c.match(request)).then(hit => hit || staleWhileRevalidate(request)));
+      event.respondWith(caches.match(request).then(hit => hit || fetch(request).then(res => {
+        if (res.ok) caches.open(RUNTIME).then(c => c.put(request, res.clone()));
+        return res;
+      })));
       return;
     }
     event.respondWith(caches.open(CACHE).then(c => c.match(request)).then(hit => hit || fetch(request)));

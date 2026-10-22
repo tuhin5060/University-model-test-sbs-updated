@@ -14,6 +14,7 @@ import { saveProfile, noteProblem } from './api.js';
 import { playerFrom, syncCloud } from './cloud.js';
 import { showIdCard } from '../components.js';
 import { collegeField, wireCollege, readCollege } from './college.js';
+import { flush, hasUnsent } from './outbox.js';
 
 export const rollText = n => String(n).padStart(3, '0');
 const cleanRoll = v => String(v || '').replace(/\D/g, '').slice(0, 5);
@@ -104,6 +105,14 @@ export async function signIn(root, { avatar } = {}) {
   }
   const name = cleanName(box.querySelector('input[name=name]').value);
   if (name.length < 2) return showError(box, 'তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।', 'name'), false;
+  // Another student on this browser: the previous one's name and scores must reach the server first.
+  const sameName = !!p?.name && cleanName(p.name).toLowerCase() === name.toLowerCase();
+  if (p?.playerId && !sameName && hasUnsent(p.playerId)) {
+    await flush();
+    if (hasUnsent(p.playerId)) {
+      return showError(box, `${p.tag || p.name}-এর নাম/score এখনো server-এ যায়নি (নেট বা server-এ সমস্যা)। নেট এলে সেগুলো নিজে থেকে যাবে—তারপর অন্য নামে খেলো।`, 'name'), false;
+    }
+  }
   const roll = cleanRoll(box.querySelector('input[name=roll]').value);
   const loginOnly = box.hasAttribute('data-login-only');
   if (roll) {
@@ -142,7 +151,8 @@ async function saveWithRetry(body) {
 async function send(body, box, { quietNotFound = false } = {}) {
   // A new student: the id is chosen here, so sending the sign-up again cannot create a second student.
   // Kept with the name until it reaches the server, so pressing Start again re-sends the same one.
-  if (!body.login && !body.playerId) body.newId = state.player?.newId && state.player.name === body.name ? state.player.newId : uuid();
+  const same = state.player?.newId && cleanName(state.player.name).toLowerCase() === cleanName(body.name).toLowerCase();
+  if (!body.login && !body.playerId) body.newId = same ? state.player.newId : uuid();
   try {
     const res = await saveWithRetry(body);
     state.player = playerFrom(res.player);
@@ -163,12 +173,14 @@ async function send(body, box, { quietNotFound = false } = {}) {
     if (body.newId) {
       // Server unreachable (no network, or the database having trouble): keep the sign-up on
       // this phone and play on; the outbox sends it, then the scores, once it can.
-      state.player = { playerId: body.newId, newId: body.newId, name: body.name, tag: body.name, avatar: body.avatar, college: body.college || null, pending: true };
+      state.player = { playerId: body.newId, newId: body.newId, name: body.name, tag: body.name, avatar: body.avatar, college: body.college || null, roll: undefined, wantedRoll: body.roll || undefined, pending: true };
       save();
       toast('📴 Server-এ এখন পৌঁছানো যাচ্ছে না—তোমার নাম আর score এই phone-এ জমা থাকছে, নেট এলে নিজে থেকেই পাঠানো হবে।');
       return state.player;
     }
-    return state.player?.playerId ? state.player : null;
+    // Only the same student carries on (e.g. a new avatar that could not be saved); a sign-in
+    // with a roll that did not get through never continues as whoever used this browser before.
+    return body.playerId && body.playerId === state.player?.playerId ? state.player : null;
   }
 }
 
@@ -180,10 +192,20 @@ export async function finishPendingSignUp() {
   const p = state.player;
   if (!p?.pending) return true;
   try {
-    const res = await saveWithRetry({ name: p.name, avatar: p.avatar, college: p.college || undefined, newId: p.newId });
+    const body = { name: p.name, avatar: p.avatar, college: p.college || undefined, newId: p.newId, roll: p.wantedRoll };
+    let res;
+    try {
+      res = await saveWithRetry(body);
+    } catch (err) {
+      if (err.body?.code !== 'roll_taken') throw err;
+      // The roll the student was given went to someone else meanwhile: take a free one.
+      res = await saveWithRetry({ ...body, roll: undefined });
+      toast(`Roll ${rollText(p.wantedRoll)} আগেই অন্য কেউ নিয়েছে—তোমাকে নতুন roll দেওয়া হলো।`);
+    }
     state.player = playerFrom(res.player);
-    // Results played meanwhile belong to this student (the server may have given another id).
+    // Results played meanwhile, and a test still running, belong to this student (the server may have given another id).
     for (const h of state.history) if (h.player?.playerId === p.playerId) h.player = state.player;
+    if (state.session?.player?.playerId === p.playerId) state.session.player = state.player;
     save();
     if (res.created && !location.hash.startsWith('#play')) showIdCard(res.player);
     else toast(`✅ তোমার নাম server-এ save হয়েছে: ${res.player.tag}`);

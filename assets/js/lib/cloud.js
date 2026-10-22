@@ -2,7 +2,7 @@
 // localStorage stays the offline source of truth; the server copy lets a student
 // who types the same name + roll on another phone get everything back.
 
-import { state, save, replaceState } from './store.js';
+import { state, save, replaceState, trimHistory } from './store.js';
 import { fetchProfile, restoreProgress, enableProgressSync, queueProgressSync } from './api.js';
 
 /** Keep only what the browser needs from a server profile. */
@@ -15,10 +15,9 @@ function mergeProgress(remote) {
   for (const item of [...(remote.history || []), ...(local.history || [])]) {
     if (item?.id) historyById.set(item.id, { ...historyById.get(item.id), ...item });
   }
-  const history = [...historyById.values()]
-    .sort((a, b) => Date.parse(b.finished || 0) - Date.parse(a.finished || 0))
-    .slice(0, 40)
-    .map((item, i) => (i < 15 ? item : { ...item, answers: undefined }));
+  // `finished` is a number (Date.now()); older copies may hold a date string.
+  const time = x => (typeof x.finished === 'number' ? x.finished : Date.parse(x.finished)) || 0;
+  const history = trimHistory([...historyById.values()].sort((a, b) => time(b) - time(a)));
   const mistakes = { ...(remote.mistakes || {}) };
   for (const [id, item] of Object.entries(local.mistakes || {})) {
     const old = mistakes[id];
@@ -40,7 +39,8 @@ function mergeProgress(remote) {
     checks: [...new Set([...(remote.checks || []), ...(local.checks || [])])],
     daily: { ...(remote.daily || {}), ...(daily || {}), best: Math.max(remote.daily?.best || 0, local.daily?.best || 0), done: { ...(remote.daily?.done || {}), ...(local.daily?.done || {}) } },
     prefs: { ...(remote.prefs || {}), ...(local.prefs || {}) },
-    session: local.session || remote.session || null,
+    // A test finished offline must not come back as unfinished from the older server copy.
+    session: local.session || (remote.session && !history.some(h => h.id === remote.session.id) ? remote.session : null),
   });
 }
 

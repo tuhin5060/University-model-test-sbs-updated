@@ -130,8 +130,9 @@ export default route('profile', {
 
     const me = myId ? await byId(db, myId) : null;
     // A new student's browser picks the id (newId), so a sign-up it sends again after a
-    // lost answer (slow network) finds the same student instead of making a second one.
-    let newId = !me && ID_RE.test(String(body.newId || '')) ? String(body.newId) : null;
+    // lost answer (slow network) finds the same student instead of making a second one —
+    // also on a shared phone whose cookie still belongs to an earlier student.
+    let newId = ID_RE.test(String(body.newId || '')) ? String(body.newId) : null;
     if (newId) {
       const again = await byId(db, newId);
       if (again?.name_key === key) return ok(again, 200, { created: true });
