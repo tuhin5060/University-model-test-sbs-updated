@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://sbs-university-admission-model-test.vercel.app/sitemap.xml

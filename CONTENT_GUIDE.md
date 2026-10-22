@@ -67,6 +67,8 @@ deleting or reordering questions never breaks students' saved progress.
    import preposition from './preposition.js';
    export const TOPICS_RAW = [ tense, …, preposition ];
    ```
+4. Run `node scripts/preload.mjs` so `index.html` preloads the new file
+   (`npm run check` reminds you if you forget).
 
 The new topic then appears automatically on the home page, the Fun Quiz /
 Model Test / Practice setup, search, progress bars and the leaderboard filter.

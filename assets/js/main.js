@@ -39,6 +39,9 @@ const LEGACY = { practice: 'start/exam', session: 'play', saved: 'progress', upd
 
 const NAV_GROUP = { start: 'start', play: 'start', result: 'start', university: 'universities', score: 'leaderboard', progress: 'leaderboard' };
 
+// The home page keeps the descriptive <title> from index.html (search results show it).
+const HOME_TITLE = document.title;
+
 let current = null;
 
 function parse() {
@@ -60,7 +63,7 @@ function render(scroll = true) {
   main.innerHTML = page.render(params);
   document.body.dataset.route = name;
   const h1 = main.querySelector('h1')?.textContent?.trim();
-  document.title = name === 'home' || !h1 ? `${SITE.name} · Admission Practice` : `${h1} · ${SITE.name}`;
+  document.title = name === 'home' || !h1 ? HOME_TITLE : `${h1} · ${SITE.name}`;
   const group = NAV_GROUP[name] || name;
   const mode = name === 'start' ? params[0] || 'fun' : null;
   $$('[data-nav]').forEach(a => {
