@@ -6,7 +6,7 @@ import { SITE, CU_PHOTOS } from '../../../data/site.js';
 import { esc, bn, bnDate, duration, ext, $ } from '../lib/dom.js';
 import { state, dailyStreak } from '../lib/store.js';
 import { fetchMyStats } from '../lib/api.js';
-import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO } from '../components.js';
+import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
 
 let lbMode = 'fun';
 let lbTopic = 'all';
@@ -43,7 +43,7 @@ function rankCard(mode, s) {
   if (!s) return `<div class="rank-card t-${m.color}"><span class="rank-mode">${m.icon} ${esc(m.label)}</span><b>—</b><small>এখনো দাওনি</small></div>`;
   return `<div class="rank-card t-${m.color}">
     <span class="rank-mode">${m.icon} ${esc(m.label)}</span>
-    <b>#${bn(s.rank)}</b><small>${bn(s.players)} জনের মধ্যে অবস্থান</small>
+    <b>#${bn(s.rank)}</b><small>সব topic মিলিয়ে · ${bn(s.players)} জনের মধ্যে</small>
     <dl>
       <div><dt>মোট test</dt><dd>${bn(s.tests)}</dd></div>
       <div><dt>সেরা</dt><dd>${unit(s.best)}</dd></div>
@@ -53,13 +53,35 @@ function rankCard(mode, s) {
   </div>`;
 }
 
+/** Bangla ordinal: ১ম, ২য়, ৩য়, ৪র্থ, ৬ষ্ঠ, ১১তম … */
+const ordinal = n => `${bn(n)}${{ 1: 'ম', 2: 'য়', 3: 'য়', 4: 'র্থ', 6: 'ষ্ঠ' }[n] || (n <= 10 ? 'ম' : 'তম')}`;
+
+// Position on each board (mode + topic) the student has played; a tap opens that leaderboard.
+function topicRanks(list) {
+  if (!list.length) return '';
+  const rows = list.map(t => {
+    const m = MODE_INFO[t.mode];
+    const unit = v => (t.mode === 'fun' ? `${bn(v)} pts` : `${bn(v)}%`);
+    return `<li><button class="tr-row" data-action="lb-board" data-mode="${esc(t.mode)}" data-topic="${esc(t.topic)}">
+      <span class="tr-rank">${['🥇', '🥈', '🥉'][t.rank - 1] || `#${bn(t.rank)}`}</span>
+      <span class="tr-text"><b lang="en">${esc(topicTitle(t.topic))}</b><small>${m.icon} ${esc(m.label)} · ${bn(t.players)} জনের মধ্যে ${ordinal(t.rank)} · ${bn(t.tests)} বার</small></span>
+      <span class="tr-score"><small>সেরা</small>${unit(t.best)}</span>
+    </button></li>`;
+  }).join('');
+  return `<div class="topic-ranks">
+    <h3 class="h3">📚 Topic অনুযায়ী অবস্থান</h3>
+    <p class="muted small">যে topic-এ test দিয়েছ, সেই topic-এর সবার মধ্যে তুমি কততম। চাপ দিলে ওই topic-এর leaderboard দেখাবে।</p>
+    <ul class="tr-list">${rows}</ul>
+  </div>`;
+}
+
 async function loadMyStats() {
   const box = $('#my-stats');
   if (!box || !state.player?.playerId) return;
   try {
-    const { stats } = await fetchMyStats();
+    const { stats, topics = [] } = await fetchMyStats();
     if (!stats) { box.innerHTML = ''; return; }
-    box.innerHTML = `<div class="rank-cards">${rankCard('fun', stats.fun)}${rankCard('exam', stats.exam)}</div>`;
+    box.innerHTML = `<div class="rank-cards">${rankCard('fun', stats.fun)}${rankCard('exam', stats.exam)}</div>${topicRanks(topics)}`;
     $('#local-stats')?.remove();
   } catch {
     box.innerHTML = '';
@@ -98,6 +120,20 @@ export const leaderboardPage = {
       loadLeaderboards();
     });
   },
+};
+
+leaderboardPage.onAction = (action, el) => {
+  if (action !== 'lb-board') return;
+  lbMode = el.dataset.mode;
+  lbTopic = el.dataset.topic;
+  const select = $('#lb-topic');
+  if (select) select.value = lbTopic;
+  const box = $('.lb');
+  box.dataset.mode = lbMode;
+  box.dataset.topic = lbTopic;
+  box.querySelectorAll('[data-lb-mode]').forEach(b => b.setAttribute('aria-selected', b.dataset.lbMode === lbMode));
+  loadLeaderboards(box.parentElement);
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 export function switchBoardMode(el) {

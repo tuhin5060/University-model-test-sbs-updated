@@ -148,6 +148,9 @@ test('scores: my stats show tests, marks and rank', async () => {
   assert.equal(r.body.stats.exam.rank, 1);
   assert.equal(r.body.stats.fun.tests, 2);
   assert.ok(r.body.recent.length >= 4);
+  const examTense = r.body.topics.find(t => t.mode === 'exam' && t.topic === 'tense');
+  assert.deepEqual([examTense.tests, examTense.best, examTense.rank], [2, 100, 1], 'rank on the exam/tense board');
+  assert.ok(r.body.topics.some(t => t.mode === 'fun' && t.topic === 'grammar'), 'group boards are listed too');
   const anon = await call(scores, { query: { me: '1' } });
   assert.equal(anon.body.stats, null);
 });

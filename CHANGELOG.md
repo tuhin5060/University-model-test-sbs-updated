@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.2 — rank per topic on the Score page
+* Score page: new **📚 Topic অনুযায়ী অবস্থান** list — for every topic (and
+  mode) the student has played: the topic name, position among everyone on
+  that topic (🥇 / 🥈 / 🥉 / #n, “৩ জনের মধ্যে ২য়”), best score and number of
+  tests. A tap opens that topic's leaderboard. The two big cards now say they
+  are the overall position (“সব topic মিলিয়ে”).
+* `/api/scores?me=1` returns `topics` (mode, topic, tests, best, avg, rank, players).
+
 ## 2.5.1 — fixes after 2.5.0
 * Code, styles and data are no longer served from a stale browser cache
   (only images are cached); `styles.css` / `main.js` carry `?v=` so a deploy

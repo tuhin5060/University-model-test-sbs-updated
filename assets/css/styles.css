@@ -824,3 +824,15 @@ button.cm-tag { cursor: pointer; }
 .id-card .id-emoji { font-size: 2.2rem; }
 .id-card .id-tag { font-family: var(--display); font-size: 1.35rem; font-weight: 800; color: var(--brand); background: var(--brand-soft); border: 2px dashed var(--brand); border-radius: 12px; padding: 10px; margin: 0 0 12px; overflow-wrap: anywhere; }
 .id-card .actions { justify-content: center; margin-top: 14px; }
+/* Score page: rank per topic */
+.topic-ranks { margin: 4px 0 16px; }
+.topic-ranks .h3 { margin: 8px 0 2px; }
+.tr-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.tr-row { width: 100%; display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; text-align: left; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: inherit; font: inherit; cursor: pointer; }
+.tr-row:hover { border-color: var(--brand); }
+.tr-rank { font-family: var(--display); font-weight: 800; font-size: 1.3rem; text-align: center; }
+.tr-text { display: grid; min-width: 0; }
+.tr-text b { overflow-wrap: anywhere; }
+.tr-text small { color: var(--muted); font-size: .82rem; }
+.tr-score { display: grid; text-align: right; font-weight: 800; color: var(--brand); }
+.tr-score small { color: var(--muted); font-weight: 600; font-size: .75rem; }

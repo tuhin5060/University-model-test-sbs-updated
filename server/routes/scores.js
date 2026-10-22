@@ -83,7 +83,7 @@ const row = (r, me) => ({
 });
 
 async function myStats(db, me) {
-  const [modes, ranks, recent] = await db.batch([
+  const [modes, ranks, recent, topics] = await db.batch([
     [`SELECT mode, count(*)::int AS tests, max(score)::float AS best, round(avg(score)::numeric, 1)::float AS avg,
         sum(correct)::int AS correct, sum(wrong)::int AS wrong, sum(total)::int AS answered
       FROM score_attempts WHERE player_id = $1 GROUP BY mode`, [me]],
@@ -91,6 +91,15 @@ async function myStats(db, me) {
       r AS (SELECT mode, player_id, row_number() OVER (PARTITION BY mode ORDER BY ${ORDER})::int AS rank, count(*) OVER (PARTITION BY mode)::int AS players FROM best)
       SELECT mode, rank, players FROM r WHERE player_id = $1`, [me]],
     [`SELECT attempt_id, topic, mode, score, correct, wrong, total, time_sec, at FROM score_attempts WHERE player_id = $1 ORDER BY at DESC LIMIT 20`, [me]],
+    // Per board (mode + topic) this student played: tests, best, average and position on that board.
+    [`WITH mine AS (SELECT mode, topic, count(*)::int AS tests, max(score)::float AS best, round(avg(score)::numeric, 1)::float AS avg, max(at) AS last
+        FROM score_attempts WHERE player_id = $1 GROUP BY mode, topic),
+      best AS (SELECT DISTINCT ON (a.mode, a.topic, a.player_id) a.mode, a.topic, a.player_id, a.score, a.correct, a.time_sec, a.at
+        FROM score_attempts a JOIN mine m ON m.mode = a.mode AND m.topic = a.topic ORDER BY a.mode, a.topic, a.player_id, ${ORDER}),
+      r AS (SELECT mode, topic, player_id, row_number() OVER (PARTITION BY mode, topic ORDER BY ${ORDER})::int AS rank,
+        count(*) OVER (PARTITION BY mode, topic)::int AS players FROM best)
+      SELECT m.mode, m.topic, m.tests, m.best, m.avg, r.rank, r.players FROM mine m
+      JOIN r ON r.mode = m.mode AND r.topic = m.topic AND r.player_id = $1 ORDER BY m.last DESC LIMIT 40`, [me]],
   ]);
   const stats = {};
   for (const m of ['fun', 'exam']) {
@@ -100,6 +109,7 @@ async function myStats(db, me) {
   }
   return {
     stats,
+    topics: topics.map(t => ({ mode: t.mode, topic: t.topic, tests: t.tests, best: t.best, avg: t.avg, rank: t.rank, players: t.players })),
     recent: recent.map(a => ({ id: a.attempt_id, topic: a.topic, mode: a.mode, score: Number(a.score), correct: a.correct, wrong: a.wrong, total: a.total, timeSec: a.time_sec, at: iso(a.at) })),
   };
 }
