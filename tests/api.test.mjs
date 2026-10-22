@@ -60,7 +60,7 @@ test('profile: rolls are unique; a taken roll gets a suggestion', async () => {
   const chosen = await join({ name: 'Rafi Hasan', roll: '050' });
   assert.equal(chosen.player.roll, 50, 'a free roll can be chosen');
   const next = await join({ name: 'Next Student' });
-  assert.equal(next.player.roll, 51, 'automatic rolls continue after the highest one');
+  assert.equal(next.player.roll, 3, 'automatic rolls take the lowest free number, so chosen rolls (050) stay apart');
   const rolls = (await db.query('SELECT roll FROM students')).map(r => r.roll);
   assert.equal(new Set(rolls).size, rolls.length);
 });

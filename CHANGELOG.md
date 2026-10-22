@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.8.1 — a roll you were given, or an automatic one
+* New students can type a roll the admin handed out (e.g. 2150): if nobody has it,
+  the form asks “এই roll দিয়ে নতুন ID খুলবে?” and registers with it. An empty roll
+  still gives one automatically; a roll that belongs to someone else is refused.
+* Automatic rolls are now the **lowest free number** (001, 004 …) instead of
+  “highest + 1”, so handed-out rolls in a higher range are never taken.
+
 ## 2.8.0 — security layers, Chattogram city colleges
 * Strict Content-Security-Policy on Vercel and Cloudflare (hashes of the inline
   scripts kept current by `npm run sync`, checked by the tests), no framing,

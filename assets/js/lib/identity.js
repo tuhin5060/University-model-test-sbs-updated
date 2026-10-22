@@ -2,10 +2,11 @@
 // forms and the Score page's sign-in. Once filled in, the ID is kept in this
 // browser, so the block then only shows "✅ তুমি: Rahim Uddin.007 · অন্য নাম/roll".
 //
-// Name + "আগের roll (থাকলে)":
-//   roll empty  → a new student; the server gives the next free roll and an ID card is shown.
-//   roll filled → sign in to that existing ID (pasting "Rahim Uddin.007" fills both);
-//                 never creates a new student, and says exactly what does not match.
+// Name + "Roll (থাকলে)":
+//   roll empty  → a new student; the server gives the lowest free roll and an ID card is shown.
+//   roll filled → sign in to that ID (pasting "Rahim Uddin.007" fills both). If nobody has
+//                 that roll yet (e.g. a roll the admin handed out), ask, then register with it.
+//                 A roll that belongs to someone else is never taken.
 
 import { esc, toast } from './dom.js';
 import { state, save } from './store.js';
@@ -33,11 +34,11 @@ export function identityFields({ mode = 'auto' } = {}) {
     <div class="id-choose">
       <label class="label">পুরো নাম</label>
       <input name="name" maxlength="60" autocomplete="name" placeholder="যেমন: Rahim Uddin" value="${esc(signedIn ? '' : p?.name || '')}" aria-label="পুরো নাম">
-      <label class="label">${loginOnly ? 'তোমার Roll' : 'আগের Roll <small class="muted">(থাকলে)</small>'}</label>
+      <label class="label">${loginOnly ? 'তোমার Roll' : 'Roll <small class="muted">(থাকলে)</small>'}</label>
       <input name="roll" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="যেমন: 007" aria-label="Roll">
       <p class="hint">${loginOnly
         ? 'ID <b>Rahim Uddin.007</b> হলে নাম “Rahim Uddin”, roll “007”। পুরো ID নামের ঘরে paste করলেও চলবে।'
-        : 'আগে খেলে থাকলে আগের roll দাও—সব score ফিরে আসবে। প্রথমবার হলে খালি রাখো, নতুন roll পাবে।'}</p>
+        : 'আগে খেলে থাকলে আগের roll দাও—সব score ফিরে আসবে। নতুন হলে: তোমাকে কোনো roll দেওয়া থাকলে সেটা লেখো, না থাকলে খালি রাখো—নিজে থেকে একটা পাবে।'}</p>
     </div>
     ${loginOnly ? '' : collegeField({ value: signedIn ? '' : p?.college || '', label: needsCollege ? 'তোমার কলেজ যোগ করো <small class="muted">(একবারই)</small>' : 'তোমার কলেজ' })}
     <p class="field-error" data-id-error hidden></p>
@@ -98,14 +99,24 @@ export async function signIn(root, { avatar } = {}) {
   const name = cleanName(box.querySelector('input[name=name]').value);
   if (name.length < 2) return showError(box, 'তোমার পুরো নাম লেখো (কমপক্ষে ২ অক্ষর)।', 'name'), false;
   const roll = cleanRoll(box.querySelector('input[name=roll]').value);
-  if (roll) return send({ name, roll, login: true, college: college || undefined }, box);
-  if (box.hasAttribute('data-login-only')) return showError(box, 'তোমার roll লেখো (যেমন 007)।', 'roll'), false;
+  const loginOnly = box.hasAttribute('data-login-only');
+  if (roll) {
+    const found = await send({ name, roll, login: true, college: college || undefined }, box, { quietNotFound: !loginOnly });
+    if (found !== NOT_FOUND) return found;
+    // Nobody has this roll yet: a roll the student was given. Register with it, after a check.
+    if (!college) return showError(box, `Roll ${rollText(roll)} এখনো কারও নেই। এই roll দিয়ে নতুন নাম খুলতে তোমার কলেজের নামও দাও।`, 'college'), false;
+    if (!confirm(`Roll ${rollText(roll)} এখনো কারও নেই।\n\n“${name}” নামে এই roll দিয়ে নতুন ID খুলবে?\n\n(আগে খেলে থাকলে Cancel চেপে নিজের আগের roll ঠিক করে লেখো।)`)) return false;
+    return send({ name, roll, avatar: avatar || '🚂', college }, box);
+  }
+  if (loginOnly) return showError(box, 'তোমার roll লেখো (যেমন 007)।', 'roll'), false;
   if (!college) return showError(box, 'তোমার কলেজের নাম দাও—নামের একটা শব্দ লিখলেই তালিকা আসবে।', 'college'), false;
   // A new student: never send this device's old id, so a different person gets their own roll.
   return send({ playerId: p?.name && cleanName(p.name).toLowerCase() === name.toLowerCase() ? p.playerId : undefined, name, avatar: avatar || '🚂', college }, box);
 }
 
-async function send(body, box) {
+const NOT_FOUND = Symbol('roll not found');
+
+async function send(body, box, { quietNotFound = false } = {}) {
   try {
     const res = await Promise.race([
       saveProfile(body),
@@ -120,6 +131,7 @@ async function send(body, box) {
     }
     return state.player;
   } catch (err) {
+    if (quietNotFound && err.body?.code === 'roll_not_found') return NOT_FOUND;
     if (err.status === 404 || err.status === 409 || err.status === 400) {
       showError(box, err.body?.error || err.message, err.body?.code === 'name_mismatch' ? 'name' : 'roll');
       return false;

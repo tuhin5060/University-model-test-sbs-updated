@@ -66,12 +66,13 @@ async function rollTaken(db, roll) {
 
 async function insertStudent(db, { name, key, avatar, roll, college }, request) {
   await limit(db, request, 'signup', 40, 3600, 'এই network থেকে অনেক নতুন নাম হয়েছে—এক ঘণ্টা পরে আবার চেষ্টা করো।');
-  // roll === null → next number after the highest one. A parallel sign-up can
-  // take the same number first; then try again with the new highest.
+  // roll === null → the lowest free number, so rolls the admin hands out (e.g. 2101…)
+  // are never taken automatically. A parallel sign-up can take the same number
+  // first; then try again with the next free one.
   for (let i = 0; i < 5; i++) {
     const rows = await db.query(
       `INSERT INTO students (id, name, name_key, roll, avatar, college)
-       SELECT $1, $2, $3, COALESCE($4::int, COALESCE(MAX(roll), 0) + 1), $5, $6 FROM students
+       SELECT $1, $2, $3, COALESCE($4::int, (SELECT s FROM generate_series(1, ${MAX_ROLL}) s WHERE NOT EXISTS (SELECT 1 FROM students WHERE roll = s) LIMIT 1)), $5, $6
        ON CONFLICT (roll) DO NOTHING RETURNING ${COLUMNS}`,
       [crypto.randomUUID(), name, key, roll, avatar, college],
     );

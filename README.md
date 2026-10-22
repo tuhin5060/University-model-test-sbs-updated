@@ -134,8 +134,10 @@ for tests.)
   HttpOnly cookie (`campus_player`); player ids are never shown to other users.
   Typing the same name + roll on a new device logs in as that student — there
   is no password, so a roll is like a simple PIN and should not be shared.
-* Rolls are unique (database `UNIQUE` constraint). New rolls continue after the
-  highest one; a request for a taken roll gets `409` and the nearest free roll.
+* Rolls are unique (database `UNIQUE` constraint). A new student may type a roll
+  they were given (e.g. 2111) or leave it empty: automatic rolls are the lowest
+  free number, so handed-out rolls are never taken. A request for a taken roll
+  gets `409` and the nearest free roll.
 * Scores: the browser sends the **answer sheet** (question id, choice, seconds).
   The server checks every question exists and belongs to the topic, then
   recomputes the score with the same `scoring.js` the browser uses. Client-sent
