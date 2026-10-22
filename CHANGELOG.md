@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.2 — updates reach desktop tabs too
+* A tab left open (typical on desktop) now looks for a new version when it is shown
+  again and every 30 minutes, not only when the page is opened.
+* When the new version has downloaded, the page switches to it by itself; only during
+  a test or while something is being typed does it show “রিফ্রেশ করো” instead.
+
 ## 2.9.1 — production checks, questions-only pushes
 * Phones: scrolling the college list with a finger no longer picks the college under
   the finger (touch chooses on a real tap; the mouse still on press).

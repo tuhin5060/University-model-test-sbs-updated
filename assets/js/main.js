@@ -198,10 +198,21 @@ handleInApp();
 const local = ['localhost', '127.0.0.1'].includes(location.hostname) && !location.search.includes('sw');
 if ('serviceWorker' in navigator && !local) {
   const hadWorker = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register('/sw.js').then(() => refreshPush()).catch(() => {});
-  // A new version finished downloading: offer a reload (never forced, a test may be running).
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    refreshPush();
+    // Desktop tabs stay open for days: look for a new version when the tab is shown
+    // again and every 30 minutes, not only when the page is opened.
+    const check = () => reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+    setInterval(check, 30 * 60 * 1000);
+  }).catch(() => {});
+  // A new version finished downloading: switch to it at once, unless a test is running
+  // (then offer a reload, never forced).
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hadWorker || $('.update-bar')) return;
+    // Busy: in a test, or typing (a community post, a name) — then only offer the reload.
+    const typing = $$('#main textarea, #main input[type=text], #main input:not([type])').some(el => el.value.trim()) || document.activeElement?.matches('input, textarea');
+    if (parse().name !== 'play' && !typing) return location.reload();
     document.body.insertAdjacentHTML('beforeend', '<div class="update-bar" role="status">✨ নতুন আপডেট এসেছে <button class="btn small" type="button">রিফ্রেশ করো</button></div>');
     $('.update-bar button').addEventListener('click', () => location.reload());
   });
