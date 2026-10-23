@@ -5,6 +5,8 @@ Chittagong: English MCQ practice (Grammar + Memorising: vocabulary, BCS
 synonym/antonym, prepositions, idioms) that feels like a game **and** like the
 real exam, a Tips & Tricks blog, and official links for 18 universities.
 
+> **Setting it up on Vercel (new account or project):** see [VERCEL_SETUP.md](VERCEL_SETUP.md) — database, the four environment variables, cron, domain and Google.
+
 Live: https://sbs-university-admission-model-test.vercel.app (Vercel) and the
 Cloudflare Pages copy — both deploy from `main` and share one Neon database.
 
