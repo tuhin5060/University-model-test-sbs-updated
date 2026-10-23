@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.11.0 — how many visited today
+* Under “N জন এখন অনলাইনে” (home page and footer) a small line now shows
+  “আজ ভিজিট করেছেন N জন”: the number of different browsers that opened the site
+  since midnight Bangladesh time. It is counted by the server from the same
+  once-a-minute heartbeat (new `daily_visits` table, one row per browser per day,
+  rows older than yesterday removed), not estimated; leaving the site does not lower
+  it. Like the online count it stays hidden when the server cannot be reached.
+
 ## 2.10.0 — points add up; Model Test skip and submit; tidier setup
 * Leaderboard: every test’s points are added to the student’s total (more tests, more
   points), one main board “🏅 সব test” with Fun / Model Test filters and the topic

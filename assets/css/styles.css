@@ -210,6 +210,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--brand); outline:
 .dev-name:hover { color: var(--brand); text-decoration: underline; }
 .footer-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
 .footer-actions .live-pill { margin: 0; }
+.footer-actions .today-visits { flex-basis: 100%; margin: -4px 0 0 4px; }
 .wa-btn { background: #1fa855; color: #fff; }
 .wa-btn:hover { background: #178a45; }
 .footer-note { grid-column: 1 / -1; margin: 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
@@ -217,6 +218,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--brand); outline:
 .live-pill[hidden], .pick[hidden], .picks[hidden], .pick-group[hidden] { display: none; }
 .live-pill i { width: 8px; height: 8px; border-radius: 50%; background: #22a55a; box-shadow: 0 0 0 0 rgba(34,165,90,.6); animation: live 2s infinite; }
 .hero .live-pill { background: rgba(0,0,0,.35); color: #fff; }
+.today-visits { margin: 6px 0 0 4px; font-size: .8rem; color: var(--muted); }
+.today-visits b { font-weight: 700; }
+.today-visits[hidden] { display: none; }
+.hero .today-visits { color: rgba(255, 255, 255, .85); }
 @keyframes live { 70% { box-shadow: 0 0 0 7px rgba(34,165,90,0); } 100% { box-shadow: 0 0 0 0 rgba(34,165,90,0); } }
 @media (prefers-reduced-motion: reduce) { .live-pill i { animation: none; } }
 .footer-links { display: flex; flex-wrap: wrap; gap: 10px 18px; align-content: start; }

@@ -237,6 +237,20 @@ test('visitors: counts distinct live browsers, leave removes, bad ids rejected',
   assert.equal((await call(visitors, { method: 'GET' })).statusCode, 405);
 });
 
+test('visitors: today counts distinct browsers since midnight Bangladesh time, kept after leaving', async () => {
+  await db.query('DELETE FROM presence');
+  await db.query('DELETE FROM daily_visits');
+  const a = 'e'.repeat(24), b = 'f'.repeat(24), old = 'g'.repeat(24);
+  await db.query("INSERT INTO daily_visits (day, sid) VALUES ((now() AT TIME ZONE 'Asia/Dhaka')::date - 1, $1)", [old]);
+  await db.query("INSERT INTO daily_visits (day, sid) VALUES ((now() AT TIME ZONE 'Asia/Dhaka')::date - 5, $1)", ['h'.repeat(24)]);
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.today, 1, 'yesterday not counted');
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: a } })).body.today, 1, 'same browser counted once');
+  await call(visitors, { method: 'POST', body: { sid: a, leave: true } });
+  assert.equal((await call(visitors, { method: 'POST', body: { sid: b } })).body.today, 2, 'a visitor who left still counts today');
+  const days = await db.query('SELECT sid FROM daily_visits ORDER BY sid');
+  assert.deepEqual(days.map(r => r.sid), [a, b, old], 'rows older than yesterday are removed');
+});
+
 test('progress: anonymous snapshot moves to the student and comes back on another device', async () => {
   const first = await call(progress, { method: 'POST', body: { progress: { v: 2, history: [{ id: 'h1' }] } } });
   assert.equal(first.statusCode, 200);

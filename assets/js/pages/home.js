@@ -143,6 +143,7 @@ export function render() {
         <li><b>${bn(UNIVERSITIES.length)}</b><span>বিশ্ববিদ্যালয়</span></li>
       </ul>
       <p class="live-pill" data-live hidden><i aria-hidden="true"></i><b></b> জন এখন অনলাইনে</p>
+      <p class="today-visits" data-today hidden>আজ ভিজিট করেছেন <b></b> জন</p>
     </div>
     ${heroMedia(hero)}
     </div>

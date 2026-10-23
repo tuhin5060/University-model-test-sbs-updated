@@ -9,6 +9,7 @@ import { peekProblems, clearProblems } from './api.js';
 const KEY = 'campus-pothe.visitor';
 const BEAT_MS = 60 * 1000;
 let online = null;
+let today = null; // distinct browsers seen today (Bangladesh time), as counted by the server
 let lastEvent = null; // newest event id seen; null until the first heartbeat
 let timer = null;
 
@@ -23,12 +24,17 @@ function visitorId() {
   }
 }
 
-/** Show the last known count in every [data-live] element (called after each page render). */
+/** Show the last known counts in every [data-live] / [data-today] element (called after each page render). */
 export function paintLive() {
   document.querySelectorAll('[data-live]').forEach(el => {
     el.hidden = online === null;
     const b = el.querySelector('b');
     if (b && online !== null) b.textContent = bn(online);
+  });
+  document.querySelectorAll('[data-today]').forEach(el => {
+    el.hidden = today === null;
+    const b = el.querySelector('b');
+    if (b && today !== null) b.textContent = bn(today);
   });
 }
 
@@ -67,6 +73,7 @@ async function beat() {
     });
     const body = await res.json();
     online = res.ok && body?.ok && Number.isInteger(body.online) ? Math.max(1, body.online) : null;
+    today = online !== null && Number.isInteger(body.today) ? Math.max(online, body.today) : null;
     if (res.ok && body?.ok) {
       if (problems.length) clearProblems();
       if (lastEvent !== null && body.events?.length) announce(body.events);
@@ -74,6 +81,7 @@ async function beat() {
     }
   } catch {
     online = null;
+    today = null;
   }
   paintLive();
 }

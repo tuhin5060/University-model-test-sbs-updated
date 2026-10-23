@@ -1,11 +1,14 @@
 // Live visitor count + "new highest score" popups.
 // Every open tab sends a heartbeat (POST { sid, since }) about once a minute
 // while visible. The answer is the number of distinct browsers seen in the last
-// ONLINE_SEC seconds (nothing is estimated) plus any score events after `since`.
+// ONLINE_SEC seconds (nothing is estimated), the number of distinct browsers seen
+// today (Bangladesh time) and any score events after `since`.
 import { route } from '../route.js';
 import { json, readJSON, readCookie, iso, BadRequest } from '../http.js';
 
 export const ONLINE_SEC = 150;
+// "Today" starts at midnight Bangladesh time.
+const TODAY = "(now() AT TIME ZONE 'Asia/Dhaka')::date";
 const SID_RE = /^[a-z0-9]{16,40}$/i;
 
 export default route('visitors', {
@@ -25,11 +28,15 @@ export default route('visitors', {
       console.error(`client save problem (${phone}${inApp})`, body.problems.slice(0, 5).map(p => String(p).slice(0, 120)).join(' | '));
     }
     const since = Number.isSafeInteger(body.since) && body.since >= 0 ? body.since : null;
-    const [, , , [count], events, [last]] = await db.batch([
+    const [, , , , , [count], [visits], events, [last]] = await db.batch([
       ['INSERT INTO presence (sid, at) VALUES ($1, now()) ON CONFLICT (sid) DO UPDATE SET at = now()', [sid]],
+      [`INSERT INTO daily_visits (day, sid) VALUES (${TODAY}, $1) ON CONFLICT DO NOTHING`, [sid]],
       ["DELETE FROM presence WHERE at < now() - interval '10 minutes'"],
+      [`DELETE FROM daily_visits WHERE day < ${TODAY} - 1`],
       ["DELETE FROM events WHERE at < now() - interval '1 day'"],
       [`SELECT count(*)::int AS online FROM presence WHERE at >= now() - interval '${ONLINE_SEC} seconds'`],
+      // Distinct browsers that opened the site since midnight Bangladesh time (counted, not estimated).
+      [`SELECT count(*)::int AS today FROM daily_visits WHERE day = ${TODAY}`],
       // Only events from the last 10 minutes, and none on the first heartbeat (since = null).
       ["SELECT id, kind, payload, at FROM events WHERE $1::bigint IS NOT NULL AND id > $1::bigint AND at > now() - interval '10 minutes' ORDER BY id LIMIT 5", [since]],
       ['SELECT COALESCE(max(id), 0)::int AS id FROM events'],
@@ -38,6 +45,7 @@ export default route('visitors', {
     return json({
       ok: true,
       online: count.online,
+      today: visits.today,
       lastEvent: last.id,
       events: events.map(e => {
         const { playerId, ...payload } = e.payload || {};

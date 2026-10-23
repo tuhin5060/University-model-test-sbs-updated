@@ -36,6 +36,8 @@ export const SCHEMA = [
   'CREATE INDEX IF NOT EXISTS score_attempts_board ON score_attempts (mode, topic, score DESC)',
   'CREATE INDEX IF NOT EXISTS score_attempts_player ON score_attempts (player_id, at DESC)',
   'CREATE TABLE IF NOT EXISTS presence (sid text PRIMARY KEY, at timestamptz NOT NULL)',
+  // Added in 2.11: one row per browser per Bangladesh day, for "আজ ভিজিট করেছেন". Kept for 2 days.
+  'CREATE TABLE IF NOT EXISTS daily_visits (day date NOT NULL, sid text NOT NULL, PRIMARY KEY (day, sid))',
   'CREATE TABLE IF NOT EXISTS progress (id uuid PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL)',
   // Community: question threads (by topic, with tags) and their replies.
   `CREATE TABLE IF NOT EXISTS threads (
