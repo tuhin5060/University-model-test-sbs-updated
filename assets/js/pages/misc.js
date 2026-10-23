@@ -9,7 +9,7 @@ import { state, dailyStreak } from '../lib/store.js';
 import { fetchMyStats, fetchTodayTop } from '../lib/api.js';
 import { attemptPoints } from '../shared/scoring.js';
 import { collegeShort } from '../../../data/colleges.js';
-import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
+import { isMe, pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
 
 let lbMode = 'all';
 let lbTopic = 'all';
@@ -97,7 +97,7 @@ async function loadTodayTop(fresh = false) {
   try {
     const top = await fetchTodayTop({ fresh });
     if (!$('#today-top')) return; // page changed meanwhile
-    const me = !!top && !!state.player?.tag && top.tag === state.player.tag;
+    const me = !!top && isMe(top.tag);
     box.innerHTML = top
       ? `<span class="tt-crown" aria-hidden="true">👑</span>
         <div class="tt-body"><small>আজকের Top Scorer</small>
@@ -139,7 +139,7 @@ export const leaderboardPage = {
         <div class="field"><label class="label" for="lb-topic">Topic</label>
           <select id="lb-topic"><option value="all">সব topic</option>${Object.values(GROUPS).map(g => `<optgroup label="${esc(g.short)}"><option value="${g.id}" ${lbTopic === g.id ? 'selected' : ''}>${esc(g.title)}</option>${TOPICS.filter(t => t.group === g.id).map(t => `<option value="${esc(t.id)}" ${lbTopic === t.id ? 'selected' : ''}>${esc(t.title)}</option>`).join('')}</optgroup>`).join('')}</select></div>
         ${leaderboard({ mode: lbMode, topic: lbTopic, limit: 50, tabs: true })}
-        <p class="muted small">প্রতিটা test-এর points যোগ হয়—যত test, তত points। Fun Quiz: দ্রুত সঠিক উত্তরে বেশি points। Model Test: প্রতি সঠিক +২০, প্রতি ভুল −৫ (ভর্তি পরীক্ষার −০.২৫ নিয়মে)। আগের সব test-ও একই নিয়মে গোনা হয়েছে। নাম দিয়ে শুরু করা Fun Quiz ও Model Test এখানে আসে।</p>
+        <p class="muted small">প্রতিটা test-এর points যোগ হয়—যত test, তত points। Fun Quiz: দ্রুত সঠিক উত্তরে বেশি points। Model Test: প্রতি সঠিক +২০, প্রতি ভুল −৫ (ভর্তি পরীক্ষার −০.২৫ নিয়মে)। আগের সব test-ও একই নিয়মে গোনা হয়েছে। নাম দিয়ে শুরু করা Fun Quiz ও Model Test এখানে আসে। 🔒 পুরো নাম গোপন থাকে: এখানে শুধু নামের শেষ অংশ, roll আর কলেজ দেখায়।</p>
       </section>
       <section class="section-tight card feedback-card">
         <h2 class="h3">মতামত দাও</h2>

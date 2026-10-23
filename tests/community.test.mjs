@@ -49,7 +49,7 @@ test('create a thread with tags; it shows in the list and by tag/topic/status/se
   threadId = r.body.thread.id;
   assert.deepEqual(r.body.thread.tags, ['since', 'for']);
   assert.equal(r.body.thread.body, 'Line one\n\nline btwo/b');
-  assert.equal(r.body.thread.author.tag, 'Nadia Islam.001');
+  assert.equal(r.body.thread.author.tag, 'Islam.001');
   assert.equal(r.body.thread.mine, true);
   assert.equal(r.body.thread.questionId, 'tense-1pb4od6');
 
@@ -71,7 +71,7 @@ test('reply, then only the author can mark a reply as the solution', async () =>
   assert.equal(r.status, 201);
   assert.equal(r.body.thread.replies, 1);
   replyId = r.body.thread.replyList[0].id;
-  assert.equal(r.body.thread.replyList[0].author.tag, 'Tanvir Ahmed.002');
+  assert.equal(r.body.thread.replyList[0].author.tag, 'Ahmed.002');
   assert.equal((await post({ action: 'reply', threadId: 999999, body: 'hello there' }, helper)).status, 404);
 
   assert.equal((await post({ action: 'resolve', threadId, resolved: true, replyId }, helper)).status, 403);

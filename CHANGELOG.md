@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.14.0 — full names stay private
+* Full name + roll is how a student signs in on another phone, and the leaderboard
+  showed exactly that (“Rahim Uddin.007”), so anyone could sign in as anyone. Now every
+  place other students see (leaderboard, today's top scorer, the 🏆 popup, community
+  posts) shows only the last word of the name with the roll and college: “Uddin.007”.
+  A one-word name would be the whole key, so only its first letter shows (“R•••.007”).
+  The full name is no longer in any public API answer (`assets/js/shared/names.js`,
+  used by the server and by the browser to mark your own row).
+* The ID card and the Score page say that the full name stays private.
+* Google Search Console verification: `google79aa884cbe996390.html` and the
+  `google-site-verification` meta tag in index.html (keep both).
+
 ## 2.13.0 — search engines can read the content
 * The app lives behind `#…` links, which Google treats as one page, so only the home
   page could be found. `scripts/seo.mjs` (part of `npm run sync`) now writes plain

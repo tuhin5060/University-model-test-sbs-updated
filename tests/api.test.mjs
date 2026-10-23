@@ -106,7 +106,7 @@ test('profile: college is saved on registration, added on sign-in when missing, 
   const qs = QUESTIONS.filter(q => q.topicId === 'article').slice(0, 3);
   await call(scores, { method: 'POST', cookie: id, body: { playerId: id, attemptId: 'col-1', mode: 'fun', topic: 'article', answers: qs.map(q => ({ id: q.id, choice: q.a, sec: 2 })) } });
   const board = await call(scores, { query: { mode: 'fun', topic: 'article' } });
-  assert.equal(board.body.rows.find(x => x.name === 'Mim Akter').college, 'Notre Dame College');
+  assert.equal(board.body.rows.find(x => x.tag.startsWith('Akter.')).college, 'Notre Dame College');
 });
 
 test('profile: cookie wins over a different id in the body; no roll + other name = new student', async () => {
@@ -164,12 +164,14 @@ test('leaderboard: points of every test added up, one row per student, no person
   await call(scores, { method: 'POST', cookie: alice, body: { playerId: alice, attemptId: 'e2', mode: 'exam', topic: 'tense', answers: sheet(q => (q.a + 1) % 4) } });
   const r = await call(scores, { query: { mode: 'exam', topic: 'all' }, cookie: alice });
   assert.equal(r.statusCode, 200);
-  const mine = r.body.rows.filter(x => x.name === 'Alice Rahman');
+  const mine = r.body.rows.filter(x => x.tag === 'Rahman.001');
   assert.equal(mine.length, 1, 'one row per student');
   assert.equal(mine[0].points, 100, '5 correct × 20 + a test with only wrong answers (never below 0)');
   assert.equal(mine[0].attempts, 2);
   assert.equal(mine[0].me, false, 'the board is the same for everyone (cacheable); the browser marks its own row by tag');
-  assert.equal(mine[0].tag, 'Alice Rahman.001');
+  assert.equal(mine[0].tag, 'Rahman.001', 'only the last name: full name + roll is the sign-in key');
+  assert.ok(!JSON.stringify(r.body).includes('Alice'), 'the full name is never in the public board');
+  assert.ok(r.body.rows.every(x => !('name' in x)));
   assert.ok(r.body.rows.every(x => !('playerId' in x) && !('player_id' in x)));
   const fun = await call(scores, { query: { mode: 'fun', topic: 'tense' } });
   assert.equal(fun.body.rows.length, 1);
@@ -204,7 +206,7 @@ test('new highest score creates one popup event for everyone', async () => {
   const beat = await call(visitors, { method: 'POST', body: { sid: 'c'.repeat(24), since: first.body.lastEvent }, cookie: alice });
   assert.equal(beat.body.events.length, 1);
   const e = beat.body.events[0];
-  assert.equal(e.tag, 'Rafi Hasan.050');
+  assert.equal(e.tag, 'Hasan.050');
   assert.equal(e.mode, 'fun');
   assert.equal(e.topic, 'tense');
   assert.equal(e.mine, false);
@@ -335,13 +337,13 @@ test('leaderboard: more tests, more points — Fun and Model Test on one board, 
     await call(scores, { method: 'POST', cookie: p1, body: { playerId: p1, attemptId: `st-${i}`, mode: 'exam', topic: 'article', answers: sheet } });
   }
   const board = (await call(scores, { query: { mode: 'exam', topic: 'article' } })).body.rows;
-  const names = board.map(r => r.name);
-  assert.ok(names.indexOf('Steady Student') < names.indexOf('One Shot'), 'three tests beat one better test');
-  assert.deepEqual(board.filter(r => r.name === 'Steady Student').map(r => [r.points, r.attempts, r.correct, r.total]), [[150, 3, 9, 15]]);
+  const names = board.map(r => r.tag.split('.')[0]);
+  assert.ok(names.indexOf('Student') < names.indexOf('Shot'), 'three tests beat one better test');
+  assert.deepEqual(board.filter(r => r.tag.startsWith('Student.')).map(r => [r.points, r.attempts, r.correct, r.total]), [[150, 3, 9, 15]]);
   const both = await call(scores, { method: 'POST', cookie: p2, body: { playerId: p2, attemptId: 'one-2', mode: 'fun', topic: 'article', answers: all.map(a => ({ ...a, sec: 1 })) } });
   const allBoard = (await call(scores, { query: { mode: 'all', topic: 'article' } })).body.rows;
-  assert.equal(allBoard.find(r => r.name === 'One Shot').points, 100 + both.body.entry.points, 'Fun points join the same total');
-  assert.equal((await call(scores, { query: { mode: 'fun', topic: 'article' } })).body.rows.some(r => r.name === 'Steady Student'), false);
+  assert.equal(allBoard.find(r => r.tag.startsWith('Shot.')).points, 100 + both.body.entry.points, 'Fun points join the same total');
+  assert.equal((await call(scores, { query: { mode: 'fun', topic: 'article' } })).body.rows.some(r => r.tag.startsWith('Student.')), false);
   assert.equal((await call(scores, { query: {} })).body.mode, 'all', 'the main board is both modes');
 });
 
@@ -358,7 +360,7 @@ test('scores: today top scorer counts only tests since midnight Bangladesh time'
   assert.equal(none.body.top, null, 'nobody scored today yet');
   await call(scores, { method: 'POST', cookie: topper, body: { playerId: topper, attemptId: 'today-1', mode: 'exam', topic: 'tense', answers: sheet() } });
   const r = await call(scores, { query: { today: '' } });
-  assert.equal(r.body.top.tag, 'Today Topper.' + String((await db.query('SELECT roll FROM students WHERE id = $1', [topper]))[0].roll).padStart(3, '0'));
+  assert.equal(r.body.top.tag, 'Topper.' + String((await db.query('SELECT roll FROM students WHERE id = $1', [topper]))[0].roll).padStart(3, '0'));
   assert.equal(r.body.top.points, 100);
   assert.equal(r.body.top.attempts, 1);
   assert.equal(r.body.top.avatar, '🦁');

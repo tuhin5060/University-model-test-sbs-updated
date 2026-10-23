@@ -11,7 +11,8 @@
 // the admin password, kept only in the host's environment (ADMIN_PASSWORD).
 import { route } from '../route.js';
 import { json, clean, readJSON, query, iso, BadRequest } from '../http.js';
-import { resolvePlayerId, rollText } from './profile.js';
+import { resolvePlayerId } from './profile.js';
+import { publicTag } from '../../assets/js/shared/names.js';
 import { requireAdmin } from '../admin.js';
 import { limit } from '../ratelimit.js';
 
@@ -44,7 +45,7 @@ export function cleanTags(value) {
   return out;
 }
 
-const author = r => ({ tag: `${r.author_name}.${rollText(r.author_roll)}`, avatar: r.author_avatar || '🚂' });
+const author = r => ({ tag: publicTag(r.author_name, r.author_roll), avatar: r.author_avatar || '🚂' });
 
 function threadView(r, me, full = false) {
   return {

@@ -5,8 +5,11 @@ import { TOPICS, GROUPS } from '../../data/questions/index.js';
 import { state } from './lib/store.js';
 import { fetchLeaderboard } from './lib/api.js';
 import { collegeShort } from '../../data/colleges.js';
+import { publicTag } from './shared/names.js';
 
 export const topicById = id => TOPICS.find(t => t.id === id);
+/** Is this public tag ("Uddin.007", see shared/names.js) the student using this browser? Rolls are unique. */
+export const isMe = tag => !!state.player?.roll && tag === publicTag(state.player.name, state.player.roll);
 export const topicTitle = id =>
   id === 'all' ? 'সব topic (মিশ্র)' : id === 'mistakes' ? 'আমার ভুলগুলো' : id === 'daily' ? 'আজকের চ্যালেঞ্জ' : GROUPS[id]?.title || topicById(id)?.title || id;
 
@@ -124,7 +127,7 @@ export async function loadLeaderboards(root = document, fresh = false) {
       if (box.dataset.mode !== mode) continue; // tab switched meanwhile
       rowsEl.innerHTML = rows.length
         ? `<ol class="lb-list">${rows
-            .map(r => ({ ...r, me: r.me || (!!state.player?.tag && r.tag === state.player.tag) }))
+            .map(r => ({ ...r, me: r.me || isMe(r.tag) }))
             .map((r, i) => `<li class="${r.me ? 'me' : ''}" tabindex="0" aria-expanded="false" title="বিস্তারিত দেখতে চাপো">
               <span class="lb-rank">${['🥇', '🥈', '🥉'][i] || bn(i + 1)}</span>
               <span class="lb-avatar" aria-hidden="true">${esc(r.avatar || '🚂')}</span>
@@ -158,6 +161,7 @@ export function showIdCard(player) {
     <p class="id-tag">${esc(player.tag)}</p>
     <p>এটাই তোমার ID। অন্য phone বা browser-এ <b>এই নাম আর roll</b> দিলেই সব score ও অগ্রগতি ফিরে পাবে।</p>
     <p class="muted">📸 Screenshot নিয়ে রাখো, বা কোথাও লিখে রাখো।</p>
+    <p class="muted">🔒 Leaderboard-এ অন্যরা দেখবে শুধু <b>${esc(publicTag(player.name, player.roll))}</b> আর তোমার কলেজ—পুরো নাম কেউ দেখবে না। পুরো ID কাউকে দিও না।</p>
     <div class="actions"><button type="button" class="btn ghost" data-copy>📋 ID কপি করো</button><button class="btn">ঠিক আছে</button></div>
   </form>`;
   if (typeof dlg.showModal !== 'function') { // older iPhones (before iOS 15.4)

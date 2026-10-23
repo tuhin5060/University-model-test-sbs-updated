@@ -5,7 +5,7 @@ import { QUESTION_MAP, TOPICS, GROUPS, inTopic } from '../../data/questions/inde
 import { scoreAttempt, attemptPoints, MAX_QUESTIONS, FUN_LIMIT, EXAM_NEGATIVE, EXAM_PACE, EXAM_POINTS } from '../../assets/js/shared/scoring.js';
 import { route } from '../route.js';
 import { json, clean, readCookie, readJSON, query, iso, ID_RE } from '../http.js';
-import { rollText } from './profile.js';
+import { publicTag } from '../../assets/js/shared/names.js';
 import { limit } from '../ratelimit.js';
 
 const RATE_WINDOW_MIN = 10;
@@ -79,9 +79,8 @@ const TODAY_TOP = `WITH t AS (SELECT player_id, sum(${POINTS()}) AS pts, count(*
   WHERE t.pts > 0 ORDER BY ${ORDER_TOTAL} LIMIT 1`;
 
 const row = r => ({
-  name: r.name,
   roll: r.roll,
-  tag: `${r.name}.${rollText(r.roll)}`,
+  tag: publicTag(r.name, r.roll), // never the full name: name + roll is the sign-in key
   avatar: r.avatar || '🚂',
   college: r.college || null,
   points: r.points,
@@ -182,7 +181,7 @@ export default route('scores', {
     // A new highest score on a board someone else has already played → show everyone a popup.
     const { top, players } = prev[0];
     const newTop = entry.score > 0 && players > 0 && top !== null && entry.score > top;
-    const tag = `${student.name}.${rollText(student.roll)}`;
+    const tag = publicTag(student.name, student.roll);
     const writes = [
       [`INSERT INTO score_attempts (attempt_id, player_id, topic, mode, score, correct, wrong, total, best_streak, time_sec)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (attempt_id) DO NOTHING`,
