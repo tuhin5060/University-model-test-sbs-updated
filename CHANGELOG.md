@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.14.1 — one-word names shown in full
+* A student who registered with a one-word name is now shown with that name
+  (“Arman.007”) instead of only its first letter. Names with more words still show
+  only the last word (“Uddin.007”).
+
 ## 2.14.0 — full names stay private
 * Full name + roll is how a student signs in on another phone, and the leaderboard
   showed exactly that (“Rahim Uddin.007”), so anyone could sign in as anyone. Now every
