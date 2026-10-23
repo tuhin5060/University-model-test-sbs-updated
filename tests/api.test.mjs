@@ -344,3 +344,24 @@ test('leaderboard: more tests, more points — Fun and Model Test on one board, 
   assert.equal((await call(scores, { query: { mode: 'fun', topic: 'article' } })).body.rows.some(r => r.name === 'Steady Student'), false);
   assert.equal((await call(scores, { query: {} })).body.mode, 'all', 'the main board is both modes');
 });
+
+test('scores: today top scorer counts only tests since midnight Bangladesh time', async () => {
+  const topper = (await join({ name: 'Today Topper', avatar: '🦁' })).player.playerId;
+  const old = (await join({ name: 'Old Champion' })).player.playerId;
+  for (const n of [1, 2]) {
+    await call(scores, { method: 'POST', cookie: old, body: { playerId: old, attemptId: `old-${n}`, mode: 'exam', topic: 'tense', answers: sheet() } });
+  }
+  await db.query("UPDATE score_attempts SET at = now() - interval '2 days' WHERE player_id = $1", [old]);
+  await db.query("UPDATE score_attempts SET at = now() - interval '2 days' WHERE player_id <> $1 AND player_id <> $2", [topper, old]);
+  const none = await call(scores, { query: { today: '' } });
+  assert.equal(none.statusCode, 200);
+  assert.equal(none.body.top, null, 'nobody scored today yet');
+  await call(scores, { method: 'POST', cookie: topper, body: { playerId: topper, attemptId: 'today-1', mode: 'exam', topic: 'tense', answers: sheet() } });
+  const r = await call(scores, { query: { today: '' } });
+  assert.equal(r.body.top.tag, 'Today Topper.' + String((await db.query('SELECT roll FROM students WHERE id = $1', [topper]))[0].roll).padStart(3, '0'));
+  assert.equal(r.body.top.points, 100);
+  assert.equal(r.body.top.attempts, 1);
+  assert.equal(r.body.top.avatar, '🦁');
+  assert.ok(!('playerId' in r.body.top) && !('player_id' in r.body.top));
+  await db.query('DELETE FROM students WHERE id = $1 OR id = $2', [topper, old]);
+});

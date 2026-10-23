@@ -70,6 +70,14 @@ const RANK = `WITH t AS (${TOTALS}),
   r AS (SELECT player_id, round(pts)::int AS points, row_number() OVER (ORDER BY ${ORDER_TOTAL})::int AS rank, count(*) OVER ()::int AS players FROM t)
   SELECT rank, players, points FROM r WHERE player_id = $3`;
 
+// Today's top scorer: the most points from tests taken since midnight Bangladesh time
+// (every mode and topic), same tie-break as the boards. Nobody with 0 points is crowned.
+const TODAY_TOP = `WITH t AS (SELECT player_id, sum(${POINTS()}) AS pts, count(*)::int AS attempts, sum(correct)::int AS correct, sum(total)::int AS total, max(at) AS at
+    FROM score_attempts WHERE at >= date_trunc('day', now() AT TIME ZONE 'Asia/Dhaka') AT TIME ZONE 'Asia/Dhaka' GROUP BY player_id)
+  SELECT t.*, round(t.pts)::int AS points, s.name, s.roll, s.avatar, s.college
+  FROM t JOIN students s ON s.id = t.player_id
+  WHERE t.pts > 0 ORDER BY ${ORDER_TOTAL} LIMIT 1`;
+
 const row = r => ({
   name: r.name,
   roll: r.roll,
@@ -131,6 +139,10 @@ export default route('scores', {
     if (q.me !== undefined) {
       if (!me) return json({ ok: true, stats: null, recent: [] });
       return json({ ok: true, ...(await myStats(db, me)) });
+    }
+    if (q.today !== undefined) {
+      const [top] = await db.query(TODAY_TOP);
+      return json({ ok: true, top: top ? row(top) : null }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
     }
     const mode = BOARD_MODES.has(q.mode) ? q.mode : 'all';
     const topic = TOPIC_IDS.has(q.topic) ? q.topic : 'all';

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.12.0 — today's top scorer
+* Score page: a “👑 আজকের Top Scorer” card at the top names the student with the most
+  points from tests taken since midnight Bangladesh time (Fun + Model Test, every topic;
+  same points and tie-break as the leaderboard), with avatar, college, today's tests and
+  accuracy. Before anyone scores it invites students to take the crown; if the server
+  cannot be reached it stays hidden. New `GET /api/scores?today` (edge-cached 20 s,
+  no personal ids in the answer).
+
 ## 2.11.0 — how many visited today
 * Under “N জন এখন অনলাইনে” (home page and footer) a small line now shows
   “আজ ভিজিট করেছেন N জন”: the number of different browsers that opened the site

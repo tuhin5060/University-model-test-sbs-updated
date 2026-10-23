@@ -6,8 +6,9 @@ import { SITE, SBS, CU_PHOTOS } from '../../../data/site.js';
 import { esc, bn, bnDate, duration, ext, $, navigate, toast } from '../lib/dom.js';
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { state, dailyStreak } from '../lib/store.js';
-import { fetchMyStats } from '../lib/api.js';
+import { fetchMyStats, fetchTodayTop } from '../lib/api.js';
 import { attemptPoints } from '../shared/scoring.js';
+import { collegeShort } from '../../../data/colleges.js';
 import { pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
 
 let lbMode = 'all';
@@ -89,6 +90,28 @@ function topicRanks(list) {
   </div>`;
 }
 
+// Today's top scorer (most points since midnight Bangladesh time), shown above everything for recognition.
+async function loadTodayTop(fresh = false) {
+  const box = $('#today-top');
+  if (!box) return;
+  try {
+    const top = await fetchTodayTop({ fresh });
+    if (!$('#today-top')) return; // page changed meanwhile
+    const me = !!top && !!state.player?.tag && top.tag === state.player.tag;
+    box.innerHTML = top
+      ? `<span class="tt-crown" aria-hidden="true">👑</span>
+        <div class="tt-body"><small>আজকের Top Scorer</small>
+          <b><span aria-hidden="true">${esc(top.avatar || '🚂')}</span> ${esc(top.tag)}${me ? ' <em>(তুমি!)</em>' : ''}</b>
+          <span>${top.college ? `🏫 ${esc(collegeShort(top.college))} · ` : ''}আজ ${bn(top.attempts)}টি test · ${bn(top.total ? Math.round((top.correct / top.total) * 100) : 0)}% সঠিক</span></div>
+        <span class="tt-pts">${bn(top.points)}<small>pts</small></span>`
+      : `<span class="tt-crown" aria-hidden="true">👑</span>
+        <div class="tt-body"><small>আজকের Top Scorer</small><b>আজ এখনো কেউ score করেনি</b><span>এখনই একটা test দাও—আজকের মুকুট তোমার হতে পারে!</span></div>`;
+    box.hidden = false;
+  } catch {
+    box.hidden = true; // server unreachable: show nothing rather than a guess
+  }
+}
+
 async function loadMyStats() {
   const box = $('#my-stats');
   if (!box || !state.player?.playerId) return;
@@ -106,6 +129,7 @@ export const leaderboardPage = {
   render() {
     return `<div class="container narrow">
       ${pageHead('🏆 Score', 'তোমার নিজের score আর সবার সেরা score—এক জায়গায়।')}
+      <section id="today-top" class="today-top" aria-live="polite" hidden></section>
       <section class="section-tight">
         <h2 class="h3">তোমার score</h2>
         ${myScores()}
@@ -138,6 +162,7 @@ export const leaderboardPage = {
         else if (player === null) toast('⚠️ Server-এ পৌঁছানো গেল না—নেট দেখে আবার চেষ্টা করো।');
       });
     }
+    loadTodayTop();
     loadMyStats();
     loadLeaderboards();
     $('#lb-topic')?.addEventListener('change', e => {

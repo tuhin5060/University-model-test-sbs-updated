@@ -89,6 +89,15 @@ export async function fetchLeaderboard(mode = 'all', topic = 'all', { fresh = fa
   return rows;
 }
 export const clearBoardCache = () => boardCache.clear();
+/** Today's top scorer (Bangladesh day) or null when nobody has scored yet today. */
+export async function fetchTodayTop({ fresh = false } = {}) {
+  const hit = boardCache.get('today');
+  if (!fresh && hit && Date.now() - hit.at < 30000) return hit.rows;
+  const body = await call('/api/scores?today');
+  const top = body.top || null;
+  if (!body.offline) boardCache.set('today', { at: Date.now(), rows: top });
+  return top;
+}
 
 // Progress backup: debounced upload of the local state after each change.
 let progressSyncEnabled = false;
