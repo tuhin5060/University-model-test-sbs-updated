@@ -11,6 +11,120 @@
 
 export const POSTS = [
   {
+    slug: 'online-admission-model-test',
+    title: 'অনলাইনে ফ্রি বিশ্ববিদ্যালয় ভর্তি Model Test: কোথায়, কীভাবে দেবে (২০২৬)',
+    category: 'শুরুর কথা',
+    emoji: '⏱️',
+    featured: false,
+    date: '2026-10-23',
+    minutes: 5,
+    summary: 'চবি, ঢাবি, জাবি, রাবি-সহ বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English অংশের অনলাইন Model Test বিনামূল্যে—আসল পরীক্ষার মতো সময় আর −০.২৫ negative marking-সহ। ধাপে ধাপে নিয়ম।',
+    body: `
+ভর্তি পরীক্ষার আগে সবচেয়ে বড় প্রশ্ন: **“অনলাইনে ফ্রি Model Test কোথায় দেবো?”** ক্যাম্পাসের পথে-তে কোনো টাকা, app বা login password ছাড়াই phone থেকে বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English Model Test দেওয়া যায়।
+
+## Model Test কেন আসল পরীক্ষার মতো?
+- প্রতি প্রশ্নে **৩৬ সেকেন্ড**—ভর্তি পরীক্ষার গড় সময়ের মতো।
+- প্রতি ভুলে **−০.২৫ নম্বর** (negative marking), উত্তর না দিলে কাটা যায় না।
+- শেষে প্রতিটি প্রশ্নের সঠিক উত্তর আর **বাংলা ব্যাখ্যা**।
+- চবি, ঢাবি, জাবি, রাবি, জবি, কুবিসহ বিভিন্ন বিশ্ববিদ্যালয়ের আগের প্রশ্ন থেকে বানানো ২০০০+ MCQ।
+
+## ধাপে ধাপে Model Test দেওয়ার নিয়ম
+1. Home page-এ **“⏱️ Model Test দাও”** চাপো।
+2. Topic বেছে নাও—একটা topic (যেমন Tense), পুরো Grammar, পুরো Memorising, অথবা সব topic মিলিয়ে।
+3. কয়টা প্রশ্ন দেবে বেছে নাও।
+4. প্রথমবার নাম (আর চাইলে কলেজ) লেখো—তুমি একটা **roll** পাবে। নাম + roll লিখে রাখো; অন্য phone-এ এই দুটো দিলেই সব score ফিরে আসে।
+5. Test শেষে score, ভুলগুলো আর ব্যাখ্যা দেখো। **Score tab**-এ দেখবে সবার মধ্যে তুমি কততম, আজকের Top Scorer কে।
+
+[[exam]]
+
+## Fun Quiz আর Model Test-এর পার্থক্য
+- **Fun Quiz:** প্রতি প্রশ্নে ৩০ সেকেন্ড, দ্রুত সঠিক উত্তরে বেশি points—খেলার মতো অনুশীলন।
+- **Model Test:** আসল পরীক্ষার নিয়ম—সময়, negative marking আর শতকরা নম্বর।
+
+প্রতিদিন একটা Fun Quiz দিয়ে শুরু করো, সপ্তাহে ২–৩টা পূর্ণ Model Test দাও।
+
+[[fun]]
+
+## কোন topic থেকে শুরু করবো?
+Topic অনুযায়ী সব প্রশ্ন, উত্তর আর ব্যাখ্যা একসাথে দেখতে চাইলে [সব MCQ topic](https://sbs-university-admission-model-test.vercel.app/mcq/) পাতা খোলো। নতুন হলে আগে [Tense MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/tense/) আর [Article MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/article/) দিয়ে শুরু করো।
+
+> টিপ: Model Test-এ নিশ্চিত না হলে আন্দাজে উত্তর দিও না—৪টা ভুলে ১টা সঠিক উত্তরের নম্বর চলে যায়।
+`,
+  },
+  {
+    slug: 'admission-english-topic-wise-preparation',
+    title: 'ভর্তি পরীক্ষার English প্রস্তুতি: Topic ধরে অনলাইনে MCQ practice (Grammar)',
+    category: 'English',
+    emoji: '📘',
+    featured: false,
+    date: '2026-10-23',
+    minutes: 6,
+    summary: 'Tense, Article, Noun, Conditional, Modal, Causative, Subjunctive, Adverb—বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English grammar কোন topic কীভাবে পড়বে আর কোথায় অনলাইনে test দেবে।',
+    body: `
+বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English অংশে নম্বর আসে কয়েকটা নির্দিষ্ট grammar topic থেকে। একসাথে সব না পড়ে **topic ধরে** পড়লে আর প্রতিটা topic-এর পর ছোট একটা test দিলে মনে থাকে অনেক বেশি।
+
+## প্রতিটা topic পড়ার ৩ ধাপ
+1. Rule পড়ো (৫–১০ মিনিট)।
+2. ওই topic-এর আগের ভর্তি পরীক্ষার প্রশ্ন উত্তর ও ব্যাখ্যাসহ দেখো।
+3. ১০–২০টি প্রশ্নের Fun Quiz বা Model Test দাও, ভুলগুলো আবার পড়ো।
+
+## Grammar topic অনুযায়ী অনলাইন test
+- **Tense ও Sequence of Tense:** সবচেয়ে বেশি আসে। [Tense MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/tense/) · [Sequence of Tense MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/sequence-of-tense/)
+- **Article:** a/an/the—sound দেখে, বানান নয়। [Article MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/article/)
+- **Noun, Number, Gender:** countable/uncountable, plural ও gender। [Noun](https://sbs-university-admission-model-test.vercel.app/mcq/noun/) · [Number](https://sbs-university-admission-model-test.vercel.app/mcq/number/) · [Gender](https://sbs-university-admission-model-test.vercel.app/mcq/gender/)
+- **Conditional Sentences ও Hope/Wish:** if-এর ৩ type আর wish-এর past form। [Conditional MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/conditional-sentences/) · [Hope & Wish MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/hope-wish/)
+- **Modal, Causative ও Subjunctive Verb:** had better, would rather, make/let/have/get, suggest that + base verb। [Modal](https://sbs-university-admission-model-test.vercel.app/mcq/modal-verb/) · [Causative](https://sbs-university-admission-model-test.vercel.app/mcq/causative-verb/) · [Subjunctive](https://sbs-university-admission-model-test.vercel.app/mcq/subjunctive-verb/)
+- **Adverb ও Inversion:** Only after, Never before, Little-এর পরে inversion। [Adverb MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/adverb/)
+- **Mixed English:** সব topic মিলিয়ে আগের প্রশ্ন। [Mixed English MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/mixed-english/)
+
+[[quiz:tense]]
+
+## কত দিনে শেষ করবো?
+প্রতিদিন ১–২টা topic ধরলে ২ সপ্তাহে পুরো grammar একবার শেষ হয়। তারপর “সব Grammar” বেছে Model Test দাও—কোন topic-এ দুর্বল, তা Score আর অগ্রগতি পাতায় দেখা যাবে।
+
+[[exam]]
+
+> টিপ: প্রতিটা প্রশ্নের নিচের বাংলা ব্যাখ্যা পড়ো—শুধু উত্তর মুখস্থ করলে প্রশ্ন একটু ঘুরিয়ে দিলেই ভুল হয়।
+`,
+  },
+  {
+    slug: 'vocabulary-synonym-antonym-preposition-preparation',
+    title: 'ভর্তি পরীক্ষার Vocabulary: Synonym, Antonym, Idioms ও Preposition MCQ প্রস্তুতি',
+    category: 'English',
+    emoji: '🧠',
+    featured: false,
+    date: '2026-10-23',
+    minutes: 5,
+    summary: 'ভর্তি পরীক্ষার English-এর মুখস্থ অংশ—Synonym, Antonym, Word Meaning, BCS Vocabulary, Phrase & Idioms ও Appropriate Preposition—সহজে মনে রাখার কৌশল আর অনলাইন MCQ test।',
+    body: `
+Grammar বুঝে পড়তে হয়, কিন্তু Vocabulary আর Preposition হলো **মুখস্থের অংশ**। এখানে নম্বর তোলার উপায় একটাই: অল্প অল্প করে, প্রতিদিন, বারবার।
+
+## প্রতিদিনের ২০ মিনিটের নিয়ম
+1. প্রতিদিন ২০–৩০টি নতুন শব্দ।
+2. প্রতিটি শব্দের সঙ্গে একটা বাংলা অর্থ আর একটা ছোট বাক্য।
+3. পরের দিন আগের শব্দ দিয়ে ১০ প্রশ্নের Fun Quiz—ভুলগুলো আবার লিখে রাখো।
+
+## Topic অনুযায়ী অনলাইন MCQ
+- **Synonym (সমার্থক শব্দ):** ৫০০+ প্রশ্ন। [Synonym MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/vocab-synonym/)
+- **Antonym (বিপরীত শব্দ):** [Antonym MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/vocab-antonym/)
+- **Word Meaning:** [Word Meaning MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/vocab-meaning/)
+- **BCS Synonym ও Antonym:** বারবার আসা কঠিন শব্দ। [BCS Vocabulary MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/vocab-bcs/)
+- **Phrase & Idioms:** [Phrase & Idioms MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/phrase-idioms/)
+- **Appropriate Preposition:** good at, afraid of, according to… [Preposition MCQ](https://sbs-university-admission-model-test.vercel.app/mcq/appropriate-preposition/)
+
+[[quiz:vocab-synonym]]
+
+## মনে রাখার ৩টি কৌশল
+- **জোড়ায় পড়ো:** একটা শব্দের synonym আর antonym একসাথে (abundant = plentiful ≠ scarce)।
+- **Preposition phrase হিসেবে:** শুধু “of” নয়, পুরো “afraid of” মুখস্থ করো।
+- **শব্দতালিকা ব্যবহার করো:** site-এর 📖 শব্দতালিকা থেকে topic ধরে শব্দ দেখে নাও।
+
+[[quiz:appropriate-preposition]]
+
+> টিপ: Model Test-এ “সব Memorising” বেছে নাও—Synonym, Antonym, Idioms আর Preposition মিলিয়ে আসল পরীক্ষার মতো প্রশ্ন আসবে।
+`,
+  },
+  {
     slug: 'cu-english-roadmap',
     title: 'চবি English প্রস্তুতি: টপিক ধরে পুরো roadmap',
     category: 'CU English',
