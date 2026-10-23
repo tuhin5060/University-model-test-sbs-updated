@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.13.0 — search engines can read the content
+* The app lives behind `#…` links, which Google treats as one page, so only the home
+  page could be found. `scripts/seo.mjs` (part of `npm run sync`) now writes plain
+  HTML pages from `data/` that need no JavaScript: `/mcq/` and `/mcq/<topic>/` (every
+  question with its answer and Bangla explanation under “উত্তর ও ব্যাখ্যা”),
+  `/tips/` and `/tips/<slug>/`, `/universities/` (official links). Each has its own
+  title, description, canonical URL, Open Graph tags and JSON-LD (breadcrumbs; Quiz /
+  Article), and buttons into the app (`/#start/exam/<topic>` …).
+* `sitemap.xml` lists all 36 URLs with dates; the footer links to every topic page;
+  the home page has WebSite + Organization JSON-LD.
+* `university-model-test-sbs-updated.vercel.app` redirects (301) to the main address
+  so Google sees one site (`/api/` is left alone).
+* `npm run check` fails if the pages are out of date; the GitHub Action also commits
+  new page files. The dev server serves folder `index.html` like Vercel.
+
 ## 2.12.0 — today's top scorer
 * Score page: a “👑 আজকের Top Scorer” card at the top names the student with the most
   points from tests taken since midnight Bangladesh time (Fun + Model Test, every topic;

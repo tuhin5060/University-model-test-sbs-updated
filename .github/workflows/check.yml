@@ -6,7 +6,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # On main, files that `npm run sync` generates (preload list, sw.js version, CSP)
+    # On main, files that `npm run sync` generates (search pages, sitemap, preload list, sw.js version, CSP)
     # are brought up to date and committed, so a push that only adds questions —
     # even from the GitHub website — still reaches every phone (Cloudflare Pages has
     # no build step; Vercel also runs sync in its build, see vercel.json).
@@ -25,10 +25,11 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           npm run sync
-          if ! git diff --quiet; then
+          if [ -n "$(git status --porcelain)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -am "Update generated files (npm run sync)"
+            git add -A
+            git commit -m "Update generated files (npm run sync)"
             git push
           fi
       - run: npm run check

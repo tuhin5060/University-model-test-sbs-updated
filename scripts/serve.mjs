@@ -56,7 +56,8 @@ http.createServer(async (req, res) => {
       return await runRoute(handler, req, res, url);
     }
     const pathname = decodeURIComponent(url.pathname);
-    const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
+    // Folders serve their index.html, as on Vercel (search pages: /mcq/tense/).
+    const file = path.resolve(root, '.' + (pathname.endsWith('/') ? `${pathname}index.html` : pathname));
     if (!file.startsWith(root + path.sep)) { res.writeHead(403); return res.end('Forbidden'); }
     const bytes = await fs.readFile(file);
     res.writeHead(200, { ...securityHeaders(pathname), 'Content-Type': types[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });

@@ -919,3 +919,32 @@ button.cm-tag { cursor: pointer; }
 .sbs-item p { margin: 4px 0 0; color: var(--muted); }
 @media (min-width: 700px) { .sbs-work { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 420px) { .sbs-card { grid-template-columns: 1fr; } }
+
+/* Search pages (scripts/seo.mjs): mcq/, tips/, universities/ */
+.seo-page .header-inner { flex-wrap: wrap; row-gap: 0; }
+.seo-page .site-header .top-nav { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 2px; margin-left: auto; }
+.seo-page .top-nav a { white-space: nowrap; }
+@media (max-width: 899px) {
+  .seo-page .site-header .top-nav { order: 3; width: 100%; margin: 0 -6px 6px; }
+  .seo-page .top-nav a { padding: 6px 8px; font-size: .88rem; }
+}
+.seo-page main { padding-bottom: 40px; }
+.seo-page .crumbs { padding-top: 18px; margin: 0; }
+.seo-cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+.seo-qs { list-style: none; padding: 0; margin: 18px 0; display: grid; gap: 12px; }
+.seo-q { padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.seo-q-text { margin: 0 0 8px; font-weight: 600; }
+.seo-opts { margin: 0 0 8px; padding-left: 26px; }
+.seo-opts li { margin: 2px 0; }
+.seo-q details { color: var(--muted); }
+.seo-q summary { cursor: pointer; color: var(--brand); font-weight: 700; }
+.seo-q details[open] .seo-opts, .seo-q details p { color: var(--ink); }
+.seo-q details[open] { padding-top: 4px; }
+.seo-topics { list-style: none; padding: 0; display: grid; gap: 10px; }
+.seo-topics a { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+.seo-topics a:hover { border-color: var(--brand); }
+.seo-topics small { color: var(--muted); }
+.seo-links { display: flex; flex-wrap: wrap; gap: 8px 16px; padding-left: 18px; }
+.seo-uni { margin: 12px 0; padding: 16px; }
+.seo-uni h2 small { font-weight: 500; color: var(--muted); font-size: .85rem; }
+.seo-footer { grid-column: 1 / -1; padding-top: 12px; border-top: 1px solid var(--line); font-size: .9rem; }
