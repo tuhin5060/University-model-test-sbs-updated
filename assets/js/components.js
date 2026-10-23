@@ -10,6 +10,8 @@ import { publicTag } from './shared/names.js';
 export const topicById = id => TOPICS.find(t => t.id === id);
 /** Is this public tag ("Uddin.007", see shared/names.js) the student using this browser? Rolls are unique. */
 export const isMe = tag => !!state.player?.roll && tag === publicTag(state.player.name, state.player.roll);
+/** The name to show for a row: your own full name to you, the public tag to everyone else. */
+export const shownTag = r => (r.me || isMe(r.tag) ? state.player.tag || r.tag : r.tag || 'Student');
 export const topicTitle = id =>
   id === 'all' ? 'সব topic (মিশ্র)' : id === 'mistakes' ? 'আমার ভুলগুলো' : id === 'daily' ? 'আজকের চ্যালেঞ্জ' : GROUPS[id]?.title || topicById(id)?.title || id;
 
@@ -126,12 +128,12 @@ export async function loadLeaderboards(root = document, fresh = false) {
       const rows = all.slice(0, limit);
       if (box.dataset.mode !== mode) continue; // tab switched meanwhile
       rowsEl.innerHTML = rows.length
-        ? `<ol class="lb-list">${rows
+        ? `<p class="lb-count">👥 মোট <b>${bn(all.players || all.length)}</b> জন${all.length < (all.players || 0) ? ` · প্রথম ${bn(rows.length)} জন দেখানো হলো` : ''}</p><ol class="lb-list">${rows
             .map(r => ({ ...r, me: r.me || isMe(r.tag) }))
             .map((r, i) => `<li class="${r.me ? 'me' : ''}" tabindex="0" aria-expanded="false" title="বিস্তারিত দেখতে চাপো">
               <span class="lb-rank">${['🥇', '🥈', '🥉'][i] || bn(i + 1)}</span>
               <span class="lb-avatar" aria-hidden="true">${esc(r.avatar || '🚂')}</span>
-              <span class="lb-name"><b>${esc(r.tag || r.name || 'Student')}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${r.college ? `🏫 ${esc(collegeShort(r.college))} · ` : ''}${bn(r.attempts || 1)}টি test · ${bn(r.total ? Math.round((r.correct / r.total) * 100) : 0)}% সঠিক</small></span>
+              <span class="lb-name"><b>${esc(shownTag(r))}${r.me ? ' <em>(তুমি)</em>' : ''}</b><small>${r.college ? `🏫 ${esc(collegeShort(r.college))} · ` : ''}${bn(r.attempts || 1)}টি test · ${bn(r.total ? Math.round((r.correct / r.total) * 100) : 0)}% সঠিক</small></span>
               <span class="lb-score">${bn(r.points ?? r.score)}<small>pts</small></span>
               <span class="lb-detail">${r.college ? `🏫 <b>${esc(r.college)}</b><br>` : ''}${bn(r.attempts || 1)}টি test · ${bn(r.correct)}/${bn(r.total)} সঠিক · শেষ test ${bnDate(r.at)}</span></li>`)
             .join('')}</ol>`

@@ -62,7 +62,7 @@ const TOTALS = `SELECT player_id, sum(${POINTS()}) AS pts, count(*)::int AS atte
 const ORDER_TOTAL = 'pts DESC, correct DESC, at ASC';
 
 const BOARD = `WITH t AS (${TOTALS})
-  SELECT t.*, round(t.pts)::int AS points, s.name, s.roll, s.avatar, s.college
+  SELECT t.*, round(t.pts)::int AS points, s.name, s.roll, s.avatar, s.college, count(*) OVER ()::int AS players
   FROM t JOIN students s ON s.id = t.player_id
   ORDER BY ${ORDER_TOTAL} LIMIT 100`;
 
@@ -70,13 +70,16 @@ const RANK = `WITH t AS (${TOTALS}),
   r AS (SELECT player_id, round(pts)::int AS points, row_number() OVER (ORDER BY ${ORDER_TOTAL})::int AS rank, count(*) OVER ()::int AS players FROM t)
   SELECT rank, players, points FROM r WHERE player_id = $3`;
 
-// Today's top scorer: the most points from tests taken since midnight Bangladesh time
-// (every mode and topic), same tie-break as the boards. Nobody with 0 points is crowned.
-const TODAY_TOP = `WITH t AS (SELECT player_id, sum(${POINTS()}) AS pts, count(*)::int AS attempts, sum(correct)::int AS correct, sum(total)::int AS total, max(at) AS at
-    FROM score_attempts WHERE at >= date_trunc('day', now() AT TIME ZONE 'Asia/Dhaka') AT TIME ZONE 'Asia/Dhaka' GROUP BY player_id)
-  SELECT t.*, round(t.pts)::int AS points, s.name, s.roll, s.avatar, s.college
+// Today's board: points from tests taken since midnight Bangladesh time (every mode and
+// topic), same tie-break as the boards. The first row is today's top scorer; nobody with
+// 0 points is crowned, but everyone who tested today counts in `players`.
+const SINCE_MIDNIGHT = "at >= date_trunc('day', now() AT TIME ZONE 'Asia/Dhaka') AT TIME ZONE 'Asia/Dhaka'";
+const TODAY_TOTALS = `SELECT player_id, sum(${POINTS()}) AS pts, count(*)::int AS attempts, sum(correct)::int AS correct, sum(total)::int AS total, max(at) AS at
+    FROM score_attempts WHERE ${SINCE_MIDNIGHT} GROUP BY player_id`;
+const TODAY_BOARD = `WITH t AS (${TODAY_TOTALS})
+  SELECT t.*, round(t.pts)::int AS points, s.name, s.roll, s.avatar, s.college, count(*) OVER ()::int AS players
   FROM t JOIN students s ON s.id = t.player_id
-  WHERE t.pts > 0 ORDER BY ${ORDER_TOTAL} LIMIT 1`;
+  ORDER BY ${ORDER_TOTAL} LIMIT 10`;
 
 const row = r => ({
   roll: r.roll,
@@ -93,7 +96,7 @@ const row = r => ({
 });
 
 async function myStats(db, me) {
-  const [modes, boards, recent, topics] = await db.batch([
+  const [modes, boards, recent, topics, today] = await db.batch([
     [`SELECT mode, count(*)::int AS tests, max(score)::float AS best, round(avg(score)::numeric, 1)::float AS avg,
         sum(correct)::int AS correct, sum(wrong)::int AS wrong, sum(total)::int AS answered
       FROM score_attempts WHERE player_id = $1 GROUP BY mode`, [me]],
@@ -114,6 +117,10 @@ async function myStats(db, me) {
         count(*) OVER (PARTITION BY topic)::int AS players FROM b)
       SELECT m.topic, m.tests, r.points, r.rank, r.players FROM mine m
       JOIN r ON r.topic = m.topic AND r.player_id = $1 ORDER BY m.last DESC LIMIT 40`, [me]],
+    // Position on today's board (since midnight Bangladesh time), if this student tested today.
+    [`WITH t AS (${TODAY_TOTALS}),
+      r AS (SELECT player_id, round(pts)::int AS points, attempts, row_number() OVER (ORDER BY ${ORDER_TOTAL})::int AS rank, count(*) OVER ()::int AS players FROM t)
+      SELECT points, attempts, rank, players FROM r WHERE player_id = $1`, [me]],
   ]);
   const stats = {};
   for (const m of ['all', 'fun', 'exam']) {
@@ -126,6 +133,7 @@ async function myStats(db, me) {
   }
   return {
     stats,
+    today: today[0] || null,
     topics: topics.map(t => ({ topic: t.topic, tests: t.tests, points: t.points, rank: t.rank, players: t.players })),
     recent: recent.map(a => ({ id: a.attempt_id, topic: a.topic, mode: a.mode, score: Number(a.score), points: attemptPoints({ ...a, score: Number(a.score) }), correct: a.correct, wrong: a.wrong, total: a.total, timeSec: a.time_sec, at: iso(a.at) })),
   };
@@ -140,15 +148,16 @@ export default route('scores', {
       return json({ ok: true, ...(await myStats(db, me)) });
     }
     if (q.today !== undefined) {
-      const [top] = await db.query(TODAY_TOP);
-      return json({ ok: true, top: top ? row(top) : null }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
+      const rows = await db.query(TODAY_BOARD);
+      const top = rows[0]?.pts > 0 ? row(rows[0]) : null;
+      return json({ ok: true, top, rows: rows.map(row), players: rows[0]?.players || 0 }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
     }
     const mode = BOARD_MODES.has(q.mode) ? q.mode : 'all';
     const topic = TOPIC_IDS.has(q.topic) ? q.topic : 'all';
     // The same for everyone (the browser marks its own row), so Vercel's edge can keep it
     // for 20 s: a flood of leaderboard requests then barely reaches the database.
-    const rows = (await db.query(BOARD, [mode, topic])).map(row);
-    return json({ ok: true, mode, topic, rows }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
+    const found = await db.query(BOARD, [mode, topic]);
+    return json({ ok: true, mode, topic, players: found[0]?.players || 0, rows: found.map(row) }, 200, { 'Cache-Control': 'public, max-age=0, s-maxage=20, stale-while-revalidate=60' });
   },
 
   async POST(request, db) {

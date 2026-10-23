@@ -84,19 +84,20 @@ export async function fetchLeaderboard(mode = 'all', topic = 'all', { fresh = fa
   if (!fresh && hit && Date.now() - hit.at < 30000) return hit.rows;
   const body = await call(`/api/scores?mode=${encodeURIComponent(mode)}&topic=${encodeURIComponent(topic)}`);
   const rows = body.rows || [];
+  rows.players = body.players || rows.length; // everyone on this board (the list stops at 100)
   if (body.offline) rows.offline = true; // the saved copy (sw.js): shown with a note
   else boardCache.set(key, { at: Date.now(), rows });
   return rows;
 }
 export const clearBoardCache = () => boardCache.clear();
-/** Today's top scorer (Bangladesh day) or null when nobody has scored yet today. */
+/** Today's board (Bangladesh day): { top (null before anyone scores), rows (top 10), players }. */
 export async function fetchTodayTop({ fresh = false } = {}) {
   const hit = boardCache.get('today');
   if (!fresh && hit && Date.now() - hit.at < 30000) return hit.rows;
   const body = await call('/api/scores?today');
-  const top = body.top || null;
-  if (!body.offline) boardCache.set('today', { at: Date.now(), rows: top });
-  return top;
+  const today = { top: body.top || null, rows: body.rows || [], players: body.players || 0 };
+  if (!body.offline) boardCache.set('today', { at: Date.now(), rows: today });
+  return today;
 }
 
 // Progress backup: debounced upload of the local state after each change.

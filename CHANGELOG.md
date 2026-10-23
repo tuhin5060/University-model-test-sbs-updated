@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.15.0 — today's ranking, your own full name
+* Score page: under today's top scorer, places 2–5 of today (🥈 🥉 ৪র্থ ৫ম), how many
+  students tested today and your own place today (“আজ ১২ জন test দিয়েছে · তুমি আজ
+  ৩য়”). `GET /api/scores?today` returns the top 10 and `players`; `?me` adds `today`.
+* The leaderboard says how many students are on it (“👥 মোট ৩৭ জন”).
+* Your own row (leaderboard, today's list, top scorer) shows your full name — only on
+  your phone; everyone else still sees the public tag.
+
 ## 2.14.1 — one-word names shown in full
 * A student who registered with a one-word name is now shown with that name
   (“Arman.007”) instead of only its first letter. Names with more words still show

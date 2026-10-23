@@ -9,7 +9,7 @@ import { state, dailyStreak } from '../lib/store.js';
 import { fetchMyStats, fetchTodayTop } from '../lib/api.js';
 import { attemptPoints } from '../shared/scoring.js';
 import { collegeShort } from '../../../data/colleges.js';
-import { isMe, pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
+import { isMe, shownTag, pageHead, leaderboard, loadLeaderboards, empty, MODE_INFO, topicTitle } from '../components.js';
 
 let lbMode = 'all';
 let lbTopic = 'all';
@@ -95,28 +95,51 @@ async function loadTodayTop(fresh = false) {
   const box = $('#today-top');
   if (!box) return;
   try {
-    const top = await fetchTodayTop({ fresh });
+    const { top, rows, players } = await fetchTodayTop({ fresh });
     if (!$('#today-top')) return; // page changed meanwhile
     const me = !!top && isMe(top.tag);
     box.innerHTML = top
       ? `<span class="tt-crown" aria-hidden="true">👑</span>
         <div class="tt-body"><small>আজকের Top Scorer</small>
-          <b><span aria-hidden="true">${esc(top.avatar || '🚂')}</span> ${esc(top.tag)}${me ? ' <em>(তুমি!)</em>' : ''}</b>
+          <b><span aria-hidden="true">${esc(top.avatar || '🚂')}</span> ${esc(shownTag(top))}${me ? ' <em>(তুমি!)</em>' : ''}</b>
           <span>${top.college ? `🏫 ${esc(collegeShort(top.college))} · ` : ''}আজ ${bn(top.attempts)}টি test · ${bn(top.total ? Math.round((top.correct / top.total) * 100) : 0)}% সঠিক</span></div>
         <span class="tt-pts">${bn(top.points)}<small>pts</small></span>`
       : `<span class="tt-crown" aria-hidden="true">👑</span>
         <div class="tt-body"><small>আজকের Top Scorer</small><b>আজ এখনো কেউ score করেনি</b><span>এখনই একটা test দাও—আজকের মুকুট তোমার হতে পারে!</span></div>`;
     box.hidden = false;
+    // Today's places 2–5 and how many tested today; "you" is filled in by loadMyStats.
+    const more = $('#today-more');
+    const next = top ? rows.slice(1, 5).filter(r => r.points > 0) : [];
+    more.innerHTML = players ? `<p class="tt-count">👥 আজ <b>${bn(players)}</b> জন test দিয়েছে<span id="today-me"></span></p>
+      ${next.length ? `<ol class="tt-list">${next.map((r, i) => `<li${isMe(r.tag) ? ' class="me"' : ''}>
+        <span class="tt-rank">${['🥈', '🥉'][i] || ordinal(i + 2)}</span>
+        <span class="tt-who"><b><span aria-hidden="true">${esc(r.avatar || '🚂')}</span> ${esc(shownTag(r))}${isMe(r.tag) ? ' <em>(তুমি)</em>' : ''}</b>${r.college ? `<small>🏫 ${esc(collegeShort(r.college))}</small>` : ''}</span>
+        <span class="tt-p">${bn(r.points)}<small>pts</small></span></li>`).join('')}</ol>` : ''}` : '';
+    more.hidden = !players;
+    paintTodayMe();
   } catch {
     box.hidden = true; // server unreachable: show nothing rather than a guess
+    $('#today-more')?.setAttribute('hidden', '');
   }
+}
+
+// This student's place on today's board (from /api/scores?me), shown next to "আজ N জন".
+let todayMine; // undefined = not loaded yet, null = no test today
+function paintTodayMe() {
+  const el = $('#today-me');
+  if (!el || todayMine === undefined || !state.player?.playerId) return;
+  el.innerHTML = todayMine
+    ? ` · তুমি আজ <b>${ordinal(todayMine.rank)}</b> (${bn(todayMine.points)} pts)`
+    : ' · তুমি আজ এখনো test দাওনি';
 }
 
 async function loadMyStats() {
   const box = $('#my-stats');
   if (!box || !state.player?.playerId) return;
   try {
-    const { stats, topics = [] } = await fetchMyStats();
+    const { stats, topics = [], today = null } = await fetchMyStats();
+    todayMine = today;
+    paintTodayMe();
     if (!stats) { box.innerHTML = ''; return; }
     box.innerHTML = `${rankCard(stats.all)}<div class="rank-cards">${modeCard('fun', stats.fun)}${modeCard('exam', stats.exam)}</div>${topicRanks(topics)}`;
     $('#local-stats')?.remove();
@@ -130,6 +153,7 @@ export const leaderboardPage = {
     return `<div class="container narrow">
       ${pageHead('🏆 Score', 'তোমার নিজের score আর সবার সেরা score—এক জায়গায়।')}
       <section id="today-top" class="today-top" aria-live="polite" hidden></section>
+      <div id="today-more" class="today-more" hidden></div>
       <section class="section-tight">
         <h2 class="h3">তোমার score</h2>
         ${myScores()}
