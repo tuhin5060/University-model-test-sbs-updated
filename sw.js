@@ -7,7 +7,7 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = 'eebc52c63605';
+const VERSION = '31d42d702c1f';
 const PRECACHE = [
   './',
   'assets/css/styles.css?v=2.15.0',
@@ -39,15 +39,16 @@ const PRECACHE = [
   'assets/js/shared/scoring.js',
   'data/colleges.js',
   'data/posts.js',
+  'data/questions/adjective.js',
   'data/questions/adverb.js',
   'data/questions/appropriate-preposition.js',
   'data/questions/article.js',
   'data/questions/causative-verb.js',
+  'data/questions/comparison.js',
   'data/questions/conditional-sentences.js',
   'data/questions/gender.js',
   'data/questions/hope-wish.js',
   'data/questions/index.js',
-  'data/questions/lecture-4.js',
   'data/questions/mixed-english.js',
   'data/questions/modal-verb.js',
   'data/questions/noun.js',

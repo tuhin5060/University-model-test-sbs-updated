@@ -350,5 +350,26 @@ export default {
       explainBn: "একই subject-এ (I wish I) would বসে না; সঠিক রূপ: I wish I knew the answer।",
       source: "Practice (TOEFL-style)",
     },
+    {
+      q: "He talks as if he ____ everything, although he clearly does not.",
+      options: ["has known","will know","knows to","knew"],
+      answer: "D",
+      explainBn: "বর্তমানের অবাস্তব ধারণা বোঝাতে as if-এর পরে past simple knew ব্যবহার করা হয়।",
+      source: "CU-A 2018–19",
+    },
+    {
+      q: "I wish I ____ those words. But now it’s too late.",
+      options: ["not having said","never said","have never said","had never said"],
+      answer: "D",
+      explainBn: "অতীতের জন্য অনুশোচনা: wish + past perfect।",
+      source: "DU-D 2018–19",
+    },
+    {
+      q: "She talks as if she ____ the leader of the community, although she is not.",
+      options: ["are","be","were","have been"],
+      answer: "C",
+      explainBn: "অবাস্তব বর্তমান অবস্থায় as if-এর পরে irrealis were ব্যবহার করা যায়।",
+      source: "RU-A 2023–24",
+    },
   ],
 };
