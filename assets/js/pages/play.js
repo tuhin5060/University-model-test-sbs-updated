@@ -1,5 +1,6 @@
 // The play screen for Fun Quiz, Model Test and Practice.
 
+import { examRef } from '../shared/source.js';
 import { esc, bn, clock, $, $$, toast, ask } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { beep, celebrate, shake, soundOn, setSound } from '../lib/fx.js';
@@ -129,8 +130,9 @@ export function render() {
       <section class="play-main">
         ${hud}
         <article class="qcard" id="qcard">
-          <div class="q-meta"><span>প্রশ্ন ${bn(i + 1)}</span><span lang="en">${esc(q.topic)}</span><span class="src">${esc(q.source)}</span></div>
+          <div class="q-meta"><span>প্রশ্ন ${bn(i + 1)}</span><span lang="en">${esc(q.topic)}</span></div>
           <h2 class="q-text" lang="en">${esc(q.q)}</h2>
+          ${examRef(q.source) ? `<span class="src-tag" title="যে পরীক্ষায় এসেছিল">📌 ${esc(examRef(q.source))}</span>` : ''}
           <div class="opts" role="group" aria-label="উত্তর বাছাই করো">${optionButtons(s, q)}</div>
           ${feedback(s, q)}
           ${s.mode === 'exam' && quiz.isAnswered(s, q.id) ? '<button class="link-btn clear-btn" data-action="clear">উত্তর মুছে ফেলো</button>' : ''}

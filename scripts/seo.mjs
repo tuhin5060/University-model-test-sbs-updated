@@ -17,6 +17,7 @@ import { POSTS } from '../data/posts.js';
 import { UNIVERSITIES, CONTENT_UPDATED } from '../data/universities.js';
 import { SITE } from '../data/site.js';
 import { esc, bn, markdown } from '../assets/js/lib/dom.js';
+import { examRef } from '../assets/js/shared/source.js';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const BASE = SITE.url.replace(/\/$/, '');
@@ -105,10 +106,10 @@ function topicPage(t) {
   const title = `${t.title} MCQ — উত্তর ও বাংলা ব্যাখ্যাসহ ${bn(qs.length)}টি প্রশ্ন | ${SITE.name}`;
   const description = `বিশ্ববিদ্যালয় ভর্তি পরীক্ষার ${t.title} MCQ: ${bn(qs.length)}টি প্রশ্ন, সঠিক উত্তর ও সহজ বাংলা ব্যাখ্যা। ${t.bn ? `${t.bn}। ` : ''}বিনামূল্যে অনলাইনে Model Test দাও।`;
   const items = qs.map((q, i) => `      <li class="seo-q">
-        <p class="seo-q-text"><b>${bn(i + 1)}.</b> ${esc(q.q)}</p>
+        <p class="seo-q-text"><b>${bn(i + 1)}.</b> ${esc(q.q)}${examRef(q.source) ? ` <span class="src-tag">📌 ${esc(examRef(q.source))}</span>` : ''}</p>
         <ol class="seo-opts" type="A">${q.o.map((o, k) => `<li${k === q.a ? ' class="ok"' : ''}>${esc(o)}</li>`).join('')}</ol>
         <details><summary>উত্তর ও ব্যাখ্যা</summary>
-          <p><b>উত্তর: ${LETTERS[q.a]}. ${esc(q.o[q.a])}</b></p>${q.e ? `\n          <p>${esc(q.e)}</p>` : ''}${q.bn ? `\n          <p>${esc(q.bn)}</p>` : ''}${q.source && q.source !== 'Practice bank' ? `\n          <p class="muted small">উৎস: ${esc(q.source)}</p>` : ''}
+          <p><b>উত্তর: ${LETTERS[q.a]}. ${esc(q.o[q.a])}</b></p>${q.e ? `\n          <p>${esc(q.e)}</p>` : ''}${q.bn ? `\n          <p>${esc(q.bn)}</p>` : ''}
         </details>
       </li>`);
   const others = TOPICS.filter(x => x.id !== t.id && x.group === t.group);

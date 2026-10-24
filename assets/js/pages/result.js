@@ -1,5 +1,6 @@
 // Result + answer review for a finished attempt.
 
+import { examRef } from '../shared/source.js';
 import { QUESTION_MAP } from '../../../data/questions/index.js';
 import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
 import { state, updateHistory } from '../lib/store.js';
@@ -44,8 +45,9 @@ function reviewItem(a, i, h) {
   if (!q) return '';
   const status = a.choice < 0 ? 'skipped' : a.choice === q.a ? 'right' : 'wrong';
   return `<article class="review ${status}" data-status="${status}" ${a.flag ? 'data-flag="1"' : ''}>
-    <div class="q-meta"><span>${bn(i + 1)}. ${status === 'right' ? '✅ সঠিক' : status === 'wrong' ? '❌ ভুল' : '⏭️ উত্তর দাওনি'}${a.flag ? ' · 🚩' : ''}${h.points?.[a.id] ? ` · +${bn(h.points[a.id])}` : ''}</span><span class="src">${esc(q.source)}</span></div>
+    <div class="q-meta"><span>${bn(i + 1)}. ${status === 'right' ? '✅ সঠিক' : status === 'wrong' ? '❌ ভুল' : '⏭️ উত্তর দাওনি'}${a.flag ? ' · 🚩' : ''}${h.points?.[a.id] ? ` · +${bn(h.points[a.id])}` : ''}</span></div>
     <h3 lang="en">${esc(q.q)}</h3>
+    ${examRef(q.source) ? `<span class="src-tag" title="যে পরীক্ষায় এসেছিল">📌 ${esc(examRef(q.source))}</span>` : ''}
     <ul class="review-opts">${q.o
       .map((o, j) => `<li class="${j === q.a ? 'right' : ''} ${j === a.choice && j !== q.a ? 'wrong' : ''}"><span class="key">${L[j]}</span><span lang="en">${esc(o)}</span>${j === q.a ? ' ✓' : j === a.choice ? ' ✕' : ''}</li>`)
       .join('')}</ul>

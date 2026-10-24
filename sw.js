@@ -7,7 +7,7 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = '31d42d702c1f';
+const VERSION = '31201263ed23';
 const PRECACHE = [
   './',
   'assets/css/styles.css?v=2.15.0',
@@ -37,6 +37,7 @@ const PRECACHE = [
   'assets/js/quiz.js',
   'assets/js/shared/names.js',
   'assets/js/shared/scoring.js',
+  'assets/js/shared/source.js',
   'data/colleges.js',
   'data/posts.js',
   'data/questions/adjective.js',
