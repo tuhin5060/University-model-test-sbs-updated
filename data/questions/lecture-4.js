@@ -1,9 +1,9 @@
-// Lecture 4 (SBS Admission Coaching) — 200 MCQs: Adjective, Comparison, Adverb, Inversion,
+// Lecture 4 (SBS Admission Coaching) — 210 MCQs: Adjective, Comparison, Adverb, Inversion,
 // Modal, Causative, Subjunctive, Conditional & Wish. See CONTENT_GUIDE.md.
 export default {
   id: "lecture-4",
   title: "Lecture 4: Adjective to Conditional",
-  bn: "Adjective, Comparison, Adverb, Inversion, Modal, Causative, Subjunctive, Conditional ও Wish—২০০ MCQ",
+  bn: "Adjective, Comparison, Adverb, Inversion, Modal, Causative, Subjunctive, Conditional ও Wish—২১০ MCQ",
   icon: "🎓",
   color: "#7a4fb5",
   tipBn: "প্রতিটি অংশে আগে নতুন শিক্ষাবর্ষের প্রশ্ন—ব্যাখ্যা পড়ে rule-টা ধরো।",
@@ -2407,6 +2407,126 @@ export default {
       "answer": "B",
       "explainBn": "অতীতের অবাস্তব সম্ভাবনায় could have + past participle-ও ব্যবহার করা যায়।",
       "source": "DU-B 1997–98"
+    },
+    {
+      "q": "Choose the adjective derived from “confidence”.",
+      "options": [
+        "confidently",
+        "confidencial",
+        "confident",
+        "confidant"
+      ],
+      "answer": "C",
+      "explainBn": "Confident = আত্মবিশ্বাসী; confidence = আত্মবিশ্বাস; confidently = adverb; confidant = বিশ্বস্ত ব্যক্তি।",
+      "source": "RU-A 2019–20"
+    },
+    {
+      "q": "Food supplies remain scarce. “Scarce” is a/an ____.",
+      "options": [
+        "adjective",
+        "adverb",
+        "noun",
+        "conjunction"
+      ],
+      "answer": "A",
+      "explainBn": "Remain linking verb; scarce subject food supplies-এর অবস্থা বোঝায়।",
+      "source": "CoU-C 2018–19"
+    },
+    {
+      "q": "He actually wanted to have motherly affection from her. “Motherly” is a/an ____.",
+      "options": [
+        "adjective",
+        "noun",
+        "adverb",
+        "conjunction"
+      ],
+      "answer": "A",
+      "explainBn": "Motherly noun affection-কে modify করে। Noun + -ly থেকে adjective-ও হতে পারে।",
+      "source": "JnU-A 2016–17"
+    },
+    {
+      "q": "If you were stopped by the police for speeding, what ____ you do?",
+      "options": [
+        "will",
+        "would",
+        "do",
+        "shall"
+      ],
+      "answer": "B",
+      "explainBn": "If + past simple দিয়ে hypothetical পরিস্থিতি; ফলাফলে would + base verb লাগে।",
+      "source": "CU-B 2018–19"
+    },
+    {
+      "q": "He talks as if he ____ everything, although he clearly does not.",
+      "options": [
+        "has known",
+        "will know",
+        "knows to",
+        "knew"
+      ],
+      "answer": "D",
+      "explainBn": "বর্তমানের অবাস্তব ধারণা বোঝাতে as if-এর পরে past simple knew ব্যবহার করা হয়।",
+      "source": "CU-A 2018–19"
+    },
+    {
+      "q": "If I want to pass my exam, I ____ study harder.",
+      "options": [
+        "would have to",
+        "will have to",
+        "had to",
+        "will has to"
+      ],
+      "answer": "B",
+      "explainBn": "বর্তমান শর্তের ভবিষ্যৎ প্রয়োজন: will have to + base verb।",
+      "source": "CU-B 2018–19"
+    },
+    {
+      "q": "Hadn’t the great leader helped us, we ____ liberated. (Use the third conditional.)",
+      "options": [
+        "might be",
+        "might not be",
+        "might not have been",
+        "wouldn’t being"
+      ],
+      "answer": "C",
+      "explainBn": "অতীতের বিপরীত শর্তে modal + have been + V3; নেতিবাচক সম্ভাবনা might not have been liberated।",
+      "source": "CU-B1 2018–19"
+    },
+    {
+      "q": "She talks as if she ____ the leader of the community, although she is not.",
+      "options": [
+        "are",
+        "be",
+        "were",
+        "have been"
+      ],
+      "answer": "C",
+      "explainBn": "অবাস্তব বর্তমান অবস্থায় as if-এর পরে irrealis were ব্যবহার করা যায়।",
+      "source": "RU-A 2023–24"
+    },
+    {
+      "q": "I will help him if he ____.",
+      "options": [
+        "asks",
+        "asked",
+        "will asking",
+        "has ask"
+      ],
+      "answer": "A",
+      "explainBn": "First conditional-এর if-clause-এ present simple; he-এর সঙ্গে asks।",
+      "source": "RU-C 2023–24"
+    },
+    {
+      "q": "I will not go if he ____.",
+      "options": [
+        "does not come",
+        "would not come",
+        "did not come",
+        "has not came"
+      ],
+      "answer": "A",
+      "explainBn": "First conditional-এ if-clause present simple; he-এর সঙ্গে does not come।",
+      "source": "JU-D 2021–22"
     }
   ],
 };
