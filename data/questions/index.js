@@ -21,6 +21,7 @@ import adverb from './adverb.js';
 import modalVerb from './modal-verb.js';
 import causativeVerb from './causative-verb.js';
 import subjunctiveVerb from './subjunctive-verb.js';
+import lecture4 from './lecture-4.js';
 // Memorising
 import vocabSynonym from './vocab-synonym.js';
 import vocabAntonym from './vocab-antonym.js';
@@ -43,6 +44,7 @@ export const TOPICS_RAW = [
   modalVerb,
   causativeVerb,
   subjunctiveVerb,
+  lecture4,
   vocabSynonym,
   vocabAntonym,
   vocabMeaning,
