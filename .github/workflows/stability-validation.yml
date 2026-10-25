@@ -1,0 +1,23 @@
+name: Stability validation
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/stability-and-reference-audit-2026-10-25
+  pull_request:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate content and tests
+        run: npm run check
+      - name: Validate generated preloads, offline manifest, CSP
+        run: node scripts/preload.mjs --check
