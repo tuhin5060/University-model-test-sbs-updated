@@ -80,7 +80,17 @@ const RUNTIME = 'campus-runtime';
 const API = 'campus-api';
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'no-cache' })))).then(() => self.skipWaiting()));
+  // Never activate a partially cached application. Failed installs keep the old worker.
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    try {
+      await cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'reload' })));
+      await self.skipWaiting();
+    } catch (error) {
+      await caches.delete(CACHE);
+      throw error;
+    }
+  })());
 });
 
 self.addEventListener('activate', event => {
