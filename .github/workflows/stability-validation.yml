@@ -17,6 +17,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Generate current derived assets
+        run: npm run sync
       - name: Validate content and tests
         run: npm run check
       - name: Validate generated preloads, offline manifest, CSP
