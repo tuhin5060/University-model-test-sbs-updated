@@ -12,6 +12,7 @@ let online = null;
 let today = null; // distinct browsers seen today (Bangladesh time), as counted by the server
 let lastEvent = null; // newest event id seen; null until the first heartbeat
 let timer = null;
+let inFlight = false;
 
 function visitorId() {
   const make = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
@@ -62,10 +63,15 @@ function announce(events) {
 }
 
 async function beat() {
+  if (inFlight) return;
+  inFlight = true;
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 8000);
   const problems = peekProblems();
   try {
     const res = await fetch('/api/visitors', {
       method: 'POST',
+      signal: ctrl.signal,
       cache: 'no-store',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
@@ -80,8 +86,11 @@ async function beat() {
       lastEvent = Math.max(lastEvent || 0, body.lastEvent || 0);
     }
   } catch {
-    online = null;
-    today = null;
+    // Network problems should not cause the count to disappear immediately.
+    // Retain the last server-confirmed value until the next successful heartbeat.
+  } finally {
+    clearTimeout(timeout);
+    inFlight = false;
   }
   paintLive();
 }
