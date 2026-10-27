@@ -15,3 +15,10 @@ test('does not mislabel numbered practice exercises', () => {
 test('trims whitespace around references', () => {
   assert.equal(examRef('  CU-B 2022–23  '), 'CU-B 2022–23');
 });
+
+test('drops an editor note after "; " but keeps a second exam', () => {
+  assert.equal(examRef('GST-A 2023–24; অর্থভিত্তিক অভিযোজন'), 'GST-A 2023–24');
+  assert.equal(examRef('NU 2024–25; to সংযোজিত'), 'NU 2024–25');
+  assert.equal(examRef('DU-B 2021–22; JU-C 2019–20'), 'DU-B 2021–22; JU-C 2019–20');
+  assert.equal(examRef('২৪তম (বাতিলকৃত) BCS'), '২৪তম (বাতিলকৃত) BCS');
+});

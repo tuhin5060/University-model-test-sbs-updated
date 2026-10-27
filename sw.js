@@ -7,7 +7,7 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = 'e47d2a5c6702';
+const VERSION = '18054a68b158';
 const PRECACHE = [
   './',
   'assets/css/styles.css?v=2.16.1',
