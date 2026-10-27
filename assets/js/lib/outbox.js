@@ -2,7 +2,8 @@
 // reached (no network, or the database having trouble) wait in this browser with
 // the rest of the progress, and go out by themselves once it can be reached again:
 // at start, when the phone comes back online, when the tab is shown again, and
-// every minute while something is waiting. The server ignores a score it already
+// every 20 seconds while something is waiting, and as soon as the visitors
+// heartbeat (lib/live.js) reaches the server again. The server ignores a score it already
 // has (attemptId) and a sign-up it already made (newId), so sending twice is safe.
 
 import { state, updateHistory } from './store.js';
@@ -117,7 +118,10 @@ export function startOutbox() {
   addEventListener('online', flush);
   addEventListener('offline', paint);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') flush(); });
-  setInterval(() => { if (pending()) flush(); }, 60_000);
+  addEventListener('pageshow', flush); // back from another app / the back-forward cache
+  addEventListener('focus', flush);
+  // Every 20 s while something is waiting (the visitors heartbeat also sends as soon as the server answers).
+  setInterval(() => { if (pending()) flush(); }, 20_000);
   paint();
   flush();
 }

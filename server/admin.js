@@ -12,7 +12,8 @@ async function sha256(text) {
 export async function isAdmin(password, env) {
   const secret = env?.ADMIN_PASSWORD || '';
   if (!secret) throw new BadRequest('Admin password এই server-এ এখনো set করা হয়নি।', 503);
-  const [a, b] = await Promise.all([sha256(password), sha256(secret)]);
+  // Spaces are ignored, so a password typed with or without spaces is the same.
+  const [a, b] = await Promise.all([sha256(String(password ?? '').replace(/\s+/g, '')), sha256(secret.replace(/\s+/g, ''))]);
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;

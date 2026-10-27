@@ -5,6 +5,8 @@
 import { MODE_INFO, topicTitle } from '../components.js';
 import { esc, bn } from './dom.js';
 import { peekProblems, clearProblems } from './api.js';
+import { flush, pendingScores } from './outbox.js';
+import { state } from './store.js';
 
 const KEY = 'campus-pothe.visitor';
 const BEAT_MS = 60 * 1000;
@@ -13,6 +15,9 @@ let today = null; // distinct browsers seen today (Bangladesh time), as counted 
 let lastEvent = null; // newest event id seen; null until the first heartbeat
 let timer = null;
 let inFlight = false;
+let failed = false;
+let retryTimer = null;
+const RETRY_MS = 20 * 1000;
 
 function visitorId() {
   const make = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
@@ -78,21 +83,28 @@ async function beat() {
       body: JSON.stringify({ sid: visitorId(), since: lastEvent, problems: problems.length ? problems : undefined }),
     });
     const body = await res.json();
-    online = res.ok && body?.ok && Number.isInteger(body.online) ? Math.max(1, body.online) : null;
-    today = online !== null && Number.isInteger(body.today) ? Math.max(online, body.today) : null;
-    if (res.ok && body?.ok) {
+    if (res.ok && body?.ok && Number.isInteger(body.online)) {
+      online = Math.max(1, body.online);
+      today = Number.isInteger(body.today) ? Math.max(online, body.today) : today;
+      failed = false;
+      // The server is reachable again: send any score / sign-up still waiting on this phone.
+      if (pendingScores() || state.player?.pending) flush();
       if (problems.length) clearProblems();
       if (lastEvent !== null && body.events?.length) announce(body.events);
       lastEvent = Math.max(lastEvent || 0, body.lastEvent || 0);
-    }
+    } else failed = true;
   } catch {
     // Network problems should not cause the count to disappear immediately.
     // Retain the last server-confirmed value until the next successful heartbeat.
+    failed = true;
   } finally {
     clearTimeout(timeout);
     inFlight = false;
   }
   paintLive();
+  // After a failure try again in 20 s instead of waiting the whole minute.
+  clearTimeout(retryTimer);
+  if (failed && document.visibilityState === 'visible') retryTimer = setTimeout(beat, RETRY_MS);
 }
 
 function schedule() {
@@ -106,6 +118,7 @@ function schedule() {
 export function startLive() {
   schedule();
   document.addEventListener('visibilitychange', schedule);
+  addEventListener('online', () => { if (document.visibilityState === 'visible') beat(); });
   // Leaving the site removes this browser from the count right away.
   window.addEventListener('pagehide', () => {
     navigator.sendBeacon?.('/api/visitors', new Blob([JSON.stringify({ sid: visitorId(), leave: true })], { type: 'application/json' }));

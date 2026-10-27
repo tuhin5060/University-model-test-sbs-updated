@@ -1,6 +1,6 @@
 // Leaderboard, About and 404 pages.
 
-import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
+import { TOPICS, QUESTION_COUNT, GROUPS } from '../../../data/questions/meta.js';
 import { UNIVERSITIES, CONTENT_UPDATED } from '../../../data/universities.js';
 import { SITE, SBS, CU_PHOTOS } from '../../../data/site.js';
 import { esc, bn, bnDate, duration, ext, $, navigate, toast } from '../lib/dom.js';
@@ -239,7 +239,7 @@ export const aboutPage = {
       ${pageHead('আমাদের কথা', SITE.tagline, 'ABOUT')}
       <div class="prose">
         <h2>কার জন্য?</h2>
-        <p>বিশ্ববিদ্যালয় ভর্তি পরীক্ষার্থীদের জন্য একটি free practice platform—বিশেষ করে যারা চট্টগ্রাম বিশ্ববিদ্যালয়ের স্বপ্ন দেখে। এখানে ${bn(QUESTIONS.length)}টি English MCQ, ${bn(TOPICS.length)}টি topic, ব্যাখ্যা ও সহজ বাংলা নোট রয়েছে, আর নিয়মিত নতুন প্রশ্ন যোগ হচ্ছে।</p>
+        <p>বিশ্ববিদ্যালয় ভর্তি পরীক্ষার্থীদের জন্য একটি free practice platform—বিশেষ করে যারা চট্টগ্রাম বিশ্ববিদ্যালয়ের স্বপ্ন দেখে। এখানে ${bn(QUESTION_COUNT)}টি English MCQ, ${bn(TOPICS.length)}টি topic, ব্যাখ্যা ও সহজ বাংলা নোট রয়েছে, আর নিয়মিত নতুন প্রশ্ন যোগ হচ্ছে।</p>
         <h2>প্রশ্নের উৎস</h2>
         <p>প্রতিটি প্রশ্নে source label (যেমন “CU A Unit 2016–17”) রাখা আছে। কিছু প্রশ্ন বিগত বছরের, কিছু adapted, কিছু সাধারণ practice-এর জন্য তৈরি। Source label থাকলেই সেটি সম্পূর্ণ official প্রশ্নপত্র—এমন দাবি করা হচ্ছে না। কোনো উত্তরে ভুল পেলে নিচের WhatsApp link-এ জানাও।</p>
         <h2>তথ্যের নির্ভরযোগ্যতা</h2>

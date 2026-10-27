@@ -18,7 +18,7 @@ const types = {
 const VERCEL_HEADERS = JSON.parse(await fs.readFile(path.join(root, 'vercel.json'), 'utf8')).headers
   .map(rule => ({ re: new RegExp(`^${rule.source}$`), headers: rule.headers }));
 const securityHeaders = pathname => Object.fromEntries(VERCEL_HEADERS.filter(r => r.re.test(pathname)).flatMap(r => r.headers.map(h => [h.key, h.value])));
-const ROUTES = ['profile', 'scores', 'visitors', 'progress', 'community', 'push', 'backup'];
+const ROUTES = ['profile', 'scores', 'visitors', 'progress', 'community', 'push', 'backup', 'admin'];
 
 let apiReady = null;
 async function api() {

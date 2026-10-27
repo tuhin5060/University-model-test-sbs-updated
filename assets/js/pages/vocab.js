@@ -1,7 +1,7 @@
 // Vocabulary word list: search by English or Bangla, filter by first letter.
 // Data: data/vocabulary.js (same words as the Memorising quiz topics).
 
-import VOCAB from '../../../data/vocabulary.js';
+import { getVocab } from '../lib/bank.js';
 import { esc, bn, $, $$ } from '../lib/dom.js';
 import { pageHead, empty } from '../components.js';
 
@@ -28,7 +28,7 @@ function item(v) {
 }
 
 function listHtml() {
-  const shown = VOCAB.filter(matches);
+  const shown = getVocab().filter(matches);
   return `<p class="muted small" id="vocab-count">${bn(shown.length)}টি শব্দ</p>
     ${shown.length ? `<div class="vocab-list">${shown.map(item).join('')}</div>` : empty('এই নামে কোনো শব্দ পাওয়া যায়নি।')}`;
 }

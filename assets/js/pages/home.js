@@ -1,7 +1,7 @@
 // Home page.
 
-import { TOPICS, QUESTIONS } from '../../../data/questions/index.js';
-import VOCAB from '../../../data/vocabulary.js';
+import { TOPICS, QUESTION_COUNT, VOCAB_COUNT } from '../../../data/questions/meta.js';
+import { loadBank } from '../lib/bank.js';
 import { POSTS, QUICK_TIPS } from '../../../data/posts.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
 import { SITE, SBS, CU_PHOTOS, CU_HERO } from '../../../data/site.js';
@@ -83,7 +83,7 @@ function memorising() {
   return `<section class="container section">
     <div class="section-head"><div><h2>🧠 Memorising</h2><p>Vocabulary, Synonym-Antonym আর Appropriate Preposition—মুখস্থের অংশ, খেলতে খেলতে।</p></div><a class="text-link" href="#vocab">শব্দতালিকা →</a></div>
     <div class="topic-grid">
-      <a class="topic-card" href="#vocab" style="--tone:#7a5af8"><span class="topic-icon" aria-hidden="true">📖</span><span class="topic-text"><b>শব্দতালিকা</b><small>বাংলা অর্থ, Synonym ও Antonym—খুঁজে দেখো</small></span><span class="topic-meta"><span>${bn(VOCAB.length)}টি শব্দ</span></span></a>
+      <a class="topic-card" href="#vocab" style="--tone:#7a5af8"><span class="topic-icon" aria-hidden="true">📖</span><span class="topic-text"><b>শব্দতালিকা</b><small>বাংলা অর্থ, Synonym ও Antonym—খুঁজে দেখো</small></span><span class="topic-meta"><span>${bn(VOCAB_COUNT)}টি শব্দ</span></span></a>
       ${list.map(t => topicCard(t)).join('')}
     </div>
   </section>`;
@@ -138,7 +138,7 @@ export function render() {
         <a class="btn big light" href="#start/exam">⏱️ Model Test দাও</a>
       </div>
       <ul class="hero-stats">
-        <li><b>${bn(QUESTIONS.length)}+</b><span>প্রশ্ন</span></li>
+        <li><b>${bn(QUESTION_COUNT)}+</b><span>প্রশ্ন</span></li>
         <li><b>${bn(TOPICS.length)}</b><span>Topic</span></li>
         <li><b>${bn(UNIVERSITIES.length)}</b><span>বিশ্ববিদ্যালয়</span></li>
       </ul>
@@ -184,7 +184,7 @@ export function mount() {
 
 export async function onAction(action) {
   if (action === 'daily') {
-    startSession({ mode: 'practice', topic: 'daily', ids: dailyIds(5), kind: 'daily', title: topicTitle('daily') });
+    loadBank().then(() => startSession({ mode: 'practice', topic: 'daily', ids: dailyIds(5), kind: 'daily', title: topicTitle('daily') }));
   } else if (action === 'discard') {
     if (await ask('অসমাপ্ত test বাদ দেবে? এর উত্তরগুলো মুছে যাবে।', { yes: 'বাদ দাও', no: 'না' })) {
       state.session = null;

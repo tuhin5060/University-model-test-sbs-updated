@@ -38,6 +38,17 @@ export const SCHEMA = [
   'CREATE TABLE IF NOT EXISTS presence (sid text PRIMARY KEY, at timestamptz NOT NULL)',
   // Added in 2.11: one row per browser per Bangladesh day, for "আজ ভিজিট করেছেন". Kept for 2 days.
   'CREATE TABLE IF NOT EXISTS daily_visits (day date NOT NULL, sid text NOT NULL, PRIMARY KEY (day, sid))',
+  // Added in 2.16: usage sessions for the admin dashboard (who used the site, when, how long). Kept 60 days.
+  `CREATE TABLE IF NOT EXISTS usage_sessions (
+    id bigserial PRIMARY KEY,
+    sid text NOT NULL,
+    player_id uuid,
+    started_at timestamptz NOT NULL DEFAULT now(),
+    last_at timestamptz NOT NULL DEFAULT now(),
+    beats integer NOT NULL DEFAULT 1
+  )`,
+  'CREATE INDEX IF NOT EXISTS usage_sessions_sid ON usage_sessions (sid, last_at DESC)',
+  'CREATE INDEX IF NOT EXISTS usage_sessions_last ON usage_sessions (last_at DESC)',
   'CREATE TABLE IF NOT EXISTS progress (id uuid PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL)',
   // Community: question threads (by topic, with tags) and their replies.
   `CREATE TABLE IF NOT EXISTS threads (

@@ -1,7 +1,7 @@
 // Local progress: everything here lives only in this browser (localStorage).
 // Shape is versioned; older "campus-companion.v1" data is migrated once.
 
-import { QUESTION_MAP } from '../../../data/questions/index.js';
+import { getBank } from './bank.js';
 import { today } from './dom.js';
 import { queueProgressSync } from './api.js';
 
@@ -69,10 +69,15 @@ function sanitise(s) {
   if (!s.stats || typeof s.stats !== 'object') s.stats = {};
   if (!Array.isArray(s.saved)) s.saved = [];
   if (!Array.isArray(s.checks)) s.checks = [];
-  // Drop mistakes / sessions pointing to questions that were deleted from the bank.
-  for (const id of Object.keys(s.mistakes)) if (!QUESTION_MAP.has(id)) delete s.mistakes[id];
-  if (s.session && !(Array.isArray(s.session.ids) && s.session.ids.every(id => QUESTION_MAP.has(id)))) s.session = null;
   return s;
+}
+
+/** Once the bank has loaded: drop mistakes / a session pointing to questions deleted from it. */
+export function pruneMissing(map) {
+  let changed = false;
+  for (const id of Object.keys(state.mistakes)) if (!map.has(id)) { delete state.mistakes[id]; changed = true; }
+  if (state.session && !(Array.isArray(state.session.ids) && state.session.ids.every(id => map.has(id)))) { state.session = null; changed = true; }
+  if (changed) save();
 }
 
 export function save() {
@@ -100,7 +105,7 @@ export function resetState() {
 /** Record a finished attempt: history, per-topic stats, mistake bank, daily streak. */
 export function recordAttempt(entry, answers) {
   for (const ans of answers) {
-    const q = QUESTION_MAP.get(ans.id);
+    const q = getBank()?.QUESTION_MAP.get(ans.id);
     if (!q || ans.choice === undefined) continue;
     const st = (state.stats[q.topicId] ||= { seen: 0, correct: 0 });
     st.seen++;
@@ -149,7 +154,7 @@ export function updateHistory(id, patch) {
   return h;
 }
 
-export const mistakeIds = () => Object.keys(state.mistakes).filter(id => QUESTION_MAP.has(id));
+export const mistakeIds = () => Object.keys(state.mistakes).filter(id => !getBank() || getBank().QUESTION_MAP.has(id));
 export const dailyStreak = () => {
   const d = state.daily;
   const y = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');

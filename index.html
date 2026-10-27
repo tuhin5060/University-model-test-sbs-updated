@@ -35,7 +35,7 @@
   <!-- Fonts load without blocking: if Google Fonts is slow, the page shows at once in the phone's own Bangla font. -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" media="print" id="font-css">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/css/styles.css?v=2.15.0">
+  <link rel="stylesheet" href="assets/css/styles.css?v=2.16.0">
   <link rel="preload" as="image" href="assets/img/cu-gate-1113.webp" imagesrcset="assets/img/cu-gate-480.webp 480w, assets/img/cu-gate-768.webp 768w, assets/img/cu-gate-1113.webp 1113w" imagesizes="(min-width: 900px) 560px, 100vw" fetchpriority="high">
   <script>
     try { var t = localStorage.getItem('campus-theme') || 'auto'; document.documentElement.dataset.theme = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t; } catch (e) {}
@@ -43,7 +43,7 @@
     var f = document.getElementById('font-css');
     if (f) { if (f.sheet) f.media = 'all'; else f.addEventListener('load', function () { f.media = 'all'; }); }
   </script>
-  <script type="module" src="assets/js/main.js?v=2.15.0"></script>
+  <script type="module" src="assets/js/main.js?v=2.16.0"></script>
   <script>
     // If the app has not started after 12 s (very weak connection), say so and offer a retry.
     setTimeout(function () {
@@ -57,6 +57,7 @@
   <!-- modulepreload:start -->
   <link rel="modulepreload" href="assets/js/components.js">
   <link rel="modulepreload" href="assets/js/lib/api.js">
+  <link rel="modulepreload" href="assets/js/lib/bank.js">
   <link rel="modulepreload" href="assets/js/lib/cloud.js">
   <link rel="modulepreload" href="assets/js/lib/college.js">
   <link rel="modulepreload" href="assets/js/lib/dom.js">
@@ -83,32 +84,10 @@
   <link rel="modulepreload" href="assets/js/shared/source.js">
   <link rel="modulepreload" href="data/colleges.js">
   <link rel="modulepreload" href="data/posts.js">
-  <link rel="modulepreload" href="data/questions/adjective.js">
-  <link rel="modulepreload" href="data/questions/adverb.js">
-  <link rel="modulepreload" href="data/questions/appropriate-preposition.js">
-  <link rel="modulepreload" href="data/questions/article.js">
-  <link rel="modulepreload" href="data/questions/causative-verb.js">
-  <link rel="modulepreload" href="data/questions/comparison.js">
-  <link rel="modulepreload" href="data/questions/conditional-sentences.js">
-  <link rel="modulepreload" href="data/questions/gender.js">
-  <link rel="modulepreload" href="data/questions/hope-wish.js">
-  <link rel="modulepreload" href="data/questions/index.js">
-  <link rel="modulepreload" href="data/questions/mixed-english.js">
-  <link rel="modulepreload" href="data/questions/modal-verb.js">
-  <link rel="modulepreload" href="data/questions/noun.js">
-  <link rel="modulepreload" href="data/questions/number.js">
-  <link rel="modulepreload" href="data/questions/phrase-idioms.js">
-  <link rel="modulepreload" href="data/questions/sequence-of-tense.js">
-  <link rel="modulepreload" href="data/questions/subjunctive-verb.js">
-  <link rel="modulepreload" href="data/questions/tense.js">
-  <link rel="modulepreload" href="data/questions/vocab-antonym.js">
-  <link rel="modulepreload" href="data/questions/vocab-bcs.js">
-  <link rel="modulepreload" href="data/questions/vocab-meaning.js">
-  <link rel="modulepreload" href="data/questions/vocab-synonym.js">
+  <link rel="modulepreload" href="data/questions/meta.js">
   <link rel="modulepreload" href="data/site.js">
   <link rel="modulepreload" href="data/universities.js">
   <link rel="modulepreload" href="data/university-profiles.js">
-  <link rel="modulepreload" href="data/vocabulary.js">
   <!-- modulepreload:end -->
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script>
@@ -216,7 +195,7 @@
         <a href="/universities/">🏛️ বিশ্ববিদ্যালয়ের official links</a>
       </nav>
       <!-- seo-links:end -->
-      <p class="footer-note">স্বতন্ত্র শিক্ষার্থী-সহায়ক উদ্যোগ · কোনো বিশ্ববিদ্যালয়ের official website নয়।</p>
+      <p class="footer-note">স্বতন্ত্র শিক্ষার্থী-সহায়ক উদ্যোগ · কোনো বিশ্ববিদ্যালয়ের official website নয়। <a class="admin-link" href="#admin">🔐 Admin</a></p>
     </div>
   </footer>
 

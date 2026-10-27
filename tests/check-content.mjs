@@ -18,7 +18,7 @@ const warn = m => warnings.push(m);
 // Every topic file in data/questions must be registered in index.js.
 const indexSrc = fs.readFileSync(path.join(root, 'data/questions/index.js'), 'utf8');
 for (const f of fs.readdirSync(path.join(root, 'data/questions'))) {
-  if (f === 'index.js' || f.startsWith('_') || !f.endsWith('.js')) continue;
+  if (f === 'index.js' || f === 'meta.js' || f.startsWith('_') || !f.endsWith('.js')) continue; // meta.js: generated topic list
   if (!indexSrc.includes(`'./${f}'`)) err(`data/questions/${f} is not imported in data/questions/index.js`);
 }
 

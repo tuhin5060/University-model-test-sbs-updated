@@ -1,6 +1,6 @@
 // My progress: stats, topic accuracy, mistake bank, history, backup.
 
-import { TOPICS } from '../../../data/questions/index.js';
+import { TOPICS } from '../../../data/questions/meta.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
 import { esc, bn, bnDate, duration, toast, ask } from '../lib/dom.js';
 import { state, storageOK, mistakeIds, dailyStreak, replaceState, resetState, validBackup } from '../lib/store.js';

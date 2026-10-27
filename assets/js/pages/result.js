@@ -1,7 +1,8 @@
 // Result + answer review for a finished attempt.
 
 import { examRef } from '../shared/source.js';
-import { QUESTION_MAP } from '../../../data/questions/index.js';
+import { getBank } from '../lib/bank.js';
+const QUESTION_MAP = { get: id => getBank().QUESTION_MAP.get(id) }; // loaded before this page (main.js)
 import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
 import { state, updateHistory } from '../lib/store.js';
 import { attemptPoints } from '../shared/scoring.js';

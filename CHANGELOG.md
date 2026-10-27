@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.16.0 — lighter home page, auto-send, admin dashboard
+* Home page: the question bank (2,256 questions, ~1.3 MB) and the word list no longer
+  load before the page shows. First load 1.8 MB → 441 KB of JavaScript (416 → 132 KB
+  compressed). Topic names and counts come from the generated `data/questions/meta.js`;
+  `assets/js/lib/bank.js` loads the bank when a test, result or community page opens,
+  and in the background once the page is idle. sw.js still keeps both for offline use
+  (preload.mjs now follows `import()` for the offline list, not for modulepreload).
+* Waiting scores / sign-ups go out by themselves sooner: as soon as the visitors
+  heartbeat reaches the server again, every 20 s (was 60 s), and on focus / pageshow.
+* Online count: a failed heartbeat retries after 20 s and no longer hides the count on
+  a server error; it also runs when the phone comes back online. A new version is also
+  looked for when the phone comes back online.
+* Server: a database request that could not connect, or got 502/503/504 (Neon waking
+  up), is tried once more; database requests stop after 9 s instead of hanging.
+* Admin dashboard (`#admin`, link at the bottom of every page; password ADMIN_PASSWORD,
+  spaces ignored): online now, visitors today, students with full name, college, minutes
+  today / in 1, 7 or 30 days, active days, sessions, tests, first and last time, today's
+  sessions from–to, and a per-day table. Usage comes from the heartbeat (new
+  `usage_sessions` table, ~1 beat per minute while visible, a 5-minute gap starts a new
+  session, kept 60 days). The page's code loads only when opened.
+
 ## 2.15.0 — today's ranking, your own full name
 * Score page: under today's top scorer, places 2–5 of today (🥈 🥉 ৪র্থ ৫ম), how many
   students tested today and your own place today (“আজ ১২ জন test দিয়েছে · তুমি আজ

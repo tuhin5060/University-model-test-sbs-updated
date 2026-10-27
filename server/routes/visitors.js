@@ -7,6 +7,7 @@ import { route } from '../route.js';
 import { json, readJSON, readCookie, iso, BadRequest } from '../http.js';
 
 export const ONLINE_SEC = 150;
+export const SESSION_GAP_MIN = 5;
 // "Today" starts at midnight Bangladesh time.
 const TODAY = "(now() AT TIME ZONE 'Asia/Dhaka')::date";
 const SID_RE = /^[a-z0-9]{16,40}$/i;
@@ -28,7 +29,16 @@ export default route('visitors', {
       console.error(`client save problem (${phone}${inApp})`, body.problems.slice(0, 5).map(p => String(p).slice(0, 120)).join(' | '));
     }
     const since = Number.isSafeInteger(body.since) && body.since >= 0 ? body.since : null;
-    const [, , , , , [count], [visits], events, [last]] = await db.batch([
+    const me = readCookie(request);
+    const [, , , , , , , [count], [visits], events, [last]] = await db.batch([
+      // Usage for the admin dashboard: one heartbeat ≈ one minute with the site open and visible.
+      // A gap of more than 5 minutes starts a new session (from–to times per visit).
+      [`WITH upd AS (
+          UPDATE usage_sessions SET last_at = now(), beats = beats + 1, player_id = COALESCE($2::uuid, player_id)
+          WHERE id = (SELECT id FROM usage_sessions WHERE sid = $1 AND last_at > now() - interval '${SESSION_GAP_MIN} minutes' ORDER BY last_at DESC LIMIT 1)
+          RETURNING id)
+        INSERT INTO usage_sessions (sid, player_id) SELECT $1, $2::uuid WHERE NOT EXISTS (SELECT 1 FROM upd)`, [sid, me || null]],
+      ["DELETE FROM usage_sessions WHERE last_at < now() - interval '60 days'"],
       ['INSERT INTO presence (sid, at) VALUES ($1, now()) ON CONFLICT (sid) DO UPDATE SET at = now()', [sid]],
       [`INSERT INTO daily_visits (day, sid) VALUES (${TODAY}, $1) ON CONFLICT DO NOTHING`, [sid]],
       ["DELETE FROM presence WHERE at < now() - interval '10 minutes'"],
@@ -41,7 +51,6 @@ export default route('visitors', {
       ["SELECT id, kind, payload, at FROM events WHERE $1::bigint IS NOT NULL AND id > $1::bigint AND at > now() - interval '10 minutes' ORDER BY id LIMIT 5", [since]],
       ['SELECT COALESCE(max(id), 0)::int AS id FROM events'],
     ]);
-    const me = readCookie(request);
     return json({
       ok: true,
       online: count.online,

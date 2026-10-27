@@ -1,7 +1,7 @@
 // Reusable HTML snippets. Pages compose these; keep markup consistent here.
 
 import { esc, bn, safeURL, bnDate, $$ } from './lib/dom.js';
-import { TOPICS, GROUPS } from '../../data/questions/index.js';
+import { TOPICS, GROUPS } from '../../data/questions/meta.js';
 import { state } from './lib/store.js';
 import { fetchLeaderboard } from './lib/api.js';
 import { collegeShort } from '../../data/colleges.js';

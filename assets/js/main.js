@@ -1,6 +1,7 @@
 // App entry: hash router, global event delegation, theme, search, profile sync.
 
-import { TOPICS } from '../../data/questions/index.js';
+import { TOPICS } from '../../data/questions/meta.js';
+import { getBank, loadBank, getVocab, loadVocab, prefetchData } from './lib/bank.js';
 import { POSTS } from '../../data/posts.js';
 import { UNIVERSITIES } from '../../data/universities.js';
 import { SITE } from '../../data/site.js';
@@ -19,7 +20,6 @@ import * as universities from './pages/universities.js';
 import * as progress from './pages/progress.js';
 import * as vocab from './pages/vocab.js';
 import * as community from './pages/community.js';
-import VOCAB from '../../data/vocabulary.js';
 import { leaderboardPage, aboutPage, backupPage, sbsPage, notFound, switchBoardMode } from './pages/misc.js';
 import { loadLeaderboards } from './components.js';
 
@@ -61,8 +61,25 @@ function parse() {
   return { name, params };
 }
 
+// Pages that need the question bank / the word list wait for it (a skeleton shows meanwhile).
+const BANK_ROUTES = new Set(['start', 'play', 'result', 'community']);
+const VOCAB_ROUTES = new Set(['vocab']);
+// Pages whose code loads only when opened.
+const LAZY_PAGES = { admin: () => import('./pages/admin.js') };
+
 function render(scroll = true) {
   const { name, params } = parse();
+  const needs = (BANK_ROUTES.has(name) && !getBank() && loadBank()) || (VOCAB_ROUTES.has(name) && !getVocab() && loadVocab())
+    || (LAZY_PAGES[name] && !ROUTES[name] && LAZY_PAGES[name]().then(m => { ROUTES[name] = m; }));
+  if (needs) {
+    $('#main').innerHTML = '<div class="container section"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>';
+    const want = location.hash;
+    needs.then(() => { if (location.hash === want) render(scroll); }, () => {
+      $('#main').innerHTML = '<div class="container section"><p class="notice">লোড করা যায়নি—নেট দেখে <button class="btn small" type="button">আবার চেষ্টা করো</button></p></div>';
+      $('#main .notice button').addEventListener('click', () => location.reload());
+    });
+    return;
+  }
   const page = ROUTES[name] || notFound;
   current?.unmount?.();
   current = page;
@@ -162,8 +179,14 @@ const INDEX = [
   { title: 'SBS Students’ Association', sub: 'আমাদের সংগঠন · Facebook', href: '#sbs', type: 'Page', text: 'sbs students association সংগঠন ভাটিয়ারী সোনাইছড়ি সলিমপুর সীতাকুণ্ড facebook ভর্তি কোচিং' },
   { title: 'আমার অগ্রগতি', sub: 'ফলাফল, ভুল, backup', href: '#progress', type: 'Page', text: 'progress history backup ভুল mistakes' },
   { title: 'শব্দতালিকা (Vocabulary)', sub: 'বাংলা অর্থ, Synonym, Antonym', href: '#vocab', type: 'Page', text: 'vocabulary vocab word শব্দ synonym antonym শব্দতালিকা memorising' },
-  ...VOCAB.map(v => ({ title: v.w, sub: v.bn, href: `#vocab/${encodeURIComponent(v.w)}`, type: 'শব্দ', text: `${v.w} ${v.bn}` })),
 ];
+// Words join the search once the word list has loaded (it is not part of the first page load).
+let vocabIndexed = false;
+function indexVocab() {
+  if (vocabIndexed || !getVocab()) return;
+  vocabIndexed = true;
+  INDEX.push(...getVocab().map(v => ({ title: v.w, sub: v.bn, href: `#vocab/${encodeURIComponent(v.w)}`, type: 'শব্দ', text: `${v.w} ${v.bn}` })));
+}
 
 function openSearch() {
   const dlg = $('#search-dialog');
@@ -173,6 +196,8 @@ function openSearch() {
   $('#search-input').focus();
 }
 function runSearch() {
+  if (!getVocab()) loadVocab().then(() => { indexVocab(); if ($('#search-dialog').open) runSearch(); }, () => {});
+  indexVocab();
   const term = $('#search-input').value.trim().toLowerCase();
   const hits = term ? INDEX.filter(x => x.text.toLowerCase().includes(term)).slice(0, 12) : INDEX.slice(0, 6);
   $('#search-results').innerHTML = hits.length
@@ -190,6 +215,7 @@ syncCloud().then(() => {
   flush();
 });
 startLive();
+prefetchData(); // the bank and word list, in the background once the page is idle
 window.__booted = true;
 handleInApp();
 
@@ -205,6 +231,7 @@ if ('serviceWorker' in navigator && !local) {
     // again and every 30 minutes, not only when the page is opened.
     const check = () => reg.update().catch(() => {});
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+    addEventListener('online', check); // back online: fetch a new version straight away
     setInterval(check, 30 * 60 * 1000);
   }).catch(() => {});
   // A new version finished downloading: switch to it at once, unless a test is running

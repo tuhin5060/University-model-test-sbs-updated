@@ -16,13 +16,17 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const START = '<!-- modulepreload:start -->';
 const END = '<!-- modulepreload:end -->';
 
-export function moduleGraph(entry = 'assets/js/main.js') {
+/** Modules main.js loads; `dynamic` also follows import('…') (loaded later, still kept offline). */
+export function moduleGraph(entry = 'assets/js/main.js', dynamic = false) {
   const seen = new Set();
   const walk = rel => {
     if (seen.has(rel)) return;
     seen.add(rel);
     const src = fs.readFileSync(path.join(root, rel), 'utf8');
     for (const [, spec] of src.matchAll(/^\s*(?:import|export)\s[^;]*?from\s*['"](\.{1,2}\/[^'"]+)['"]/gm)) {
+      walk(path.posix.normalize(path.posix.join(path.posix.dirname(rel), spec)));
+    }
+    if (dynamic) for (const [, spec] of src.matchAll(/\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g)) {
       walk(path.posix.normalize(path.posix.join(path.posix.dirname(rel), spec)));
     }
   };
@@ -49,7 +53,7 @@ const STATIC = ['manifest.webmanifest', 'assets/img/logo.svg', 'assets/img/favic
 /** URLs exactly as index.html requests them ('./' is index.html itself). */
 export function precacheList(html) {
   const entry = [...html.matchAll(/(?:href|src)="(assets\/(?:css\/styles\.css|js\/main\.js)[^"]*)"/g)].map(m => m[1]);
-  return ['./', ...entry, ...moduleGraph(), ...STATIC];
+  return ['./', ...entry, ...moduleGraph('assets/js/main.js', true), ...STATIC];
 }
 
 export function swBlock(html) {

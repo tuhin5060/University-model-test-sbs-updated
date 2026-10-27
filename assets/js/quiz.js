@@ -1,7 +1,7 @@
 // Quiz engine: creates sessions, records answers, runs timers and finishes
 // attempts for all three modes (fun / exam / practice). UI lives in pages/play.js.
 
-import { QUESTIONS, QUESTION_MAP, inTopic } from '../../data/questions/index.js';
+import { getBank, loadBank } from './lib/bank.js';
 import { scoreAttempt, funPoints, EXAM_PACE, FUN_LIMIT, EXAM_NEGATIVE, MAX_QUESTIONS } from './shared/scoring.js';
 import { state, save, recordAttempt, updateHistory, mistakeIds } from './lib/store.js';
 import { shuffle, seeded, today, uid, toast, navigate, ask } from './lib/dom.js';
@@ -9,19 +9,22 @@ import { sendScore, flush } from './lib/outbox.js';
 import { topicTitle } from './components.js';
 
 export const session = () => state.session;
-export const sessionQuestions = s => (s?.ids || []).map(id => QUESTION_MAP.get(id)).filter(Boolean);
-export const currentQuestion = (s = state.session) => (s ? QUESTION_MAP.get(s.ids[s.index || 0]) : null);
+// The bank is loaded before any page that uses these (see main.js BANK_ROUTES / startSession).
+const Q = () => getBank().QUESTIONS;
+const MAP = () => getBank().QUESTION_MAP;
+export const sessionQuestions = s => (s?.ids || []).map(id => MAP().get(id)).filter(Boolean);
+export const currentQuestion = (s = state.session) => (s ? MAP().get(s.ids[s.index || 0]) : null);
 export const isAnswered = (s, id) => Number.isInteger(s.answers[id]);
 export const isDone = (s, id) => isAnswered(s, id) || (s.fun?.timeouts || []).includes(id);
 
 export function poolFor(topic) {
-  if (topic === 'all') return QUESTIONS;
-  if (topic === 'mistakes') return mistakeIds().map(id => QUESTION_MAP.get(id));
-  return QUESTIONS.filter(q => inTopic(q, topic));
+  if (topic === 'all') return Q();
+  if (topic === 'mistakes') return mistakeIds().map(id => MAP().get(id));
+  return Q().filter(q => getBank().inTopic(q, topic));
 }
 
 export function dailyIds(n = 5) {
-  return shuffle(QUESTIONS, seeded('daily-' + today())).slice(0, n).map(q => q.id);
+  return shuffle(Q(), seeded('daily-' + today())).slice(0, n).map(q => q.id);
 }
 
 /** The daily challenge is 5 questions in 2 minutes (as the home card says). */
@@ -32,6 +35,7 @@ export const DAILY_SECONDS = 120;
  * opts: { mode, topic, count, settings, kind, ids, title, player }
  */
 export async function startSession(opts) {
+  await loadBank();
   if (state.session && !(await ask('আগের একটা test অসমাপ্ত আছে। সেটা বাদ দিয়ে নতুন test শুরু করবে?', { yes: 'নতুন শুরু করো', no: 'না' }))) return false;
   const mode = ['fun', 'exam', 'practice'].includes(opts.mode) ? opts.mode : 'practice';
   const count = Math.min(MAX_QUESTIONS, Math.max(1, Number(opts.count) || 10));
@@ -184,7 +188,7 @@ export function finish({ auto = false } = {}) {
     navigate('#home');
     return null;
   }
-  const result = scoreAttempt({ mode: s.mode, settings: s.settings, answers: reached }, QUESTION_MAP);
+  const result = scoreAttempt({ mode: s.mode, settings: s.settings, answers: reached }, MAP());
   const finished = Date.now();
   const entry = {
     id: s.id,

@@ -35,10 +35,15 @@ function rowsOf(result) {
 export function neonHttp(connectionString, fetchFn = (...a) => fetch(...a)) {
   const host = new URL(connectionString).hostname;
   const endpoint = `https://${host.replace(/^[^.]+\./, 'api.')}/sql`;
-  async function send(body) {
+  // A database that is waking up (Neon free tier sleeps when idle) or a short network
+  // problem fails one request: try once more after a moment. Only when the request did
+  // not reach the database or it answered "unavailable" (502/503/504), so nothing runs twice
+  // that already ran — and every write here is idempotent anyway (ON CONFLICT / ids).
+  async function send(body, retry = true) {
     let res;
     try {
       res = await fetchFn(endpoint, {
+        signal: AbortSignal.timeout(9000),
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,9 +54,12 @@ export function neonHttp(connectionString, fetchFn = (...a) => fetch(...a)) {
         body: JSON.stringify(body),
       });
     } catch (error) {
+      // (A request that timed out is not repeated: the student's phone has given up by then.)
+      if (retry && error?.name !== 'TimeoutError') { await new Promise(r => setTimeout(r, 400)); return send(body, false); }
       throw new Error(`Error connecting to database: ${error?.message || error}`);
     }
     if (res.ok) return res.json();
+    if (retry && [502, 503, 504].includes(res.status)) { await new Promise(r => setTimeout(r, 400)); return send(body, false); }
     const detail = res.status === 400 ? (await res.json().catch(() => ({}))).message : await res.text().catch(() => '');
     throw new Error(`Database error (HTTP ${res.status}): ${detail || 'no details'}`);
   }

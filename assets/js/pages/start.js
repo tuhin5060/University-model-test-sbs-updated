@@ -2,7 +2,7 @@
 // Order on every screen: 1 name → 2 number of questions → 3 topic (with a search box) → one start button.
 // Timer and negative marking are fixed (see shared/scoring.js), so there is nothing else to pick.
 
-import { TOPICS, QUESTIONS, GROUPS } from '../../../data/questions/index.js';
+import { TOPICS, QUESTION_COUNT, GROUPS } from '../../../data/questions/meta.js';
 import { AVATARS } from '../../../data/site.js';
 import { esc, bn, $, ask } from '../lib/dom.js';
 import { state, mistakeIds } from '../lib/store.js';
@@ -67,7 +67,7 @@ export function render([mode = 'fun', topic = 'all']) {
         <input class="topic-search" id="topic-search" type="search" autocomplete="off" placeholder="🔍 Topic খুঁজো—যেমন tense, article, synonym" aria-label="Topic খুঁজো">
         <p class="muted small" id="topic-none" hidden>এই নামে কোনো topic নেই।</p>
         <div class="picks">
-          ${topicOption('all', 'সব topic (মিশ্র)', 'পুরো question bank থেকে', QUESTIONS.length, '🎲', topic === 'all')}
+          ${topicOption('all', 'সব topic (মিশ্র)', 'পুরো question bank থেকে', QUESTION_COUNT, '🎲', topic === 'all')}
           ${mistakes ? topicOption('mistakes', 'আমার ভুলগুলো', 'আগে যেগুলো ভুল করেছ (leaderboard-এ যায় না)', mistakes, '🔁', topic === 'mistakes', '#d64545') : ''}
         </div>
         ${Object.values(GROUPS).map(g => {

@@ -3,7 +3,9 @@
 //   #community/new[/<topic>[/<qid>]] → ask form (from a question in the answer sheet, it is pre-filled)
 //   #community/t/<id>               → one thread with replies
 
-import { TOPICS, GROUPS, QUESTION_MAP } from '../../../data/questions/index.js';
+import { TOPICS, GROUPS } from '../../../data/questions/meta.js';
+import { getBank } from '../lib/bank.js';
+const QUESTION_MAP = { get: id => getBank()?.QUESTION_MAP.get(id) }; // loaded before this page (main.js)
 import { esc, bn, bnDate, $, toast } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { fetchThreads, fetchThread, communityAction } from '../lib/api.js';
