@@ -375,3 +375,16 @@ test('scores: today top scorer counts only tests since midnight Bangladesh time'
   assert.ok(!('playerId' in r.body.top) && !('player_id' in r.body.top));
   await db.query('DELETE FROM students WHERE id = $1 OR id = $2', [topper, old]);
 });
+
+test('profile: guessing names for one roll stops after a few wrong tries (from any network)', async () => {
+  const { ROLL_GUESS_MAX } = await import('../server/routes/profile.js');
+  const victim = (await join({ name: 'Nadia Karim' })).player;
+  const roll = String(victim.roll);
+  for (let i = 0; i < ROLL_GUESS_MAX; i++) {
+    assert.equal((await call(profile, { method: 'POST', body: { login: true, name: `Guess ${i} Karim`, roll } })).statusCode, 409);
+  }
+  const blocked = await call(profile, { method: 'POST', body: { login: true, name: 'Nadia Karim', roll } });
+  assert.equal(blocked.statusCode, 429, 'even the right name waits once the roll is being guessed');
+  await db.query("DELETE FROM hits WHERE key = $1", [`login-roll:${victim.roll}`]);
+  assert.equal((await call(profile, { method: 'POST', body: { login: true, name: 'Nadia Karim', roll } })).statusCode, 200);
+});

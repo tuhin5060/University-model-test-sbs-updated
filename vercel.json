@@ -12,6 +12,11 @@
       ],
       "destination": "https://sbs-university-admission-model-test.vercel.app/$1",
       "permanent": true
+    },
+    {
+      "source": "/:path((?:server|tests|scripts|docs|functions|\\.github)/.*|[A-Z_]+\\.md|package(?:-lock)?\\.json|wrangler\\.toml|\\.env\\.example|\\.node-version|\\.gitignore)",
+      "destination": "/",
+      "permanent": false
     }
   ],
   "headers": [

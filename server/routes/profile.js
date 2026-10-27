@@ -12,6 +12,7 @@ import { json, clean, readCookie, readJSON, query, cookie, iso, ID_RE, PLAYER_CO
 
 const ALLOWED_AVATARS = new Set(AVATARS);
 export const MAX_ROLL = 99999;
+export const ROLL_GUESS_MAX = 8; // wrong names per roll per hour before sign-in to it pauses
 
 export const rollText = n => String(n).padStart(3, '0');
 export const nameKey = name => clean(name, 60).normalize('NFC').toLowerCase();
@@ -118,7 +119,15 @@ export default route('profile', {
       if (!owner) {
         return json({ ok: false, code: 'roll_not_found', error: `Roll ${rollText(roll)}-এ কোনো শিক্ষার্থী নেই। ID কার্ডে যে roll ছিল সেটা দাও। প্রথমবার হলে roll-এর ঘর খালি রাখো।` }, 404);
       }
+      // Someone guessing names for one roll (its last name, roll and college are public):
+      // after ROLL_GUESS_MAX wrong names for that roll within an hour, from any network, stop for a while.
+      const rollKey = `login-roll:${roll}`;
+      const [{ n: wrong }] = await db.query("SELECT count(*)::int AS n FROM hits WHERE key = $1 AND at > now() - interval '1 hour'", [rollKey]);
+      if (wrong >= ROLL_GUESS_MAX) {
+        throw new BadRequest(`Roll ${rollText(roll)}-এ অনেকবার ভুল নাম দেওয়া হয়েছে—নিরাপত্তার জন্য ১ ঘণ্টা পরে আবার চেষ্টা করো।`, 429);
+      }
       if (owner.name_key !== key) {
+        await db.query('INSERT INTO hits (key) VALUES ($1)', [rollKey]);
         return json({ ok: false, code: 'name_mismatch', hint: maskName(owner.name), error: `Roll ${rollText(roll)}-এর সাথে এই নাম মিলছে না। প্রথমবার যে নাম দিয়েছিলে হুবহু সেটা লেখো (${maskName(owner.name)})।` }, 409);
       }
       // A student who registered before colleges existed can add theirs while signing in.

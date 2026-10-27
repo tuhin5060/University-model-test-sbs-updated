@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { examRef } from '../assets/js/shared/source.js';
 
 test('recognizes named exam sources in English and Bengali', () => {
-  for (const source of ['CU-B 2022–23', 'DU-B 2021–22', 'GST-A 2024–25', '28th BCS', '৩১তম BCS', 'ঢাবি ৭ কলেজ-Business 2023–24', 'Diploma in Nursing 22-23']) {
+  for (const source of ['CU-B 2022–23', 'DU-B 2021–22', 'GST-A 2024–25', '28th BCS', '৩১তম BCS', 'ঢাবি ৭ কলেজ-Business 2023–24', 'Diploma in Nursing 22-23', 'KU-D: 24–25', 'IU-B 2018–19', 'MBSTU-D 2011–12', 'CVASU 2010–11', 'MAT 2022–23', 'Primary Asst. School Teacher 2018', 'Sonali Bank Ltd. Senior Officer 2014']) {
     assert.equal(examRef(source), source);
   }
 });

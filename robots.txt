@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /server/
+Disallow: /tests/
+Disallow: /scripts/
+Disallow: /docs/
+Disallow: /functions/
 
 Sitemap: https://sbs-university-admission-model-test.vercel.app/sitemap.xml

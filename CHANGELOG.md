@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.16.1 — audit fixes: references, sign-in guessing, internal files
+* Exam references: 10 real references were hidden because their institution was not in
+  the list (KU, IU, MBSTU, CVASU, MAT, Primary Teacher, Sonali Bank). All 513 questions
+  whose data names an exam now show it; the rest stay empty (no reference in the data).
+* Sign-in: after 8 wrong names for one roll within an hour (from any network), signing
+  in to that roll pauses for the hour — a public last name + roll + college can no
+  longer be used to guess the first name.
+* Internal files (server/, tests/, scripts/, docs/, functions/, *.md, package.json…)
+  are no longer served by the site (redirect to /) and robots.txt keeps search engines
+  away from them. They hold no secrets; the repository is public anyway.
+
 ## 2.16.0 — lighter home page, auto-send, admin dashboard
 * Home page: the question bank (2,256 questions, ~1.3 MB) and the word list no longer
   load before the page shows. First load 1.8 MB → 441 KB of JavaScript (416 → 132 KB
