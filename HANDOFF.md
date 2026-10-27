@@ -1,119 +1,125 @@
-# ক্যাম্পাস পথে — handoff for a new chat
+# ক্যাম্পাসের পথে — handoff for a coding agent
 
-Paste this whole file (or its GitHub link) into a new Claude / coding-agent chat
-so it can continue without the old conversation. Keep it updated after each change.
+> **মালিকের জন্য:** নতুন কোনো coding agent (Claude, Codex, Cursor, অন্য যেকোনো) দিয়ে কাজ করাতে
+> এই পুরো file-টা (বা GitHub link) তাকে দাও আর বলো "Read HANDOFF.md first and follow it."
+> Admin password বা database URL কখনো কোনো chat-এ বা file-এ দেবে না—ওগুলো শুধু Vercel-এ থাকে।
 
-**How to work:** all updates go straight to the `main` branch of
-https://github.com/tuhin5060/University-model-test-sbs-updated — no side
-branches, no ZIP uploads. Pushing to `main` updates the live sites on Vercel and
-Cloudflare automatically.
+Last updated: 2026-10-27 · version **2.16.1** · latest commit on `main` at the time: `352b76b`.
+Keep §4 up to date after each change.
 
 ## 1. What this is
-Bangla-first university-admission practice site: English MCQ **Fun Quiz** and
-timed **Model Test** (Grammar + Memorising), Tips & Tricks, university pages,
-Score/leaderboard with roll numbers, vocabulary list. Plain HTML/CSS/ES modules,
-no build step. API in `server/` backed by **Neon Postgres**, deployed on both
-**Vercel** and **Cloudflare Pages** from the same repo.
+Bangla-first university-admission practice site for Bangladeshi students: English MCQ
+**Fun Quiz** and timed **Model Test**, Tips & Tricks, university pages, Score/leaderboard,
+vocabulary list, community Q&A, push reminders and an admin usage dashboard.
+Plain HTML/CSS/ES modules (no framework, no bundler). API in `server/`, backed by **Neon Postgres**.
 
-- GitHub (source of truth): https://github.com/tuhin5060/University-model-test-sbs-updated — branch **`main`**
-- Vercel: project `university-model-test-sbs-updated` (id `prj_HR80vU3NX3HvQlcjlVlykB45azj7`,
-  team “tuhin5060's projects”, `team_8dwiThmNlmMYmrLA0wli5BWp`)
-  → https://sbs-university-admission-model-test.vercel.app (the old
-  university-model-test-sbs-updated.vercel.app redirects here)
-- Cloudflare Pages: project `sbs-university-admission-model-test`, connected to the same repo
-  (URL is normally https://sbs-university-admission-model-test.pages.dev).
-- Neon: added through the Vercel Marketplace (free plan). Vercel env vars
-  `DATABASE_URL` / `POSTGRES_URL` etc. come from it.
-- Unused: Cloudflare D1 `campus-admission-companion` (id `dfbfe817-73f6-4c5c-9023-38203fae39a6`, empty).
-- **Push every finished update directly to `main`** — that deploys both sites.
+| | |
+|---|---|
+| Source of truth | https://github.com/tuhin5060/University-model-test-sbs-updated — branch **`main`** (public repo) |
+| Live site | https://sbs-university-admission-model-test.vercel.app |
+| Vercel | project `university-model-test-sbs-updated`, id `prj_HR80vU3NX3HvQlcjlVlykB45azj7`, team `team_8dwiThmNlmMYmrLA0wli5BWp` (Hobby plan). The old `university-model-test-sbs-updated.vercel.app` domain 301-redirects to the live site. |
+| Cloudflare Pages | project `sbs-university-admission-model-test` (second copy from the same repo; not re-verified recently) |
+| Database | Neon Postgres via the Vercel Marketplace integration (free plan) |
+| Not part of the site | Vercel project `campus-pothe-homepage-v2-preview` — the owner's private design mock-up. **Do not touch, deploy, merge or delete it.** |
+
+**Deploy = push to `main`.** Vercel builds production automatically (~1 min). No PRs or side
+branches unless the owner asks.
 
 ## 2. Hard rules
-1. Work from the latest `main` and push back to `main`. **Never** push an old ZIP
-   (e.g. `campus-pothe-website-source.zip`, v2.2.x) — it would wipe newer work.
-2. Secrets only in host settings, never in the repo or browser code:
-   - Vercel → Settings → Environment Variables: `DATABASE_URL` (from the Neon integration).
-   - Cloudflare → Workers & Pages → project → Settings → Variables and Secrets: `DATABASE_URL` (Secret, same value).
-3. Before every push: `npm ci && npm run check` (content checker + API tests on
-   in-memory Postgres). Browser test: `npm run test:e2e` (needs Playwright).
-4. Every question: exactly 4 options, one correct, Bangla explanation
-   (`explainBn`) that also says why the other options are wrong.
-5. No names, phone numbers, websites or brand lines from source PDFs in questions.
-6. Keep `api/*.js` and `functions/api/*.js` as thin entry points; put logic in `server/`.
-7. **No npm packages in `server/`, `api/` or `functions/`.** Cloudflare Pages does not run
-   `npm install` (empty build command), so any import from `node_modules` breaks the
-   Cloudflare build. Neon is reached with plain `fetch` (`server/neon-http.js`).
-8. After a push, check both builds: the GitHub commit shows a “Vercel” status and a
-   “Cloudflare Pages” check. Both must be green. (Without a GitHub token:
-   `curl https://api.github.com/repos/tuhin5060/University-model-test-sbs-updated/commits/<sha>/check-runs`.)
-9. Never decrypt or print secret values; never commit them.
+1. Start from the latest `main`; push back to `main`. Never upload an old ZIP over newer work.
+2. **Secrets live only in Vercel → Settings → Environment Variables** (all marked Sensitive).
+   Never put them in the repo, tests, comments, commit messages or browser code. The repo is public.
+   Never decrypt or print env values. Tests use dummy values (e.g. `TestPass99`).
+3. Before every push: `npm ci && npm run sync && npm run check` — all must pass (currently 67 tests).
+   `sync` regenerates SEO pages, sitemap, `data/questions/meta.js`, the service-worker precache
+   list and `modulepreload` tags. Commit what it changes.
+4. **No npm packages in `server/`, `api/`, `functions/`** (Cloudflare does not run `npm install`).
+   Neon is reached with plain `fetch` (`server/neon-http.js`).
+5. `api/*.js` (Vercel) and `functions/api/*.js` (Cloudflare) are thin entry points; logic goes in `server/`.
+6. Questions: exactly 4 options, one correct, Bangla explanation (`explainBn`) that also says why
+   the others are wrong. Put each question in the right topic file.
+7. **Never invent data.** The 📌 exam reference (`source`) is shown only when the source data names
+   a real exam/university + year. No reference in the data → leave it empty. No names, phone
+   numbers or brand lines from source PDFs.
+8. Inline `<script>` in `index.html` is allowed only with its SHA-256 hash in the CSP
+   (`vercel.json` and `_headers`); `scripts/seo.mjs --check` verifies this. No inline `onclick`.
+9. After pushing, confirm the Vercel production deployment is READY and spot-check the live page.
+10. Don't add model names/IDs to commits or files.
 
-## 3. Where things are
-| What | File |
+## 3. Map of the code
+| What | Where |
 |---|---|
-| Question topics (one file each) | `data/questions/*.js`, registered in `data/questions/index.js` |
-| Topic groups | `group: 'memorising'` in a topic file → Memorising; otherwise Grammar |
-| Vocabulary word list page (`#vocab`) | `data/vocabulary.js` → `assets/js/pages/vocab.js` |
-| DU / CoU facts, rankings, photos | `data/university-profiles.js` (add more ids the same way) |
-| Universities list & admission details | `data/universities.js` |
-| Tips posts | `data/posts.js` |
-| Site name, credits, WhatsApp link, CU photos | `data/site.js` |
+| App shell, routes (`#home`, `#start/exam/<topic>`, `#leaderboard`, `#admin` …) | `index.html`, `assets/js/main.js` |
+| Pages | `assets/js/pages/*.js` (`admin.js` is lazy-loaded) |
+| Question topics (one file each) | `data/questions/*.js`, registered in `data/questions/index.js`; `meta.js` is generated |
+| Lazy loading of the 1.3 MB bank + vocabulary | `assets/js/lib/bank.js` |
+| Exam-reference tag logic | `assets/js/shared/source.js` (+ `tests/source-reference.test.mjs`) |
+| Public name tag (last word of name + roll, e.g. `Ali.003`) | `assets/js/shared/names.js` |
 | Scoring (Fun 30 s/q; Model Test 36 s/q, −0.25 per wrong) | `assets/js/shared/scoring.js` (browser + server) |
-| API logic | `server/routes/{profile,scores,visitors,progress}.js` |
-| Database tables | `server/db.js` (`SCHEMA`, created automatically) |
-| Neon HTTPS client | `server/neon-http.js` |
-| Vercel / Cloudflare entry points | `api/*.js` / `functions/api/*.js` |
-| Roll field, start screen | `assets/js/pages/start.js` |
-| Score page (rank cards) | `assets/js/pages/misc.js` |
-| Top-score popup + live visitors | `assets/js/lib/live.js` |
-| Cloud sync of progress | `assets/js/lib/cloud.js` |
-| Styles | `assets/css/styles.css` |
-| How to add questions | `CONTENT_GUIDE.md` |
-| Version history | `CHANGELOG.md` |
+| Live online count / today's visitors / top-score popups | `assets/js/lib/live.js` → `server/routes/visitors.js` |
+| Offline queue for scores & sign-ups | `assets/js/lib/outbox.js` |
+| Service worker (versioned precache) | `sw.js` (block between markers written by `scripts/preload.mjs`) |
+| API routes | `server/routes/{profile,scores,visitors,progress,community,push,admin,backup}.js` |
+| Tables (created automatically, idempotent) | `server/db.js` (`SCHEMA`) |
+| Rate limits | `server/ratelimit.js` (`hits` table) |
+| Admin password check | `server/admin.js` (`ADMIN_PASSWORD`, whitespace ignored) |
+| SEO generator (topic pages `/mcq/<topic>/`, `/tips/`, `/universities/`, sitemap, footer links) | `scripts/seo.mjs` |
+| Headers, CSP, redirects, cron | `vercel.json` (Vercel), `_headers` (Cloudflare) |
+| Site name, credits, WhatsApp, CU photos | `data/site.js` |
+| How to add questions | `CONTENT_GUIDE.md` · history: `CHANGELOG.md` |
 
-## 4. Current state (update this section)
-- `main` = **v2.4.0**: 2079 questions in 19 topics (Grammar 624 in 13 topics;
-  Memorising 1455 in 6 topics), 1049-word list, roll numbers, Score page with
-  rank, top-score popup, Neon database, DU & CoU pages, phone hero gradient.
-- Builds: Vercel ✅ and Cloudflare Pages ✅ on the latest main (Cloudflare failed
-  before because of an npm import — see rule 7).
-- Old MongoDB data (only test scores) was not migrated.
+Environment variables (names only): `DATABASE_URL` / `POSTGRES_URL` (Neon), `ADMIN_PASSWORD`,
+`CRON_SECRET` (daily push cron `/api/push-cron`, 14:00 UTC), `VAPID_PRIVATE_JWK` (web push).
 
-**Waiting on the owner (dashboard clicks, no code):**
-1. Cloudflare → Workers & Pages → `sbs-university-admission-model-test` → Settings →
-   Variables and Secrets → add `DATABASE_URL` (Secret, Production + Preview, same
-   value as Vercel’s Neon `DATABASE_URL`) → redeploy. Until then the Cloudflare site
-   works but hides leaderboard/rolls/visitor count (API answers 503).
-2. Vercel → Settings → Environment Variables → delete `MONGODB_URI`, `MONGODB_DB`;
-   Vercel → Integrations → MongoDB Atlas → Uninstall.
+## 4. Current state (2026-10-27)
+- 2,256 questions in 21 topics (Grammar + Memorising), 1,049-word vocabulary list.
+- 513 questions show a 📌 reference; 1,743 have none in the data and are intentionally empty
+  (mostly Synonym, Antonym, Meaning, Idioms, Preposition, Tense).
+- Login = full name + roll (no password). Leaderboard shows only `LastName.roll` + college.
+- Admin dashboard (`#admin`, link at the bottom of every page): online now, visitors today,
+  per-student full name, minutes, from–to times, daily totals. Data in `usage_sessions`
+  (one heartbeat ≈ 1 min, gap > 5 min = new session, kept 60 days). Started 2026-10-27.
+- Verified live on 2026-10-27 in a real browser: home boots in < 1 s, online count and
+  today's visitors show, leaderboard, all pages, admin login/logout and wrong-password message work.
+- Traffic (Vercel Web Analytics, 21–27 Oct): 230 visitors, 873 page views; ~90% direct,
+  ~8% Facebook, Google ≈ 1 (not indexed yet).
 
-**Known gaps / not verified:**
-- Live writes (POST profile/scores) against the real Neon were not exercised from the
-  agent sandbox; reads work live, and tests run the same SQL with text parameters
-  as Neon does. First real sign-up on the site is the final check — look at Vercel
-  runtime logs if a save fails.
-- DU / CoU photos load from Wikimedia Commons and could not be opened from the
-  sandbox; a photo that fails to load hides itself. CoU motto left out (unverified).
-- Decision (owner): stay on **Neon** for now (~100 visits/day fits the free plan:
-  1 GB storage, 100 CU-hours/month). MongoDB is retired: its URI value on Vercel
-  was blanked; the owner deletes `MONGODB_URI`/`MONGODB_DB` and uninstalls the
-  MongoDB Atlas integration in the Vercel dashboard.
-- If traffic grows (~500–1000+ visits/day) Neon free compute may run out. Plan:
-  move to Cloudflare D1 as the single database (5 GB, 5M reads/100k writes per
-  day, no compute-hour limit) — port `server/` SQL to SQLite (keep tables and
-  columns the same; add a best-score summary table so leaderboard reads stay
-  small), export Neon tables (students, score_attempts, progress) to CSV/SQL,
-  import with the D1 tools, make Cloudflare the main site and redirect the
-  Vercel URL there. Rolls and scores carry over unchanged.
-- Ideas not done yet: the owner mentioned an "advanced" feature to describe later.
+### Security in place
+- No secrets in git history (checked all commits). `/.env` → 404.
+- Internal files (`/server/*`, `/tests/*`, `/scripts/*`, `/docs/*`, `/functions/*`, `*.md`,
+  `package.json`, `wrangler.toml` …) redirect to `/` (rule in `vercel.json`); `/api/*`, `/data/*` still served.
+- Strict headers: CSP with script hashes, HSTS preload, `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`, COOP.
+- Admin API: 10 wrong passwords / 15 min per IP → blocked. Password kept only in sessionStorage
+  of that tab. Backup endpoint needs the admin password.
+- Sign-in: 8 wrong names for one roll per hour → that roll is locked for an hour (any network).
+- Rate limits on score posts, sign-ups, community threads/replies; all SQL is parameterised;
+  all user text is HTML-escaped on render.
+
+### SEO in place
+- Google Search Console verified (meta tag + `google79aa884cbe996390.html`).
+- 21 static topic pages `/mcq/<topic>/` with questions, answers and Bangla explanations,
+  `/tips/<slug>/` articles, `/universities/`; 41-URL `sitemap.xml`; `robots.txt` blocks only internal paths.
+- Canonical URLs, Open Graph/Twitter cards, one `WebSite`+`Organization` JSON-LD on home,
+  `BreadcrumbList` + `Quiz` JSON-LD on topic pages; old domain 301 → main domain.
+
+### Open items
+1. **Owner:** change `ADMIN_PASSWORD` in Vercel to a long, unguessable one, then redeploy
+   (current one is short and matches the public Facebook handle).
+2. **Owner:** Search Console → submit `sitemap.xml`, request indexing for home + a few `/mcq/` pages.
+3. **Owner:** delete leftover GitHub branch `preview/audit-2026-10-27`.
+4. Known, accepted: answers ship to the browser, so a determined user can fake a score
+   (server rate limits only). Fix would need server-side question serving.
+5. CU gallery photo "Campus, University of Chittagong 1.jpg": Wikimedia now serves it from
+   `thumb.wikimedia.org`, which the CSP blocks, so the local 480 px fallback stays. Owner chose
+   not to change it yet (performance). To enable: add `https://thumb.wikimedia.org` to `img-src`
+   in `vercel.json` and `_headers`.
+6. `tests/e2e/run.mjs` is outdated (fails on old code too); unit/API tests are the real gate.
+7. Optional speed: lazy-load `data/posts.js` and `data/universities.js` (~20 KB gz) from the home page.
 
 ## 5. Owner preferences
-- Mobile first; simple, minimal UI; no duplicate buttons or filler text.
-- Bangla explanations for every answer, including why other options are wrong.
-- Only two modes for students: Fun Quiz and Model Test.
-- Name is required; roll is shown as `Name.001` and must stay unique.
-- Phone header: edge-to-edge photo with green gradient. Desktop: framed photo.
+- Owner writes Bangla/Banglish; reply with short, organised Bangla summaries.
+- Mobile first, simple UI, no duplicate buttons or filler text; don't slow the home page.
+- Every answer has a Bangla explanation; only two modes: Fun Quiz and Model Test.
+- Data must be real (counts, references, visitors) — never estimated or made up.
 - Feedback goes to WhatsApp (link in `data/site.js`).
-- Long-term free hosting: Cloudflare Pages (commercial use allowed, generous
-  free limits) + Neon free tier; Vercel Hobby kept as a second deployment.
-- Wants short, organised Bangla summaries of what changed after each round, and
-  every message considered (not only the latest).
