@@ -10,6 +10,8 @@
 * Internal files (server/, tests/, scripts/, docs/, functions/, *.md, package.json…)
   are no longer served by the site (redirect to /) and robots.txt keeps search engines
   away from them. They hold no secrets; the repository is public anyway.
+* index.html had two WebSite JSON-LD blocks with different publishers; the older one
+  is removed (search engines see one consistent site description).
 
 ## 2.16.0 — lighter home page, auto-send, admin dashboard
 * Home page: the question bank (2,256 questions, ~1.3 MB) and the word list no longer
