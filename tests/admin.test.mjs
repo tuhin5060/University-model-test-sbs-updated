@@ -11,6 +11,7 @@ const db = await createLocalDb();
 useDatabase(db);
 test.after(() => db.close());
 process.env.ADMIN_PASSWORD = 'TestPass99';
+delete process.env.VAPID_PRIVATE_JWK; // the build machine may have the real key: never send real notifications from a test
 
 const req = (url, body, cookie) => new Request(`https://site.test${url}`, {
   method: 'POST',
