@@ -102,7 +102,7 @@ New API routes must also be added to `ROUTES` in `scripts/serve.mjs` (local dev 
 Vercel Hobby allows only about 12 functions per deployment; `api/` now has 11 files — before adding
 another endpoint, add an action to an existing route instead.
 
-## 4. Current state (2026-10-29)
+## 4. Current state (2026-10-29, v2.18.0)
 - 2,256 questions in 21 topics (Grammar + Memorising), 1,049-word vocabulary list.
 - **Daily Quiz** (since 2026-10-29): 20 questions a day = 10 CU/DU + 10 other universities, all
   with a real 📌 reference (513 such questions: 171 CU/DU, 342 others). Each half rotates with no
@@ -113,16 +113,30 @@ another endpoint, add an action to an existing route instead.
 - 513 questions show a 📌 reference; 1,743 have none in the data and are intentionally empty
   (mostly Synonym, Antonym, Meaning, Idioms, Preposition, Tense).
 - Login = full name + roll (no password). Leaderboard shows only `LastName.roll` + college.
-- Admin dashboard (`#admin`, link at the bottom of every page): online now, visitors today,
-  per-student full name, minutes, from–to times, daily totals. Data in `usage_sessions`
-  (one heartbeat ≈ 1 min, gap > 5 min = new session, kept 60 days). Started 2026-10-27.
+- Admin dashboard (`#admin`, link at the bottom of every page; v2.18), five tabs, all via
+  POST `/api/admin` `{password, action}` (every action checks the password first):
+  - 📊 সারাংশ: today / 7 / 30 days — online, visitors, signed-in users, minutes, sign-ups,
+    tests, Daily Quiz takers, push subscribers; a bar per day; top students; today's sessions.
+  - 👩‍🎓 শিক্ষার্থী (`students`): search by name, roll or college → full name, tests, points,
+    accuracy, Daily days, minutes, joined / last seen.
+  - 📅 Daily Quiz (`daily`): any day's 20 questions with answers + every participant (full names).
+  - 📢 Notice (`settings`, `save-settings`, `push`): a site notice bar on every page (on/off,
+    text, link; students can close it), the morning reminder title/text (yesterday's count is
+    added automatically), and "send a notification now" (max 5 per hour).
+  - 💾 Data: database size meter and row counts (`/api/backup` stats) + link to `#backup`.
+  Settings live in the `settings` table, keys `notice` and `morning` (also `push_message`,
+  `known_topics`, `schema`). Usage data in `usage_sessions` (one heartbeat ≈ 1 min,
+  gap > 5 min = new session, kept 60 days). Started 2026-10-27.
+- Score page (v2.18): my card (total points, position, Fun / Model Test, Daily streak, today)
+  → today's top → tabs Leaderboard / আমার topic / আমার test. Same API data as before.
 - Verified live on 2026-10-27 in a real browser: home boots in < 1 s, online count and
   today's visitors show, leaderboard, all pages, admin login/logout and wrong-password message work.
 - Traffic (Vercel Web Analytics, 21–27 Oct): 230 visitors, 873 page views; ~90% direct,
   ~8% Facebook, Google ≈ 1 (not indexed yet).
 
 ### Security in place
-- No secrets in git history (checked all commits). `/.env` → 404.
+- No secrets in the repository: `tests/security.test.mjs` fails on any committed password,
+  database URL, private key, `.env` or ZIP. Admin password only in the host env settings. `/.env` → 404.
 - Internal files (`/server/*`, `/tests/*`, `/scripts/*`, `/docs/*`, `/functions/*`, `*.md`,
   `package.json`, `wrangler.toml` …) redirect to `/` (rule in `vercel.json`); `/api/*`, `/data/*` still served.
 - Strict headers: CSP with script hashes, HSTS preload, `X-Frame-Options: DENY`, `nosniff`,
@@ -141,8 +155,10 @@ another endpoint, add an action to an existing route instead.
   `BreadcrumbList` + `Quiz` JSON-LD on topic pages; old domain 301 → main domain.
 
 ### Open items
-1. **Owner:** change `ADMIN_PASSWORD` in Vercel to a long, unguessable one, then redeploy
-   (current one is short and matches the public Facebook handle).
+1. **Owner:** change `ADMIN_PASSWORD` in Vercel (and Cloudflare, if set there) to a long,
+   unguessable one (16+ characters, not a name or handle), then redeploy. Never write any hint
+   about it in this repository—`tests/security.test.mjs` fails if a password, database URL or
+   private key is committed.
 2. **Owner:** Search Console → submit `sitemap.xml`, request indexing for home + a few `/mcq/` pages.
 3. **Owner (optional):** delete the old GitHub branches listed in §2a (agents can't delete branches).
 4. Known, accepted: answers ship to the browser, so a determined user can fake a score

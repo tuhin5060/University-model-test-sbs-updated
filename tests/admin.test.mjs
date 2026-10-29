@@ -41,3 +41,70 @@ test('admin: wrong password refused; usage per student with full name, minutes a
   assert.equal(body.sessions.find(s => s.minutes === 3).name, 'Rahim Uddin', 'consecutive heartbeats extend one session');
   assert.ok(body.sessions.some(s => s.name === null), 'visitors without a name are listed too');
 });
+
+// ---- more admin actions (2.18) -----------------------------------------------------
+import * as daily from '../api/daily.js';
+import { safeLink } from '../server/routes/admin.js';
+import { QUESTION_MAP } from '../data/questions/index.js';
+
+const adminCall = async (body, password = 'TestPass99') => {
+  const res = await admin.POST(req('/api/admin', { password, ...body }));
+  return { status: res.status, body: await res.json() };
+};
+
+test('admin actions all need the password', async () => {
+  for (const action of ['students', 'daily', 'settings', 'save-settings', 'push']) {
+    assert.equal((await adminCall({ action }, 'nope')).status, 403, action);
+  }
+  assert.equal((await adminCall({ action: 'drop-tables' })).status, 400);
+});
+
+test('overview: per-day rows include days without activity, tests and Daily Quiz counts', async () => {
+  const { body } = await adminCall({ days: 7 });
+  assert.equal(body.daily.length, 7);
+  assert.ok(['tests', 'daily', 'signups', 'visitors'].every(k => k in body.daily[0]));
+  assert.ok('push_subs' in body.summary && 'daily_today' in body.summary && 'tests_today' in body.summary);
+});
+
+test('students: search by name, roll or college with tests, points and Daily Quiz days', async () => {
+  const id = (await (await profile.POST(req('/api/profile', { name: 'Karim Ahmed', college: 'Dhaka College' }))).json()).player;
+  const { ids, day } = await (await daily.GET(new Request('https://site.test/api/daily'))).json();
+  const sheet = ids.map(q => ({ id: q, choice: QUESTION_MAP.get(q).a }));
+  assert.equal((await daily.POST(req('/api/daily', { playerId: id.playerId, attemptId: 'adm-d1', day, answers: sheet }, id.playerId))).status, 201);
+  const byName = (await adminCall({ action: 'students', q: 'karim' })).body.students;
+  assert.equal(byName.length, 1);
+  assert.equal(byName[0].daily_days, 1);
+  assert.equal(byName[0].tag, `Karim Ahmed.${String(id.roll).padStart(3, '0')}`);
+  assert.equal((await adminCall({ action: 'students', q: String(id.roll).padStart(3, '0') })).body.students[0].name, 'Karim Ahmed');
+  assert.equal((await adminCall({ action: 'students', q: 'dhaka' })).body.students[0].college, 'Dhaka College');
+  assert.equal((await adminCall({ action: 'students', q: '%' })).body.students.length, 0, '% is a plain character, not a wildcard');
+
+  const d = (await adminCall({ action: 'daily' })).body;
+  assert.equal(d.day, day);
+  assert.equal(d.questions.length, 20);
+  assert.ok(d.questions.every(q => q.ref), 'every Daily Quiz question has its exam reference');
+  assert.equal(d.rows[0].name, 'Karim Ahmed');
+  assert.equal(d.rows[0].marks, 20);
+  assert.equal(d.days[0].participants, 1);
+});
+
+test('settings: site notice goes out with the heartbeat; links are checked; morning text is kept', async () => {
+  assert.equal((await adminCall({ action: 'save-settings', notice: { on: true, text: 'Exam tomorrow', url: 'javascript:alert(1)' } })).status, 400);
+  const saved = (await adminCall({ action: 'save-settings', notice: { on: true, text: '<b>কাল</b> নতুন topic', url: '#daily' }, morning: { title: 'Good morning', body: 'Quiz ready' } })).body;
+  assert.ok(!saved.notice.text.includes('<'), 'tags are stripped');
+  assert.equal(saved.morning.title, 'Good morning');
+  const beat = await (await visitors.POST(req('/api/visitors', { sid: 'c3'.repeat(10) }))).json();
+  assert.equal(beat.notice.url, '#daily');
+  assert.equal(beat.notice.id, saved.notice.id);
+  await adminCall({ action: 'save-settings', notice: { on: false, text: 'Exam tomorrow', url: '' } });
+  assert.equal((await (await visitors.POST(req('/api/visitors', { sid: 'c3'.repeat(10) }))).json()).notice, null);
+  assert.equal(safeLink('#start/fun'), '#start/fun');
+  assert.equal(safeLink('https://cu.ac.bd/'), 'https://cu.ac.bd/');
+  assert.equal(safeLink('http://x.com'), '');
+  assert.equal(safeLink('data:text/html,hi'), '');
+});
+
+test('push now: refused without notification keys, needs a title and text', async () => {
+  const r = await adminCall({ action: 'push', title: 'Hi', body: 'Hello', url: '#daily' });
+  assert.equal(r.status, 503, 'no VAPID key in this test environment');
+});

@@ -44,6 +44,29 @@ export function paintLive() {
   });
 }
 
+// The admin's site notice (admin page → Notice): a thin bar under the header on every
+// page. A student who closes it does not see that notice again (remembered per notice id).
+const NOTICE_KEY = 'campus-pothe.notice-closed';
+function paintNotice(n) {
+  let closed = '';
+  try { closed = localStorage.getItem(NOTICE_KEY) || ''; } catch { /* private mode */ }
+  let bar = document.getElementById('site-notice');
+  if (!n || closed === n.id) return bar?.remove();
+  if (!bar) {
+    bar = Object.assign(document.createElement('div'), { id: 'site-notice', className: 'site-notice' });
+    bar.setAttribute('role', 'status');
+    document.querySelector('.site-header')?.after(bar);
+  }
+  if (bar.dataset.id === n.id) return;
+  bar.dataset.id = n.id;
+  const link = n.url ? ` <a href="${esc(n.url)}" ${n.url.startsWith('https://') ? 'target="_blank" rel="noopener noreferrer"' : ''}>বিস্তারিত →</a>` : '';
+  bar.innerHTML = `<span aria-hidden="true">📢</span><span>${esc(n.text)}${link}</span><button type="button" class="notice-x" aria-label="বন্ধ করো">✕</button>`;
+  bar.querySelector('.notice-x').addEventListener('click', () => {
+    try { localStorage.setItem(NOTICE_KEY, n.id); } catch { /* private mode */ }
+    bar.remove();
+  });
+}
+
 /** Small banner at the top of the screen, e.g. "🏆 Arman.007 … সর্বোচ্চ". */
 function popup(html) {
   let el = document.getElementById('top-pop');
@@ -92,6 +115,7 @@ async function beat() {
       if (pendingScores() || state.player?.pending) flush();
       if (problems.length) clearProblems();
       if (lastEvent !== null && body.events?.length) announce(body.events);
+      paintNotice(body.notice);
       lastEvent = Math.max(lastEvent || 0, body.lastEvent || 0);
     } else failed = true;
   } catch {

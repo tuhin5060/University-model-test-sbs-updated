@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.18.0 — cleaner Score page, nicer Daily Quiz, stronger admin
+* Score page reorganised (same data, every score unchanged): one card with your total
+  points, position, Fun / Model Test points and Daily streak, then today's top scorer
+  (2nd–5th fold out), then three tabs — Leaderboard (topic filter + Fun / Model Test),
+  my topics, my tests. Points rules folded into one "ℹ️" line.
+* Daily Quiz page: a blue hero card for the chosen day with a date badge, participants,
+  a live countdown to the end of the day (or to the next quiz), and after taking it a
+  score ring with position, right / wrong / skipped and time. Your streak, days taken and
+  best score; date circles now show the weekday; the reminder switch sits in the card.
+* Home: the Daily Quiz card right under the hero — date badge, how many took it today,
+  time left, one big start button and the reminder switch.
+* Morning reminder now also says how many took yesterday's quiz; its text can be changed
+  from the admin page.
+* Admin page: five tabs — overview with 1 / 7 / 30-day charts, student search (name, roll,
+  college) with points and use, any day's Daily Quiz with full results, site notice +
+  reminder text + send a notification now, and database size / row counts.
+* Site notice: a bar under the header on every page, set from the admin page; students can
+  close it.
+* A test now fails if any password, database address, private key, `.env` or ZIP file is
+  ever committed.
+
 ## 2.17.0 — Daily Quiz
 * New third quiz type next to Fun Quiz and Model Test: **Daily Quiz** — the same 20
   questions for everyone each day (Bangladesh date), 12 minutes, −0.25 per wrong answer,

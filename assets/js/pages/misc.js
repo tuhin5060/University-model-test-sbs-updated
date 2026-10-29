@@ -26,151 +26,152 @@ function loginCard() {
   </form>`;
 }
 
-function myScores() {
-  const ranked = state.history.filter(x => (x.mode === 'fun' || x.mode === 'exam') && x.kind !== 'daily'); // Daily Quiz has its own page (#daily)
-  if (!ranked.length && !state.player?.playerId) {
-    return loginCard() + empty('এখনো কোনো test দাওনি। একটা দিলেই তোমার score এখানে দেখাবে।', '<a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a> <a class="btn" href="#start/exam">⏱️ Model Test</a>');
-  }
-  const total = ranked.reduce((n, x) => n + attemptPoints(x), 0);
-  const p = state.player;
-  return `${loginCard()}${p?.name ? `<p class="my-name"><span aria-hidden="true">${esc(p.avatar || '🚂')}</span> <b>${esc(p.tag || p.name)}</b>${p.playerId ? '' : ' <small class="muted">(এই device-এ)</small>'}${p.college ? `<small class="my-college">🏫 ${esc(p.college)}</small>` : ''}</p>` : ''}
-    <div id="my-stats">${p?.playerId ? '<div class="skeleton"></div>' : ''}</div>
-    <div class="stat-grid" id="local-stats">
-      <div class="stat"><b>${bn(total)}</b><small>মোট points (এই device-এ)</small></div>
-      <div class="stat"><b>${bn(ranked.length)}</b><small>মোট test</small></div>
-      <div class="stat"><b>🔥 ${bn(dailyStreak())}</b><small>দৈনিক streak</small></div>
-    </div>
-    <div class="history">${ranked.slice(0, 5).map(x => {
-      const m = MODE_INFO[x.mode];
-      return `<a class="history-row" href="#result/${esc(x.id)}"><span class="h-icon" aria-hidden="true">${m.icon}</span><span><b>${esc(x.title)}</b><small>${esc(m.label)} · ${x.mode === 'exam' ? `${bn(x.percent ?? 0)}% · ` : ''}${bnDate(x.finished)} · ${duration(x.timeSec)}</small></span><span class="h-score">+${bn(attemptPoints(x))} pts${x.saved === 'saved' ? ' <small title="Leaderboard-এ save">🏆</small>' : ''}</span></a>`;
-    }).join('')}</div>
-    <p><a class="text-link" href="#progress">সব ফলাফল, ভুল ও topic অনুযায়ী অগ্রগতি →</a></p>`;
-}
-
-// Server stats: total points and position overall, then per mode.
-function rankCard(s) {
-  if (!s) return '';
-  return `<div class="rank-card rank-main">
-    <span class="rank-mode">🏅 সব test মিলিয়ে</span>
-    <b>${bn(s.points)} <small>points</small></b><small>অবস্থান <b>#${bn(s.rank)}</b> · ${bn(s.players)} জনের মধ্যে</small>
-    <dl>
-      <div><dt>মোট test</dt><dd>${bn(s.tests)}</dd></div>
-      <div><dt>সঠিক / ভুল</dt><dd>${bn(s.correct)} / ${bn(s.wrong)}</dd></div>
-    </dl>
-  </div>`;
-}
-function modeCard(mode, s) {
-  const m = MODE_INFO[mode];
-  if (!s) return `<div class="rank-card t-${m.color}"><span class="rank-mode">${m.icon} ${esc(m.label)}</span><b>—</b><small>এখনো দাওনি</small></div>`;
-  return `<div class="rank-card t-${m.color}">
-    <span class="rank-mode">${m.icon} ${esc(m.label)}</span>
-    <b>${bn(s.points)} <small>pts</small></b><small>#${bn(s.rank)} · ${bn(s.players)} জনের মধ্যে</small>
-    <dl>
-      <div><dt>test</dt><dd>${bn(s.tests)}</dd></div>
-      <div><dt>সেরা</dt><dd>${mode === 'fun' ? bn(s.best) : `${bn(s.best)}%`}</dd></div>
-    </dl>
-  </div>`;
-}
+let scoreTab = 'board'; // which tab of the Score page is open: board | topics | tests
 
 /** Bangla ordinal: ১ম, ২য়, ৩য়, ৪র্থ, ৬ষ্ঠ, ১১তম … */
 const ordinal = n => `${bn(n)}${{ 1: 'ম', 2: 'য়', 3: 'য়', 4: 'র্থ', 6: 'ষ্ঠ' }[n] || (n <= 10 ? 'ম' : 'তম')}`;
+const medal = rank => ['🥇', '🥈', '🥉'][rank - 1] || `#${bn(rank)}`;
 
-// Position on each topic's board the student has played; a tap opens that leaderboard.
-function topicRanks(list) {
-  if (!list.length) return '';
-  const rows = list.map(t => `<li><button class="tr-row" data-action="lb-board" data-mode="all" data-topic="${esc(t.topic)}">
-      <span class="tr-rank">${['🥇', '🥈', '🥉'][t.rank - 1] || `#${bn(t.rank)}`}</span>
-      <span class="tr-text"><b lang="en">${esc(topicTitle(t.topic))}</b><small>${bn(t.players)} জনের মধ্যে ${ordinal(t.rank)} · ${bn(t.tests)}টি test</small></span>
-      <span class="tr-score"><small>points</small>${bn(t.points)}</span>
-    </button></li>`).join('');
-  return `<div class="topic-ranks">
-    <h3 class="h3">📚 Topic অনুযায়ী অবস্থান</h3>
-    <p class="muted small">যে topic-এ test দিয়েছ, সেই topic-এ সবার মধ্যে তুমি কততম (ওই topic-এর সব test-এর points যোগ করে)। চাপ দিলে ওই topic-এর leaderboard দেখাবে।</p>
-    <ul class="tr-list">${rows}</ul>
-  </div>`;
+// This browser's Fun Quiz / Model Test results (the Daily Quiz has its own page, #daily).
+const myTests = () => state.history.filter(x => (x.mode === 'fun' || x.mode === 'exam') && x.kind !== 'daily');
+
+// ---- my card: total points, position, Fun / Model Test / Daily, today -------------
+function meCard() {
+  const p = state.player;
+  if (!p?.playerId) {
+    return `${loginCard()}
+      <div class="card me-empty"><p>নাম দিয়ে Fun Quiz বা Model Test দিলেই এখানে তোমার points আর অবস্থান দেখাবে।</p>
+        <div class="actions"><a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a><a class="btn" href="#start/exam">⏱️ Model Test</a></div></div>`;
+  }
+  const local = myTests().reduce((n, x) => n + attemptPoints(x), 0);
+  return `<section class="me-card" id="me-card" aria-live="polite">
+    <div class="me-head">
+      <span class="me-avatar" aria-hidden="true">${esc(p.avatar || '🚂')}</span>
+      <div><b>${esc(p.tag || p.name)}</b>${p.college ? `<small>🏫 ${esc(p.college)}</small>` : ''}</div>
+    </div>
+    <div class="me-main">
+      <div><small>মোট points</small><b data-me="points">${bn(local)}</b></div>
+      <div class="me-rank"><small>সবার মধ্যে</small><b data-me="rank">—</b><small data-me="of"></small></div>
+    </div>
+    <div class="me-chips">
+      <span>🎮 Fun <b data-me="fun">—</b></span>
+      <span>⏱️ Test <b data-me="exam">—</b></span>
+      <a href="#daily">📅 Daily 🔥 <b>${bn(dailyStreak())}</b> দিন</a>
+    </div>
+    <p class="me-today" data-me="today"></p>
+  </section>`;
 }
 
-// Today's top scorer (most points since midnight Bangladesh time), shown above everything for recognition.
+async function loadMyStats() {
+  if (!state.player?.playerId || !$('#me-card')) return;
+  const set = (k, html) => { const el = $(`[data-me="${k}"]`); if (el) el.innerHTML = html; };
+  try {
+    const { stats, topics = [], today = null } = await fetchMyStats();
+    if (!$('#me-card')) return; // page changed meanwhile
+    if (stats?.all) {
+      set('points', bn(stats.all.points));
+      set('rank', medal(stats.all.rank));
+      set('of', `${bn(stats.all.players)} জনের মধ্যে`);
+    } else {
+      set('of', 'এখনো কোনো test নেই');
+    }
+    set('fun', stats?.fun ? `${bn(stats.fun.points)} <small>#${bn(stats.fun.rank)}</small>` : '—');
+    set('exam', stats?.exam ? `${bn(stats.exam.points)} <small>#${bn(stats.exam.rank)}</small>` : '—');
+    set('today', today
+      ? `আজ: <b>${ordinal(today.rank)}</b> · ${bn(today.points)} pts · ${bn(today.attempts)}টি test (${bn(today.players)} জনের মধ্যে)`
+      : 'আজ এখনো test দাওনি—একটা দিলেই আজকের তালিকায় উঠে যাবে।');
+    const box = $('#my-topics');
+    if (box) box.innerHTML = topicRanks(topics);
+  } catch {
+    set('of', '📴 Server-এ পৌঁছানো যায়নি');
+  }
+}
+
+// ---- 📚 my topics -------------------------------------------------------------
+function topicRanks(list) {
+  if (!list.length) return empty('যে topic-এ নাম দিয়ে test দেবে, সেখানে সবার মধ্যে তোমার অবস্থান এখানে দেখাবে।');
+  return `<p class="muted small">প্রতিটি topic-এ ওই topic-এর সব test-এর points যোগ করে তুমি কততম। চাপ দিলে ওই topic-এর leaderboard খুলবে।</p>
+    <ul class="tr-list">${list.map(t => `<li><button class="tr-row" data-action="lb-board" data-mode="all" data-topic="${esc(t.topic)}">
+      <span class="tr-rank">${medal(t.rank)}</span>
+      <span class="tr-text"><b lang="en">${esc(topicTitle(t.topic))}</b><small>${bn(t.players)} জনের মধ্যে ${ordinal(t.rank)} · ${bn(t.tests)}টি test</small></span>
+      <span class="tr-score">${bn(t.points)}<small>pts</small></span>
+    </button></li>`).join('')}</ul>`;
+}
+
+// ---- 🕘 my tests (this phone) -----------------------------------------------------
+function testsPanel() {
+  const list = myTests();
+  const rows = list.slice(0, 10).map(x => {
+    const m = MODE_INFO[x.mode];
+    return `<a class="history-row" href="#result/${esc(x.id)}"><span class="h-icon" aria-hidden="true">${m.icon}</span><span><b>${esc(x.title)}</b><small>${esc(m.label)} · ${x.mode === 'exam' ? `${bn(x.percent ?? 0)}% · ` : ''}${bnDate(x.finished)} · ${duration(x.timeSec)}</small></span><span class="h-score">+${bn(attemptPoints(x))}<small>pts</small>${x.saved === 'saved' ? '' : ' <small title="এখনো server-এ যায়নি">⏳</small>'}</span></a>`;
+  }).join('');
+  return `${list.length ? `<div class="history">${rows}</div>` : empty('এই phone-এ এখনো কোনো Fun Quiz বা Model Test নেই।')}
+    <div class="score-links">
+      <a class="text-link" href="#progress">📊 সব ফলাফল, ভুল ও topic অনুযায়ী অগ্রগতি →</a>
+      <a class="text-link" href="#daily">📅 Daily Quiz-এর ফলাফল (তারিখ অনুযায়ী) →</a>
+    </div>`;
+}
+
+// ---- 👑 today's top (most points since midnight Bangladesh time) ------------------
 async function loadTodayTop(fresh = false) {
   const box = $('#today-top');
   if (!box) return;
   try {
     const { top, rows, players } = await fetchTodayTop({ fresh });
     if (!$('#today-top')) return; // page changed meanwhile
-    const me = !!top && isMe(top.tag);
-    box.innerHTML = top
-      ? `<span class="tt-crown" aria-hidden="true">👑</span>
-        <div class="tt-body"><small>আজকের Top Scorer</small>
-          <b><span aria-hidden="true">${esc(top.avatar || '🚂')}</span> ${esc(shownTag(top))}${me ? ' <em>(তুমি!)</em>' : ''}</b>
-          <span>${top.college ? `🏫 ${esc(collegeShort(top.college))} · ` : ''}আজ ${bn(top.attempts)}টি test · ${bn(top.total ? Math.round((top.correct / top.total) * 100) : 0)}% সঠিক</span></div>
-        <span class="tt-pts">${bn(top.points)}<small>pts</small></span>`
-      : `<span class="tt-crown" aria-hidden="true">👑</span>
-        <div class="tt-body"><small>আজকের Top Scorer</small><b>আজ এখনো কেউ score করেনি</b><span>এখনই একটা test দাও—আজকের মুকুট তোমার হতে পারে!</span></div>`;
-    box.hidden = false;
-    // Today's places 2–5 and how many tested today; "you" is filled in by loadMyStats.
-    const more = $('#today-more');
     const next = top ? rows.slice(1, 5).filter(r => r.points > 0) : [];
-    more.innerHTML = players ? `<p class="tt-count">👥 আজ <b>${bn(players)}</b> জন test দিয়েছে<span id="today-me"></span></p>
-      ${next.length ? `<ol class="tt-list">${next.map((r, i) => `<li${isMe(r.tag) ? ' class="me"' : ''}>
-        <span class="tt-rank">${['🥈', '🥉'][i] || ordinal(i + 2)}</span>
-        <span class="tt-who"><b><span aria-hidden="true">${esc(r.avatar || '🚂')}</span> ${esc(shownTag(r))}${isMe(r.tag) ? ' <em>(তুমি)</em>' : ''}</b>${r.college ? `<small>🏫 ${esc(collegeShort(r.college))}</small>` : ''}</span>
-        <span class="tt-p">${bn(r.points)}<small>pts</small></span></li>`).join('')}</ol>` : ''}` : '';
-    more.hidden = !players;
-    paintTodayMe();
+    box.innerHTML = top
+      ? `<div class="tt-line"><span class="tt-crown" aria-hidden="true">👑</span>
+          <span class="tt-body"><small>আজকের সেরা · ${bn(players)} জন test দিয়েছে</small>
+          <b><span aria-hidden="true">${esc(top.avatar || '🚂')}</span> ${esc(shownTag(top))}${isMe(top.tag) ? ' <em>(তুমি!)</em>' : ''}</b>
+          ${top.college ? `<span>🏫 ${esc(collegeShort(top.college))}</span>` : ''}</span>
+          <span class="tt-pts">${bn(top.points)}<small>pts</small></span></div>
+        ${next.length ? `<details class="tt-more"><summary>আজকের ২য়–${bn(next.length + 1)}${next.length + 1 === 2 ? 'য়' : 'ম'} দেখো</summary><ol class="tt-list">${next.map((r, i) => `<li${isMe(r.tag) ? ' class="me"' : ''}>
+          <span class="tt-rank">${['🥈', '🥉'][i] || ordinal(i + 2)}</span>
+          <span class="tt-who"><b><span aria-hidden="true">${esc(r.avatar || '🚂')}</span> ${esc(shownTag(r))}${isMe(r.tag) ? ' <em>(তুমি)</em>' : ''}</b>${r.college ? `<small>🏫 ${esc(collegeShort(r.college))}</small>` : ''}</span>
+          <span class="tt-p">${bn(r.points)}<small>pts</small></span></li>`).join('')}</ol></details>` : ''}`
+      : `<div class="tt-line"><span class="tt-crown" aria-hidden="true">👑</span><span class="tt-body"><small>আজকের সেরা</small><b>আজ এখনো কেউ score করেনি</b><span>এখনই একটা test দাও—আজকের মুকুট তোমার হতে পারে!</span></span></div>`;
+    box.hidden = false;
   } catch {
     box.hidden = true; // server unreachable: show nothing rather than a guess
-    $('#today-more')?.setAttribute('hidden', '');
   }
 }
 
-// This student's place on today's board (from /api/scores?me), shown next to "আজ N জন".
-let todayMine; // undefined = not loaded yet, null = no test today
-function paintTodayMe() {
-  const el = $('#today-me');
-  if (!el || todayMine === undefined || !state.player?.playerId) return;
-  el.innerHTML = todayMine
-    ? ` · তুমি আজ <b>${ordinal(todayMine.rank)}</b> (${bn(todayMine.points)} pts)`
-    : ' · তুমি আজ এখনো test দাওনি';
-}
-
-async function loadMyStats() {
-  const box = $('#my-stats');
-  if (!box || !state.player?.playerId) return;
-  try {
-    const { stats, topics = [], today = null } = await fetchMyStats();
-    todayMine = today;
-    paintTodayMe();
-    if (!stats) { box.innerHTML = ''; return; }
-    box.innerHTML = `${rankCard(stats.all)}<div class="rank-cards">${modeCard('fun', stats.fun)}${modeCard('exam', stats.exam)}</div>${topicRanks(topics)}`;
-    $('#local-stats')?.remove();
-  } catch {
-    box.innerHTML = '';
-  }
+function showTab(id) {
+  scoreTab = id;
+  document.querySelectorAll('[data-score-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.scoreTab === id)));
+  document.querySelectorAll('[data-panel]').forEach(p => { p.hidden = p.dataset.panel !== id; });
 }
 
 export const leaderboardPage = {
   render() {
-    return `<div class="container narrow">
-      ${pageHead('🏆 Score', 'তোমার নিজের score আর সবার সেরা score—এক জায়গায়।')}
+    const tab = (id, icon, label) => `<button type="button" role="tab" data-score-tab="${id}" aria-selected="${scoreTab === id}"><span aria-hidden="true">${icon}</span>${label}</button>`;
+    return `<div class="container narrow score-page">
+      ${pageHead('🏆 Score', 'তোমার points, অবস্থান আর সবার সেরা—এক জায়গায়।')}
+      ${meCard()}
       <section id="today-top" class="today-top" aria-live="polite" hidden></section>
-      <div id="today-more" class="today-more" hidden></div>
-      <section class="section-tight">
-        <h2 class="h3">তোমার score</h2>
-        ${myScores()}
-        <p><a class="text-link" href="#daily">📅 Daily Quiz-এর ফলাফল—তারিখ অনুযায়ী →</a></p>
-      </section>
-      <section class="section-tight">
-        <h2 class="h3">Leaderboard</h2>
-        <div class="field"><label class="label" for="lb-topic">Topic</label>
+      <nav class="score-tabs" role="tablist" aria-label="Score">
+        ${tab('board', '🏆', 'Leaderboard')}${tab('topics', '📚', 'আমার topic')}${tab('tests', '🕘', 'আমার test')}
+      </nav>
+      <section data-panel="board" ${scoreTab === 'board' ? '' : 'hidden'}>
+        <div class="field lb-filter"><label class="label" for="lb-topic">Topic</label>
           <select id="lb-topic"><option value="all">সব topic</option>${Object.values(GROUPS).map(g => `<optgroup label="${esc(g.short)}"><option value="${g.id}" ${lbTopic === g.id ? 'selected' : ''}>${esc(g.title)}</option>${TOPICS.filter(t => t.group === g.id).map(t => `<option value="${esc(t.id)}" ${lbTopic === t.id ? 'selected' : ''}>${esc(t.title)}</option>`).join('')}</optgroup>`).join('')}</select></div>
         ${leaderboard({ mode: lbMode, topic: lbTopic, limit: 50, tabs: true })}
-        <p class="muted small">প্রতিটা test-এর points যোগ হয়—যত test, তত points। Fun Quiz: দ্রুত সঠিক উত্তরে বেশি points। Model Test: প্রতি সঠিক +২০, প্রতি ভুল −৫ (ভর্তি পরীক্ষার −০.২৫ নিয়মে)। আগের সব test-ও একই নিয়মে গোনা হয়েছে। নাম দিয়ে শুরু করা Fun Quiz ও Model Test এখানে আসে। 🔒 পুরো নাম গোপন থাকে: এখানে শুধু নামের শেষ অংশ, roll আর কলেজ দেখায়।</p>
+        <details class="rules"><summary>ℹ️ Points কীভাবে গোনা হয়?</summary>
+          <ul>
+            <li>প্রতিটা test-এর points যোগ হয়—যত test, তত points।</li>
+            <li>Fun Quiz: দ্রুত সঠিক উত্তরে বেশি points, টানা সঠিকে bonus।</li>
+            <li>Model Test: প্রতি সঠিক +২০, প্রতি ভুল −৫ (ভর্তি পরীক্ষার −০.২৫ নিয়মে)।</li>
+            <li>Daily Quiz-এর ফলাফল আলাদা—<a href="#daily">Daily Quiz পাতায়</a>।</li>
+            <li>🔒 পুরো নাম গোপন থাকে: অন্যরা দেখে শুধু নামের শেষ অংশ, roll আর কলেজ।</li>
+          </ul>
+        </details>
       </section>
-      <section class="section-tight card feedback-card">
-        <h2 class="h3">মতামত দাও</h2>
-        <p>কোনো প্রশ্নে ভুল পেলে, নতুন topic চাইলে বা কিছু বুঝতে সমস্যা হলে সরাসরি জানাও।</p>
-        <a class="btn wa-btn" href="${esc(SITE.feedback)}" target="_blank" rel="noopener noreferrer">💬 WhatsApp-এ feedback দাও</a>
+      <section data-panel="topics" ${scoreTab === 'topics' ? '' : 'hidden'}>
+        <div id="my-topics">${state.player?.playerId ? '<div class="skeleton"></div>' : empty('নাম দিয়ে test দিলে topic অনুযায়ী তোমার অবস্থান এখানে দেখাবে।')}</div>
       </section>
+      <section data-panel="tests" ${scoreTab === 'tests' ? '' : 'hidden'}>${testsPanel()}</section>
+      <p class="score-feedback">কোনো প্রশ্নে ভুল পেলে বা নতুন topic চাইলে <a href="${esc(SITE.feedback)}" target="_blank" rel="noopener noreferrer">💬 WhatsApp-এ জানাও</a></p>
     </div>`;
   },
   mount() {
@@ -187,6 +188,7 @@ export const leaderboardPage = {
         else if (player === null) toast('⚠️ Server-এ পৌঁছানো গেল না—নেট দেখে আবার চেষ্টা করো।');
       });
     }
+    document.querySelectorAll('[data-score-tab]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.scoreTab)));
     loadTodayTop();
     loadMyStats();
     loadLeaderboards();
@@ -201,6 +203,7 @@ export const leaderboardPage = {
 
 leaderboardPage.onAction = (action, el) => {
   if (action !== 'lb-board') return;
+  showTab('board');
   lbMode = el.dataset.mode;
   lbTopic = el.dataset.topic;
   const select = $('#lb-topic');

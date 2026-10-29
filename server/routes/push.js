@@ -15,6 +15,7 @@
 // The private key lives only in the host environment (VAPID_PRIVATE_JWK).
 import { TOPICS } from '../../data/questions/index.js';
 import { daySet } from './daily.js';
+import { shiftDay } from '../../assets/js/shared/daily.js';
 import { getDb, NotConfigured } from '../db.js';
 import { route } from '../route.js';
 import { json, readJSON, query, BadRequest } from '../http.js';
@@ -39,7 +40,7 @@ export function validEndpoint(value) {
 const b64url = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const fromB64url = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
 
-function vapidKeys(env) {
+export function vapidKeys(env) {
   try {
     const jwk = JSON.parse(env?.VAPID_PRIVATE_JWK || '');
     if (jwk.kty !== 'EC' || jwk.crv !== 'P-256' || !jwk.d || !jwk.x || !jwk.y) return null;
@@ -84,13 +85,15 @@ const DAILY = [
 ];
 const FALLBACK = DAILY[0];
 
+const bnDigits = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+
 /** Calendar date in Bangladesh (UTC+6), e.g. "2026-10-22". */
 const dhakaDate = now => new Date(now + 6 * 3600_000).toISOString().slice(0, 10);
 
-async function getSetting(db, key) {
+export async function getSetting(db, key) {
   return (await db.query('SELECT value FROM settings WHERE key = $1', [key]))[0]?.value ?? null;
 }
-const putSetting = (db, key, value) =>
+export const putSetting = (db, key, value) =>
   db.query('INSERT INTO settings (key, value) VALUES ($1, $2::jsonb) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value', [key, value]);
 
 /**
@@ -134,13 +137,21 @@ export async function runMorning(db, env, { now = Date.now(), fetchFn = fetch } 
   if (!keys) throw new BadRequest('VAPID_PRIVATE_JWK is not set.', 503);
   const today = dhakaDate(now);
   await daySet(db, today, today);
-  await putSetting(db, 'push_message', { ...MORNING, date: today });
+  // The admin can change the words (admin page → Notice ও Notification); yesterday's real count is added.
+  const custom = await getSetting(db, 'morning');
+  const [{ n: yesterday }] = await db.query('SELECT count(*)::int AS n FROM daily_attempts WHERE day = $1::date', [shiftDay(today, -1)]);
+  const message = {
+    title: custom?.title || MORNING.title,
+    body: `${custom?.body || MORNING.body}${yesterday ? ` গতকাল ${bnDigits(yesterday)} জন অংশ নিয়েছিল।` : ''}`,
+    url: MORNING.url,
+  };
+  await putSetting(db, 'push_message', { ...message, date: today });
   const subs = await db.query('SELECT endpoint FROM push_subs LIMIT 5000');
-  return { ...(await sendAll(db, keys, subs, fetchFn)), message: MORNING };
+  return { ...(await sendAll(db, keys, subs, fetchFn)), message };
 }
 
 /** Sends one push to each subscription (25 at a time); expired ones are removed. */
-async function sendAll(db, keys, subs, fetchFn) {
+export async function sendAll(db, keys, subs, fetchFn) {
   const total = (await db.query('SELECT count(*)::int AS n FROM push_subs'))[0].n;
   const result = { sent: 0, gone: 0, failed: 0, skipped: total - subs.length };
   for (let i = 0; i < subs.length; i += 25) {

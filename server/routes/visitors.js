@@ -2,7 +2,7 @@
 // Every open tab sends a heartbeat (POST { sid, since }) about once a minute
 // while visible. The answer is the number of distinct browsers seen in the last
 // ONLINE_SEC seconds (nothing is estimated), the number of distinct browsers seen
-// today (Bangladesh time) and any score events after `since`.
+// today (Bangladesh time), any score events after `since` and the admin's site notice.
 import { route } from '../route.js';
 import { json, readJSON, readCookie, iso, BadRequest } from '../http.js';
 
@@ -30,7 +30,7 @@ export default route('visitors', {
     }
     const since = Number.isSafeInteger(body.since) && body.since >= 0 ? body.since : null;
     const me = readCookie(request);
-    const [, , , , , , , [count], [visits], events, [last]] = await db.batch([
+    const [, , , , , , , [count], [visits], events, [last], [notice]] = await db.batch([
       // Usage for the admin dashboard: one heartbeat ≈ one minute with the site open and visible.
       // A gap of more than 5 minutes starts a new session (from–to times per visit).
       [`WITH upd AS (
@@ -50,12 +50,15 @@ export default route('visitors', {
       // Only events from the last 10 minutes, and none on the first heartbeat (since = null).
       ["SELECT id, kind, payload, at FROM events WHERE $1::bigint IS NOT NULL AND id > $1::bigint AND at > now() - interval '10 minutes' ORDER BY id LIMIT 5", [since]],
       ['SELECT COALESCE(max(id), 0)::int AS id FROM events'],
+      // The admin's site notice (admin page → Notice), shown as a bar on every page while on.
+      ["SELECT value FROM settings WHERE key = 'notice'"],
     ]);
     return json({
       ok: true,
       online: count.online,
       today: visits.today,
       lastEvent: last.id,
+      notice: notice?.value?.on ? { id: notice.value.id, text: notice.value.text, url: notice.value.url || '' } : null,
       events: events.map(e => {
         const { playerId, ...payload } = e.payload || {};
         return { id: Number(e.id), kind: e.kind, at: iso(e.at), ...payload, mine: !!me && playerId === me };

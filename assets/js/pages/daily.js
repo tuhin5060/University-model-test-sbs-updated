@@ -5,14 +5,14 @@
 // you have taken today's quiz.
 
 import { esc, bn, duration, $, toast } from '../lib/dom.js';
-import { state } from '../lib/store.js';
+import { state, dailyStreak } from '../lib/store.js';
 import { fetchDaily } from '../lib/api.js';
 import { loadBank, getBank } from '../lib/bank.js';
 import { examRef } from '../shared/source.js';
 import { collegeShort } from '../../../data/colleges.js';
 import { dhakaDay, DAY_RE, DAILY_SIZE, DAILY_SECONDS } from '../shared/daily.js';
 import { EXAM_NEGATIVE } from '../shared/scoring.js';
-import { pageHead, empty, isMe, shownTag } from '../components.js';
+import { pageHead, empty, isMe, shownTag, scoreRing } from '../components.js';
 import { startSession } from '../quiz.js';
 import { explainBlock } from './play.js';
 import { hydratePush } from '../lib/push.js';
@@ -24,8 +24,8 @@ let shown = null; // what is on screen now
 const asDate = day => new Date(`${day}T00:00:00Z`);
 export const dayLong = day => asDate(day).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', weekday: 'long', timeZone: 'UTC' });
 export const dayShort = day => asDate(day).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', timeZone: 'UTC' });
-const dayNum = day => asDate(day).toLocaleDateString('bn-BD', { day: 'numeric', timeZone: 'UTC' });
-const dayMonth = day => asDate(day).toLocaleDateString('bn-BD', { month: 'short', timeZone: 'UTC' });
+export const dayNum = day => asDate(day).toLocaleDateString('bn-BD', { day: 'numeric', timeZone: 'UTC' });
+export const dayMonth = day => asDate(day).toLocaleDateString('bn-BD', { month: 'short', timeZone: 'UTC' });
 
 /** This browser's own try for a day (it may not have reached the server yet). */
 export const localTry = day => state.history.find(h => h.kind === 'daily' && h.day === day && h.saved !== 'failed');
@@ -41,15 +41,47 @@ function localData(day) {
   return { offline: true, today, day: sel, ids: localTry(sel)?.answers?.map(a => a.id) || null, participants: null, board: [], mine: null, days };
 }
 
+/** Time left until midnight in Bangladesh (UTC+6), when the next Daily Quiz opens. */
+export const msLeft = () => 86400000 - ((Date.now() + 6 * 3600000) % 86400000);
+export const leftText = (ms = msLeft()) => {
+  const m = Math.max(1, Math.ceil(ms / 60000));
+  return m >= 60 ? `${bn(Math.floor(m / 60))} ঘণ্টা ${bn(m % 60)} মিনিট` : `${bn(m)} মিনিট`;
+};
+
+/** Keeps every [data-left] countdown on the page current (stops once none is left). */
+let ticker = null;
+export function tickLeft() {
+  clearInterval(ticker);
+  ticker = setInterval(() => {
+    const els = document.querySelectorAll('[data-left]');
+    if (!els.length) return clearInterval(ticker);
+    for (const el of els) el.textContent = `⏳ ${el.dataset.left || 'শেষ হতে'} ${leftText()} পরে`;
+  }, 30000);
+}
+
+const weekday = day => asDate(day).toLocaleDateString('bn-BD', { weekday: 'short', timeZone: 'UTC' });
+
+function stats(d) {
+  const taken = d.days.filter(x => x.mine);
+  const best = taken.reduce((n, x) => Math.max(n, Math.round(x.mine.score)), 0);
+  return `<ul class="daily-stats">
+    <li><b>🔥 ${bn(dailyStreak())}</b><small>টানা দিন</small></li>
+    <li><b>${bn(taken.length)}<i>/${bn(d.days.length)}</i></b><small>দিন দিয়েছ</small></li>
+    <li><b>${taken.length ? `${bn(best)}%` : '—'}</b><small>সেরা</small></li>
+  </ul>`;
+}
+
 function strip(d) {
   const days = [...d.days].reverse(); // oldest → newest (today at the right end)
   return `<nav class="day-strip" aria-label="তারিখ">${days.map(x => {
     const cls = [x.mine ? 'done' : x.day === d.today ? 'today' : 'missed', x.day === d.day ? 'sel' : ''].join(' ');
     return `<a class="day-dot ${cls}" href="#daily/${esc(x.day)}" ${x.day === d.day ? 'aria-current="date"' : ''} title="${esc(dayLong(x.day))}">
-      <b>${dayNum(x.day)}</b><small>${esc(dayMonth(x.day))}</small>${x.mine ? `<i>${bn(Math.round(x.mine.score))}%</i>` : ''}</a>`;
+      <small>${x.day === d.today ? 'আজ' : esc(weekday(x.day))}</small><b>${dayNum(x.day)}</b><small>${esc(dayMonth(x.day))}</small>${x.mine ? `<i>${bn(Math.round(x.mine.score))}%</i>` : ''}</a>`;
   }).join('')}</nav>
-  <p class="muted small day-legend"><span class="dot-key done"></span> দিয়েছ · <span class="dot-key missed"></span> দাওনি · তারিখে চাপ দিলে সেদিনের প্রশ্ন ও ফলাফল দেখবে।</p>`;
+  <p class="day-legend"><span class="dot-key done"></span> দিয়েছ <span class="dot-key today"></span> আজ <span class="dot-key missed"></span> দাওনি · তারিখে চাপ দিলে সেদিনের প্রশ্ন ও ফলাফল</p>`;
 }
+
+const chips = () => `<ul class="daily-chips"><li>📝 ${bn(DAILY_SIZE)}টি প্রশ্ন</li><li>⏱️ ${bn(DAILY_SECONDS / 60)} মিনিট</li><li>➖ ভুলে −${bn(EXAM_NEGATIVE)}</li><li>🎯 একবারই গণনা</li></ul>`;
 
 function myResult(d) {
   const m = d.mine;
@@ -57,18 +89,21 @@ function myResult(d) {
   if (m) {
     const skipped = m.total - m.correct - m.wrong;
     return `<div class="daily-mine">
-      <div class="daily-score"><b>${bn(m.marks)}</b><small>/ ${bn(m.total)} নম্বর</small><span>${bn(m.score)}%</span></div>
+      ${scoreRing(Math.round(m.score), `${bn(Math.round(m.score))}%`, `${bn(m.marks)}/${bn(m.total)} নম্বর`)}
       <dl>
-        <div><dt>অবস্থান</dt><dd>#${bn(m.rank)} <small>/ ${bn(m.players)}</small></dd></div>
-        <div><dt>✅ ❌ ⏭️</dt><dd>${bn(m.correct)} · ${bn(m.wrong)} · ${bn(skipped)}</dd></div>
-        <div><dt>সময়</dt><dd>${duration(m.timeSec)}</dd></div>
+        <div><dt>অবস্থান</dt><dd>${['🥇', '🥈', '🥉'][m.rank - 1] || `#${bn(m.rank)}`} <small>/ ${bn(m.players)}</small></dd></div>
+        <div><dt>✅ সঠিক</dt><dd>${bn(m.correct)}</dd></div>
+        <div><dt>❌ ভুল</dt><dd>${bn(m.wrong)}</dd></div>
+        <div><dt>⏭️ বাদ</dt><dd>${bn(skipped)}</dd></div>
+        <div><dt>⏱️ সময়</dt><dd>${duration(m.timeSec)}</dd></div>
       </dl>
     </div>`;
   }
   if (local) {
+    const pct = Math.round(local.percent ?? 0);
     return `<div class="daily-mine">
-      <div class="daily-score"><b>${bn(local.marks ?? local.correct)}</b><small>/ ${bn(local.total)} নম্বর</small><span>${bn(local.percent)}%</span></div>
-      <p class="muted small">${local.saved === 'saved' ? '✅ Server-এ জমা হয়েছে।' : '📴 এখনো server-এ যায়নি—নেট এলে নিজে থেকেই যাবে।'} <a class="text-link" href="#result/${esc(local.id)}">পুরো উত্তরপত্র →</a></p>
+      ${scoreRing(pct, `${bn(pct)}%`, `${bn(local.marks ?? local.correct)}/${bn(local.total)} নম্বর`)}
+      <p class="daily-sync">${local.saved === 'saved' ? '✅ Server-এ জমা হয়েছে।' : '📴 এখনো server-এ যায়নি—নেট এলে নিজে থেকেই যাবে।'} <a href="#result/${esc(local.id)}">পুরো উত্তরপত্র →</a></p>
     </div>`;
   }
   return '';
@@ -77,18 +112,22 @@ function myResult(d) {
 function dayCard(d) {
   const isToday = d.day === d.today;
   const taken = d.mine || localTry(d.day);
+  const people = d.participants !== null ? `<span>👥 ${bn(d.participants)} জন অংশ নিয়েছে</span>` : '';
   let body = myResult(d);
   if (!taken) {
     body = isToday
-      ? `<p>CU, DU-সহ বিগত বছরের ভর্তি পরীক্ষার ${bn(DAILY_SIZE)}টি প্রশ্ন—সবার জন্য একই।</p>
-         <a class="btn big t-daily" href="#start/daily">▶ আজকের Quiz শুরু করো</a>
-         <p class="push-line" data-push hidden></p>`
-      : '<p class="muted">এই দিনের quiz তুমি দাওনি। নিচে প্রশ্নগুলো, সঠিক উত্তর ও ব্যাখ্যা দেখে নাও।</p>';
+      ? `<p class="daily-lead">CU, DU-সহ বিগত বছরের ভর্তি পরীক্ষার ${bn(DAILY_SIZE)}টি প্রশ্ন—সবার জন্য একই। যত কম ভুল, তত ওপরে।</p>
+         ${chips()}
+         <a class="btn big daily-go" href="#start/daily">▶ আজকের Quiz শুরু করো</a>`
+      : '<p class="daily-lead">এই দিনের quiz তুমি দাওনি। নিচে প্রশ্ন, সঠিক উত্তর ও ব্যাখ্যা দেখে নাও—চাইলে practice-ও করতে পারো।</p>';
   }
-  return `<section class="card daily-day ${isToday ? 'is-today' : ''}">
-    <div class="daily-day-head"><h2>${esc(dayLong(d.day))}</h2>${isToday ? '<span class="pill">আজ</span>' : ''}</div>
-    ${d.participants !== null ? `<p class="muted small">👥 ${bn(d.participants)} জন অংশ নিয়েছে</p>` : ''}
+  return `<section class="daily-hero ${isToday ? 'is-today' : 'is-past'} ${taken ? 'is-done' : ''}">
+    <div class="daily-hero-head">
+      <span class="daily-date"><b>${dayNum(d.day)}</b><small>${esc(dayMonth(d.day))}</small></span>
+      <div><small>${isToday ? 'আজকের Daily Quiz' : 'Daily Quiz'}</small><h2>${esc(dayLong(d.day))}</h2><p>${people}${isToday ? `<span data-left="${taken ? 'পরেরটা' : 'শেষ হতে'}">⏳ ${taken ? 'পরেরটা' : 'শেষ হতে'} ${leftText()} পরে</span>` : ''}</p></div>
+    </div>
     ${body}
+    ${isToday ? '<p class="push-line" data-push hidden></p>' : ''}
   </section>`;
 }
 
@@ -143,7 +182,7 @@ async function fillQuestions(d) {
 }
 
 function view(d) {
-  return `${strip(d)}${dayCard(d)}${board(d)}${questionsBox(d)}`;
+  return `${dayCard(d)}${stats(d)}${strip(d)}${board(d)}${questionsBox(d)}`;
 }
 
 function paint(d) {
@@ -153,14 +192,15 @@ function paint(d) {
   el.innerHTML = view(d);
   el.querySelector('.day-dot.sel')?.scrollIntoView({ block: 'nearest', inline: 'center' });
   hydratePush(el);
+  tickLeft();
   fillQuestions(d);
 }
 
 export function render([day = '']) {
   const key = DAY_RE.test(day) ? day : '';
-  return `<div class="container narrow">
-    ${pageHead('📅 Daily Quiz', `প্রতিদিন সবার জন্য একই প্রশ্ন—CU, DU-সহ বিগত বছরের ভর্তি পরীক্ষা থেকে। ${RULES}।`, '', [[null, 'Daily Quiz']])}
-    <div id="daily-view">${cache.has(key) ? view(cache.get(key)) : '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>'}</div>
+  return `<div class="container narrow daily-page">
+    ${pageHead('📅 Daily Quiz', 'প্রতিদিন নতুন ২০টি প্রশ্ন, সবার জন্য একই—CU, DU-সহ বিগত বছরের ভর্তি পরীক্ষা থেকে।', '', [[null, 'Daily Quiz']])}
+    <div id="daily-view">${cache.has(key) ? view(cache.get(key)) : '<div class="skeleton tall"></div><div class="skeleton"></div><div class="skeleton"></div>'}</div>
   </div>`;
 }
 

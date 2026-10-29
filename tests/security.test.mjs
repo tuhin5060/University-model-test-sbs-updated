@@ -55,3 +55,29 @@ test('leaderboard is the same for everyone and cacheable at the edge', async () 
   const mine = await scores.GET(req('/api/scores?me=1'));
   assert.match(mine.headers.get('cache-control'), /private, no-store/, 'personal stats are never cached');
 });
+
+// The repository is public: no password, database address, private key or old source ZIP
+// may ever be committed. Real values live only in the Vercel / Cloudflare settings.
+test('no secrets in the repository', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { readFileSync } = await import('node:fs');
+  let files;
+  try { files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean); } catch { return; } // not a git checkout
+  assert.ok(!files.some(f => /(^|\/)\.env$|\.env\.local$|\.zip$|\.pem$/i.test(f)), 'no .env, key or ZIP files');
+  const rules = [
+    [/postgres(ql)?:\/\/[^\s'"`:@/]+:(?!pw@)[^\s'"`@]+@/i, 'database URL with a password'],
+    [/mongodb(\+srv)?:\/\/[^\s'"`]*@/i, 'MongoDB URL with a password'],
+    [/\bnpg_[A-Za-z0-9]{10,}/, 'Neon password'],
+    [/ADMIN_PASSWORD\s*[=:]\s*['"]?[^\s'"`,)]{3,}/, 'admin password value'],
+    [/"d"\s*:\s*"[A-Za-z0-9_-]{40,}"/, 'private key (JWK)'],
+    [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'private key (PEM)'],
+  ];
+  const bad = [];
+  for (const f of files) {
+    if (!/\.(m?js|json|md|html|toml|ya?ml|txt|example|sh|css)$|^[^.]+$|^\.[^/]+$/.test(f) || f.startsWith('tests/')) continue;
+    let text;
+    try { text = readFileSync(f, 'utf8'); } catch { continue; }
+    for (const [re, what] of rules) if (re.test(text)) bad.push(`${f}: ${what}`);
+  }
+  assert.deepEqual(bad, []);
+});

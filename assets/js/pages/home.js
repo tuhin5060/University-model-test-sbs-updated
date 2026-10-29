@@ -9,7 +9,7 @@ import { state, save, dailyStreak, mistakeIds } from '../lib/store.js';
 import { topicCard, postCard, photo, credit, heroMedia, leaderboard, loadLeaderboards, hydratePhotos, modeInfo } from '../components.js';
 import { fetchDaily } from '../lib/api.js';
 import { dhakaDay } from '../shared/daily.js';
-import { dayShort, localTry, RULES } from './daily.js';
+import { dayNum, dayMonth, localTry, leftText, tickLeft } from './daily.js';
 import { loadLatest } from './community.js';
 import { hydratePush } from '../lib/push.js';
 
@@ -27,23 +27,29 @@ function resumeBanner() {
 }
 
 function dailyTaken(m) {
-  return `<p class="done-today">✅ আজকের quiz দিয়েছ: <b>${bn(m.marks)}/${bn(m.total)}</b> নম্বর${m.rank ? ` · আজ <b>#${bn(m.rank)}</b>` : ''}</p>
-    <a class="btn ghost" href="#daily">ফলাফল ও উত্তর দেখো →</a>`;
+  return `<div class="dq-done"><span class="dq-score">${bn(m.marks)}<small>/${bn(m.total)}</small></span>
+      <span><b>✅ আজকের quiz দিয়েছ</b><small>${m.rank ? `আজ ${['🥇', '🥈', '🥉'][m.rank - 1] || `#${bn(m.rank)}`}${m.players ? ` · ${bn(m.players)} জনের মধ্যে` : ''}` : 'ফলাফল server-এ যাচ্ছে…'}</small></span></div>
+    <a class="btn dq-go ghost" href="#daily">ফলাফল ও সঠিক উত্তর →</a>`;
 }
 
 // Daily Quiz: the same 20 past-year questions for everyone today (pages/daily.js).
+// Right under the hero: date badge, today's count, time left, one clear button and
+// the morning-reminder switch.
 function daily() {
   const day = dhakaDay();
   const mine = localTry(day);
   const tip = QUICK_TIPS[Math.floor(Date.now() / 86400000) % QUICK_TIPS.length];
+  const [num, month] = [dayNum(day), dayMonth(day)];
   return `<section class="container section daily-row">
-    <div class="card daily" id="daily-card">
-      <div class="daily-top"><span class="eyebrow">📅 Daily Quiz · ${esc(dayShort(day))}</span><span class="streak" title="টানা দিন">🔥 ${bn(dailyStreak())} দিন</span></div>
-      <h2>আজকের কুইজে অংশ নাও</h2>
-      <p class="muted">CU, DU-সহ বিগত বছরের ভর্তি পরীক্ষার প্রশ্ন—সবার জন্য একই। ${RULES}।</p>
-      <div data-daily-status>${mine ? dailyTaken({ marks: mine.marks ?? mine.correct, total: mine.total }) : '<a class="btn" href="#start/daily">▶ অংশ নাও</a> <a class="btn ghost" href="#daily">আগের দিনের ফলাফল</a>'}</div>
-      <p class="muted small" data-daily-count hidden>👥 আজ এখন পর্যন্ত <b></b> জন অংশ নিয়েছে</p>
-      <p class="push-line" data-push hidden></p>
+    <div class="dq" id="daily-card">
+      <div class="dq-head">
+        <span class="daily-date"><b>${num}</b><small>${esc(month)}</small></span>
+        <div><span class="dq-kicker">📅 আজকের Daily Quiz</span><h2>আজকের ২০টি প্রশ্নে অংশ নাও</h2></div>
+        <span class="streak" title="টানা দিন">🔥 ${bn(dailyStreak())}</span>
+      </div>
+      <p class="dq-meta"><span data-daily-count hidden>👥 <b></b> জন দিয়েছে</span><span data-left="শেষ হতে">⏳ শেষ হতে ${leftText()} পরে</span><span>🎓 CU · DU · অন্যান্য</span></p>
+      <div data-daily-status>${mine ? dailyTaken({ marks: mine.marks ?? mine.correct, total: mine.total }) : '<a class="btn big dq-go" href="#start/daily">▶ এখনই শুরু করো</a><a class="dq-link" href="#daily">আগের দিনগুলো ও ফলাফল →</a>'}</div>
+      <div class="push-line" data-push hidden></div>
     </div>
     <div class="card tip-card">
       <span class="eyebrow">আজকের টিপ</span>
@@ -64,6 +70,8 @@ async function loadDailyCard() {
     }
     const box = document.querySelector('[data-daily-status]');
     if (box && d.mine) box.innerHTML = dailyTaken(d.mine);
+    const left = document.querySelector('#daily-card [data-left]');
+    if (left && d.mine) left.dataset.left = 'পরেরটা';
   } catch { /* offline: the card still opens the quiz */ }
 }
 
@@ -201,6 +209,7 @@ export function mount() {
   loadLatest(document.getElementById('home-community'));
   hydratePush();
   loadDailyCard();
+  tickLeft();
 }
 
 export async function onAction(action) {
