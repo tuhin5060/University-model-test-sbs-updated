@@ -4,7 +4,7 @@
 > এই পুরো file-টা (বা GitHub link) তাকে দাও আর বলো "Read HANDOFF.md first and follow it."
 > Admin password বা database URL কখনো কোনো chat-এ বা file-এ দেবে না—ওগুলো শুধু Vercel-এ থাকে।
 
-Last updated: 2026-10-27 · version **2.16.1** · latest commit on `main` at the time: `352b76b`.
+Last updated: 2026-10-29 · version **2.16.1** · latest code commit on `main`: `352b76b`.
 Keep §4 up to date after each change.
 
 ## 1. What this is
@@ -46,6 +46,31 @@ branches unless the owner asks.
 9. After pushing, confirm the Vercel production deployment is READY and spot-check the live page.
 10. Don't add model names/IDs to commits or files.
 
+## 2a. GitHub
+- Repo: `tuhin5060/University-model-test-sbs-updated` — **public**, so anything committed is visible to everyone.
+- **`main` is the only branch that matters.** Vercel deploys production from `main`; any other branch
+  only gets a Vercel preview URL (not the live site).
+- Other branches on GitHub (all old; their work is already in `main` or abandoned — safe to delete, never merge without checking):
+  `preview/audit-2026-10-27` (same as commit `7584633`, already in `main`),
+  `backup/pre-stability-fixes-2026-10-25`, `fix/stability-and-reference-audit-2026-10-25`,
+  `claude/memorising-section`, `export-source-zip` (not checked against `main`).
+- Some agent environments can push to `main` but are **not allowed to delete branches** or call
+  GitHub write APIs; the owner deletes branches at https://github.com/tuhin5060/University-model-test-sbs-updated/branches.
+- The repo was renamed/moved once; `git push` may print "This repository moved" — harmless, push still works.
+- Commit style: short imperative subject (`2.16.1: …` for releases), bump the version in `package.json`,
+  `package-lock.json` and the `?v=` in `index.html`, add a `CHANGELOG.md` entry.
+
+### Quick start for a new agent
+```bash
+git clone https://github.com/tuhin5060/University-model-test-sbs-updated && cd University-model-test-sbs-updated
+npm ci
+npm run dev          # local server (no database: saving/leaderboard are skipped)
+# …make changes…
+npm run sync && npm run check   # must pass
+git add -A && git commit -m "…" && git push origin main
+```
+Then confirm the Vercel production deployment for that commit is READY and open the live page.
+
 ## 3. Map of the code
 | What | Where |
 |---|---|
@@ -71,7 +96,7 @@ branches unless the owner asks.
 Environment variables (names only): `DATABASE_URL` / `POSTGRES_URL` (Neon), `ADMIN_PASSWORD`,
 `CRON_SECRET` (daily push cron `/api/push-cron`, 14:00 UTC), `VAPID_PRIVATE_JWK` (web push).
 
-## 4. Current state (2026-10-27)
+## 4. Current state (2026-10-29)
 - 2,256 questions in 21 topics (Grammar + Memorising), 1,049-word vocabulary list.
 - 513 questions show a 📌 reference; 1,743 have none in the data and are intentionally empty
   (mostly Synonym, Antonym, Meaning, Idioms, Preposition, Tense).
@@ -107,7 +132,7 @@ Environment variables (names only): `DATABASE_URL` / `POSTGRES_URL` (Neon), `ADM
 1. **Owner:** change `ADMIN_PASSWORD` in Vercel to a long, unguessable one, then redeploy
    (current one is short and matches the public Facebook handle).
 2. **Owner:** Search Console → submit `sitemap.xml`, request indexing for home + a few `/mcq/` pages.
-3. **Owner:** delete leftover GitHub branch `preview/audit-2026-10-27`.
+3. **Owner (optional):** delete the old GitHub branches listed in §2a (agents can't delete branches).
 4. Known, accepted: answers ship to the browser, so a determined user can fake a score
    (server rate limits only). Fix would need server-side question serving.
 5. CU gallery photo "Campus, University of Chittagong 1.jpg": Wikimedia now serves it from
@@ -116,6 +141,12 @@ Environment variables (names only): `DATABASE_URL` / `POSTGRES_URL` (Neon), `ADM
    in `vercel.json` and `_headers`.
 6. `tests/e2e/run.mjs` is outdated (fails on old code too); unit/API tests are the real gate.
 7. Optional speed: lazy-load `data/posts.js` and `data/universities.js` (~20 KB gz) from the home page.
+
+### Marketing (outside the repo)
+- An announcement video is planned: final Bangla voice-over script + instructions for Claude to build a
+  4:5 / 1:1 motion-graphics video from mobile screenshots exist as `SCRIPT.md` and
+  `VIDEO_INSTRUCTIONS.md` (kept by the owner, not in this repo). Rule for any video/screenshot work:
+  never show `#admin`, never create a fake student on the live site.
 
 ## 5. Owner preferences
 - Owner writes Bangla/Banglish; reply with short, organised Bangla summaries.
