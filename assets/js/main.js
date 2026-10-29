@@ -20,6 +20,7 @@ import * as universities from './pages/universities.js';
 import * as progress from './pages/progress.js';
 import * as vocab from './pages/vocab.js';
 import * as community from './pages/community.js';
+import * as daily from './pages/daily.js';
 import { leaderboardPage, aboutPage, backupPage, sbsPage, notFound, switchBoardMode } from './pages/misc.js';
 import { loadLeaderboards } from './components.js';
 
@@ -34,6 +35,7 @@ const ROUTES = {
   progress,
   vocab,
   community,
+  daily,
   leaderboard: leaderboardPage,
   score: leaderboardPage,
   about: aboutPage,
@@ -88,7 +90,7 @@ function render(scroll = true) {
   document.body.dataset.route = name;
   const h1 = main.querySelector('h1')?.textContent?.trim();
   document.title = name === 'home' || !h1 ? HOME_TITLE : `${h1} · ${SITE.name}`;
-  const group = NAV_GROUP[name] || name;
+  const group = name === 'start' && params[0] === 'daily' ? 'daily' : NAV_GROUP[name] || name;
   const mode = name === 'start' ? params[0] || 'fun' : null;
   $$('[data-nav]').forEach(a => {
     const key = a.dataset.nav;

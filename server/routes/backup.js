@@ -14,6 +14,8 @@ export const BACKUP_TABLES = {
   threads: 'SELECT id, author_id, topic, title, body, tags, question_id, resolved, solution_id, replies, created_at, active_at FROM threads ORDER BY id',
   replies: 'SELECT id, thread_id, author_id, body, created_at FROM replies ORDER BY id',
   push_subs: 'SELECT endpoint, player_id, created_at, last_sent_at FROM push_subs',
+  daily_sets: 'SELECT day::text AS day, ids, meta, created_at FROM daily_sets ORDER BY day',
+  daily_attempts: 'SELECT day::text AS day, player_id, attempt_id, score, marks, correct, wrong, total, time_sec, answers, at FROM daily_attempts ORDER BY day, at',
   settings: 'SELECT key, value FROM settings',
 };
 

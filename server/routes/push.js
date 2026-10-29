@@ -1,17 +1,20 @@
-// Browser notifications: a daily 8 PM reminder and "new topic" news.
+// Browser notifications: a morning "today's Daily Quiz is ready", an 8 PM reminder for
+// those who have not taken it yet, and "new topic" news.
 //
 // GET  ?                       → { enabled, publicKey } (enabled = keys are set on this server)
 // GET  ?message=1&endpoint=…   → the text the service worker shows when a push arrives
 // POST { action: 'subscribe', subscription: { endpoint }, playerId }
 // POST { action: 'unsubscribe', endpoint }
 // POST { action: 'test', endpoint } → one push to this browser now
-// cron (api/push-cron.js, daily at 14:00 UTC = 8 PM in Bangladesh) → runDaily()
+// cron (api/push-morning.js, 01:00 UTC ≈ 7 AM in Bangladesh) → runMorning()
+// cron (api/push-cron.js, 14:00 UTC = 8 PM in Bangladesh) → runDaily()
 //
 // Pushes carry no payload (no encryption needed): the browser wakes up, asks
 // ?message=1 and shows that text. Sending is signed with VAPID (ES256) using
 // WebCrypto only — no npm package, so it runs on Vercel and Cloudflare alike.
 // The private key lives only in the host environment (VAPID_PRIVATE_JWK).
 import { TOPICS } from '../../data/questions/index.js';
+import { daySet } from './daily.js';
 import { getDb, NotConfigured } from '../db.js';
 import { route } from '../route.js';
 import { json, readJSON, query, BadRequest } from '../http.js';
@@ -73,11 +76,11 @@ export async function sendPush(endpoint, keys, fetchFn = fetch) {
 
 // ---- messages ---------------------------------------------------------------------
 
+// Morning: everyone. Evening: only students who have not taken today's Daily Quiz.
+export const MORNING = { title: '📅 আজকের Daily Quiz প্রস্তুত', body: '২০টি প্রশ্ন—চবি, ঢাবিসহ বিগত বছরের ভর্তি পরীক্ষা থেকে। ১২ মিনিটে দিয়ে দেখো আজ কততম হও!', url: '/#daily' };
 const DAILY = [
-  { title: '📝 আজকের Model Test দিয়েছ?', body: '১০ মিনিট সময় দাও—আজকের practice তোমাকে স্বপ্নের ক্যাম্পাসের এক ধাপ কাছে নেবে।', url: '/#start/exam' },
-  { title: '🔥 Streak ধরে রাখো!', body: 'আজকের ৫টি প্রশ্নের চ্যালেঞ্জ অপেক্ষা করছে—মাত্র ২ মিনিট।', url: '/#home' },
-  { title: '🎮 একটা Fun Quiz হয়ে যাক?', body: 'খেলতে খেলতে ১০টি প্রশ্ন—দেখো আজ কত points পাও।', url: '/#start/fun' },
-  { title: '📖 আজ কয়টা নতুন শব্দ শিখলে?', body: 'Vocabulary-তে ৫ মিনিট দাও, পরীক্ষার হলে কাজে লাগবে।', url: '/#vocab' },
+  { title: '⏰ আজকের Daily Quiz এখনো বাকি', body: 'রাত ১২টার আগে ২০টি প্রশ্নের quiz-টা দিয়ে ফেলো—কাল নতুন প্রশ্ন আসবে।', url: '/#daily' },
+  { title: '🔥 আজকের Daily Quiz দিয়েছ?', body: 'মাত্র ১২ মিনিট—আজকের প্রশ্নগুলো আর আসবে না, সবার সঙ্গে নিজের অবস্থান দেখে নাও।', url: '/#daily' },
 ];
 const FALLBACK = DAILY[0];
 
@@ -114,14 +117,30 @@ export async function runDaily(db, env, { now = Date.now(), fetchFn = fetch, top
   }
   await putSetting(db, 'push_message', { ...message, date: today });
 
-  // Everyone gets news; the plain reminder skips students who already practised today.
+  // Everyone gets news; the plain reminder skips students who already took today's Daily Quiz.
   const subs = await db.query(
     `SELECT p.endpoint FROM push_subs p
      WHERE $1::boolean OR p.player_id IS NULL OR NOT EXISTS (
-       SELECT 1 FROM score_attempts a WHERE a.player_id = p.player_id AND (a.at AT TIME ZONE 'Asia/Dhaka')::date = $2::date)
+       SELECT 1 FROM daily_attempts a WHERE a.player_id = p.player_id AND a.day = $2::date)
      LIMIT 5000`,
     [fresh.length > 0, today],
   );
+  return { ...(await sendAll(db, keys, subs, fetchFn)), message };
+}
+
+/** The morning job: make today's Daily Quiz set and tell every subscriber it is ready. */
+export async function runMorning(db, env, { now = Date.now(), fetchFn = fetch } = {}) {
+  const keys = vapidKeys(env);
+  if (!keys) throw new BadRequest('VAPID_PRIVATE_JWK is not set.', 503);
+  const today = dhakaDate(now);
+  await daySet(db, today, today);
+  await putSetting(db, 'push_message', { ...MORNING, date: today });
+  const subs = await db.query('SELECT endpoint FROM push_subs LIMIT 5000');
+  return { ...(await sendAll(db, keys, subs, fetchFn)), message: MORNING };
+}
+
+/** Sends one push to each subscription (25 at a time); expired ones are removed. */
+async function sendAll(db, keys, subs, fetchFn) {
   const total = (await db.query('SELECT count(*)::int AS n FROM push_subs'))[0].n;
   const result = { sent: 0, gone: 0, failed: 0, skipped: total - subs.length };
   for (let i = 0; i < subs.length; i += 25) {
@@ -135,7 +154,7 @@ export async function runDaily(db, env, { now = Date.now(), fetchFn = fetch, top
     result.gone += gone.length;
     result.failed += outcomes.filter(o => o === 'error').length;
   }
-  return { ...result, message };
+  return result;
 }
 
 /** Text parameter for a Postgres text[] (Neon receives every parameter as text). */
@@ -187,7 +206,7 @@ export default route('push', {
       const [row] = await db.query(
         `UPDATE push_subs SET pending = $2::jsonb WHERE endpoint = $1
            AND (last_sent_at IS NULL OR last_sent_at < now() - interval '30 seconds') RETURNING endpoint`,
-        [endpoint, { title: '✅ Notification চালু আছে', body: 'প্রতিদিন রাত ৮টায় practice-এর কথা মনে করিয়ে দেব, নতুন topic এলেও জানাব।', url: '/#home' }],
+        [endpoint, { title: '✅ Notification চালু আছে', body: 'প্রতিদিন সকালে আজকের Daily Quiz-এর খবর দেব, রাত ৮টায় বাকি থাকলে মনে করিয়ে দেব।', url: '/#daily' }],
       );
       if (!row) throw new BadRequest('একটু পরে আবার চেষ্টা করো।', 429);
       const outcome = await sendPush(endpoint, keys);
@@ -199,13 +218,13 @@ export default route('push', {
   },
 }, 'Notification service is unavailable right now.');
 
-/** Vercel Cron entry: needs `Authorization: Bearer <CRON_SECRET>` (Vercel adds it). */
-export async function cron(request, env = {}) {
+/** Vercel Cron entry: needs `Authorization: Bearer <CRON_SECRET>` (Vercel adds it). slot: 'evening' | 'morning'. */
+export async function cron(request, env = {}, slot = 'evening') {
   const secret = env.CRON_SECRET || '';
   if (!secret || request.headers.get('authorization') !== `Bearer ${secret}`) return json({ ok: false, error: 'Unauthorized' }, 401);
   try {
-    const result = await runDaily(await getDb(env), env);
-    console.log('push cron', JSON.stringify({ ...result, message: result.message.title }));
+    const result = await (slot === 'morning' ? runMorning : runDaily)(await getDb(env), env);
+    console.log(`push cron ${slot}`, JSON.stringify({ ...result, message: result.message.title }));
     return json({ ok: true, ...result });
   } catch (error) {
     if (error instanceof BadRequest) return json({ ok: false, error: error.message }, error.status);

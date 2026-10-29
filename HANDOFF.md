@@ -4,12 +4,13 @@
 > এই পুরো file-টা (বা GitHub link) তাকে দাও আর বলো "Read HANDOFF.md first and follow it."
 > Admin password বা database URL কখনো কোনো chat-এ বা file-এ দেবে না—ওগুলো শুধু Vercel-এ থাকে।
 
-Last updated: 2026-10-29 · version **2.16.1** · latest code commit on `main`: `352b76b`.
+Last updated: 2026-10-29 · version **2.17.0** (Daily Quiz).
 Keep §4 up to date after each change.
 
 ## 1. What this is
 Bangla-first university-admission practice site for Bangladeshi students: English MCQ
-**Fun Quiz** and timed **Model Test**, Tips & Tricks, university pages, Score/leaderboard,
+**Fun Quiz**, timed **Model Test** and the **Daily Quiz** (same 20 past-year questions for
+everyone each day), Tips & Tricks, university pages, Score/leaderboard,
 vocabulary list, community Q&A, push reminders and an admin usage dashboard.
 Plain HTML/CSS/ES modules (no framework, no bundler). API in `server/`, backed by **Neon Postgres**.
 
@@ -84,7 +85,8 @@ Then confirm the Vercel production deployment for that commit is READY and open 
 | Live online count / today's visitors / top-score popups | `assets/js/lib/live.js` → `server/routes/visitors.js` |
 | Offline queue for scores & sign-ups | `assets/js/lib/outbox.js` |
 | Service worker (versioned precache) | `sw.js` (block between markers written by `scripts/preload.mjs`) |
-| API routes | `server/routes/{profile,scores,visitors,progress,community,push,admin,backup}.js` |
+| API routes | `server/routes/{profile,scores,daily,visitors,progress,community,push,admin,backup}.js` |
+| Daily Quiz: question picker (shared) / page / server | `assets/js/shared/daily.js` / `assets/js/pages/daily.js` (`#daily`) / `server/routes/daily.js` (tables `daily_sets`, `daily_attempts`) |
 | Tables (created automatically, idempotent) | `server/db.js` (`SCHEMA`) |
 | Rate limits | `server/ratelimit.js` (`hits` table) |
 | Admin password check | `server/admin.js` (`ADMIN_PASSWORD`, whitespace ignored) |
@@ -94,10 +96,20 @@ Then confirm the Vercel production deployment for that commit is READY and open 
 | How to add questions | `CONTENT_GUIDE.md` · history: `CHANGELOG.md` |
 
 Environment variables (names only): `DATABASE_URL` / `POSTGRES_URL` (Neon), `ADMIN_PASSWORD`,
-`CRON_SECRET` (daily push cron `/api/push-cron`, 14:00 UTC), `VAPID_PRIVATE_JWK` (web push).
+`CRON_SECRET` (push crons: `/api/push-morning` 01:00 UTC ≈ 7 AM BD "today's Daily Quiz is ready";
+`/api/push-cron` 14:00 UTC = 8 PM BD, only to those who have not taken today's quiz), `VAPID_PRIVATE_JWK` (web push).
+New API routes must also be added to `ROUTES` in `scripts/serve.mjs` (local dev server).
+Vercel Hobby allows only about 12 functions per deployment; `api/` now has 11 files — before adding
+another endpoint, add an action to an existing route instead.
 
 ## 4. Current state (2026-10-29)
 - 2,256 questions in 21 topics (Grammar + Memorising), 1,049-word vocabulary list.
+- **Daily Quiz** (since 2026-10-29): 20 questions a day = 10 CU/DU + 10 other universities, all
+  with a real 📌 reference (513 such questions: 171 CU/DU, 342 others). Each half rotates with no
+  repeats until used up (≈17 and ≈34 days), then a new round. A day's set is locked in
+  `daily_sets` when first opened (GET `/api/daily` or the morning cron). One ranked try per
+  student per day (`daily_attempts`, PK day+player). Rules: Model Test (36 s/q, −0.25).
+  More CU/DU past-year questions in the topic files make the rotation longer automatically.
 - 513 questions show a 📌 reference; 1,743 have none in the data and are intentionally empty
   (mostly Synonym, Antonym, Meaning, Idioms, Preposition, Tense).
 - Login = full name + roll (no password). Leaderboard shows only `LastName.roll` + college.
@@ -151,6 +163,7 @@ Environment variables (names only): `DATABASE_URL` / `POSTGRES_URL` (Neon), `ADM
 ## 5. Owner preferences
 - Owner writes Bangla/Banglish; reply with short, organised Bangla summaries.
 - Mobile first, simple UI, no duplicate buttons or filler text; don't slow the home page.
-- Every answer has a Bangla explanation; only two modes: Fun Quiz and Model Test.
+- Every answer has a Bangla explanation; three quiz types: Fun Quiz, Model Test and Daily Quiz
+  (owner asked for the Daily Quiz on 2026-10-29; CU and DU past-year questions are the focus).
 - Data must be real (counts, references, visitors) — never estimated or made up.
 - Feedback goes to WhatsApp (link in `data/site.js`).

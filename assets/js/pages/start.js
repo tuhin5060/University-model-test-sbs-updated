@@ -1,17 +1,23 @@
-// Setup screen for a new Fun Quiz / Model Test.
-// Order on every screen: 1 name → 2 number of questions → 3 topic (with a search box) → one start button.
+// Setup screen for a new Fun Quiz / Model Test / Daily Quiz.
+// Fun / Model Test: 1 name → 2 number of questions → 3 topic (with a search box) → one start button.
+// Daily Quiz (#start/daily): 1 name → today's fixed 20 questions → start (pages/daily.js shows results).
 // Timer and negative marking are fixed (see shared/scoring.js), so there is nothing else to pick.
 
 import { TOPICS, QUESTION_COUNT, GROUPS } from '../../../data/questions/meta.js';
 import { AVATARS } from '../../../data/site.js';
-import { esc, bn, $, ask } from '../lib/dom.js';
+import { esc, bn, $, ask, toast, navigate } from '../lib/dom.js';
 import { state, mistakeIds } from '../lib/store.js';
 import { identityFields, wireIdentity, signIn } from '../lib/identity.js';
 import { FUN_LIMIT, EXAM_SECONDS, EXAM_NEGATIVE } from '../shared/scoring.js';
 import { MODE_INFO, pageHead, topicAccuracy, topicTitle } from '../components.js';
 import { startSession } from '../quiz.js';
+import { getBank } from '../lib/bank.js';
+import { fetchDaily } from '../lib/api.js';
+import { dhakaDay, pickDaily, DAILY_SIZE, DAILY_FOCUS } from '../shared/daily.js';
+import { dayLong, dayShort, localTry, RULES as DAILY_RULES } from './daily.js';
 
 const MODES = ['fun', 'exam'];
+const TABS = ['fun', 'exam', 'daily'];
 const COUNTS = { fun: [10, 15, 20], exam: [10, 20, 30, 50] };
 const DEFAULT_COUNT = { fun: 10, exam: 20 };
 const RULES = {
@@ -37,7 +43,46 @@ function seg(name, values, current, label = v => v) {
 
 const summary = (mode, topic, count) => `${MODE_INFO[mode].icon} ${topicTitle(topic)} · ${bn(count)}টি প্রশ্ন`;
 
+function tabs(mode, topic) {
+  return `<nav class="mode-tabs three" aria-label="Mode">${TABS
+    .map(id => `<a href="#start/${id}${id === 'daily' ? '' : `/${esc(topic)}`}" class="${id === mode ? 'active' : ''} t-${MODE_INFO[id].color}" ${id === mode ? 'aria-current="page"' : ''}><span aria-hidden="true">${MODE_INFO[id].icon}</span>${esc(MODE_INFO[id].label)}</a>`)
+    .join('')}</nav>`;
+}
+
+const nameStep = p => `<section class="setup-name card">
+        <h2 class="step"><span>১</span> তোমার নাম লিখো</h2>
+        ${identityFields()}
+        <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
+      </section>`;
+
+function renderDaily() {
+  const day = dhakaDay();
+  const done = localTry(day);
+  return `<div class="container">
+    ${pageHead('📅 Daily Quiz', `প্রতিদিন সবার জন্য একই প্রশ্ন · ${DAILY_RULES}`, '', [['#daily', 'Daily Quiz'], [null, 'শুরু']])}
+    ${tabs('daily', 'all')}
+    ${done ? '<p class="notice good">✅ আজকের Daily Quiz তুমি দিয়ে ফেলেছ—দিনে একবারই গণনা হয়। <a class="text-link" href="#daily">ফলাফল ও উত্তর দেখো →</a></p>' : ''}
+    <form class="setup" id="setup-form" data-mode="daily" novalidate>
+      ${nameStep(state.player || {})}
+      <section class="card daily-brief">
+        <h2 class="step"><span>২</span> আজকের প্রশ্ন</h2>
+        <p><b>${esc(dayLong(day))}</b> — ${bn(DAILY_SIZE)}টি প্রশ্ন: ${bn(DAILY_FOCUS)}টি চবি ও ঢাবির, বাকিগুলো অন্য বিশ্ববিদ্যালয়ের বিগত বছরের ভর্তি পরীক্ষা থেকে। সবার জন্য একই।</p>
+        <ul>
+          <li>${esc(DAILY_RULES)}</li>
+          <li>সময় শেষ হলে নিজে থেকেই জমা হবে</li>
+          <li>প্রশ্ন আগের দিনগুলোর সঙ্গে মিলবে না; ফলাফল আর সবার অবস্থান <a class="text-link" href="#daily">Daily Quiz</a> পাতায়</li>
+        </ul>
+      </section>
+      <div class="start-bar">
+        <span class="start-summary">📅 Daily Quiz · ${esc(dayShort(day))}</span>
+        <button class="btn big t-daily" type="submit" ${done ? 'disabled' : ''}>শুরু করো →</button>
+      </div>
+    </form>
+  </div>`;
+}
+
 export function render([mode = 'fun', topic = 'all']) {
+  if (mode === 'daily') return renderDaily();
   if (!MODES.includes(mode)) mode = 'fun';
   const info = MODE_INFO[mode];
   const mistakes = mistakeIds().length;
@@ -49,15 +94,9 @@ export function render([mode = 'fun', topic = 'all']) {
 
   return `<div class="container">
     ${pageHead(`${info.icon} ${info.label}`, RULES[mode], '', [[null, info.label]])}
-    <nav class="mode-tabs" aria-label="Mode">${MODES
-      .map(id => `<a href="#start/${id}/${esc(topic)}" class="${id === mode ? 'active' : ''} t-${MODE_INFO[id].color}" ${id === mode ? 'aria-current="page"' : ''}><span aria-hidden="true">${MODE_INFO[id].icon}</span>${esc(MODE_INFO[id].label)}</a>`)
-      .join('')}</nav>
+    ${tabs(mode, topic)}
     <form class="setup" id="setup-form" data-mode="${mode}" novalidate>
-      <section class="setup-name card">
-        <h2 class="step"><span>১</span> তোমার নাম লিখো</h2>
-        ${identityFields()}
-        <div class="avatars" role="radiogroup" aria-label="Avatar">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${(p.avatar || '🚂') === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div>
-      </section>
+      ${nameStep(p)}
       <section class="setup-count card">
         <h2 class="step"><span>২</span> কয়টি প্রশ্ন?</h2>
         ${seg('count', COUNTS[mode], count, v => bn(v))}
@@ -89,10 +128,44 @@ export function render([mode = 'fun', topic = 'all']) {
   </div>`;
 }
 
+/** Sign in, fetch today's set (one try a day), then start it as a timed Model Test. */
+async function startDaily(form, fd, btn) {
+  btn.disabled = true;
+  btn.textContent = 'প্রস্তুত হচ্ছে…';
+  let player = await signIn(form, { avatar: String(fd.get('avatar') || '🚂') });
+  while (player === null) {
+    const retry = await ask('Server-এ পৌঁছানো যাচ্ছে না (নেট ধীর বা বন্ধ)। তোমার নাম save হয়নি, তাই এই quiz-এর score গণনায় যাবে না।\n\nআবার চেষ্টা করবে?', { yes: '🔄 আবার চেষ্টা', no: 'save ছাড়াই শুরু' });
+    if (!retry) break;
+    player = await signIn(form, { avatar: String(fd.get('avatar') || '🚂') });
+  }
+  btn.disabled = false;
+  btn.textContent = 'শুরু করো →';
+  if (player === false) return;
+  let set = null;
+  try { set = await fetchDaily(); } catch { /* offline: same pick from the local bank below */ }
+  const day = set?.day || dhakaDay();
+  if (set?.mine || localTry(day)) {
+    toast('✅ আজকের Daily Quiz তুমি আগেই দিয়েছ—দিনে একবারই গণনা হয়।');
+    navigate('#daily');
+    return;
+  }
+  const ids = set?.ids || pickDaily(day, getBank().QUESTIONS).ids;
+  const ok = await startSession({ mode: 'exam', kind: 'daily', topic: 'daily', ids, day, title: `Daily Quiz · ${dayShort(day)}`, player });
+  if (!ok) btn.textContent = 'আবার চেষ্টা করো';
+}
+
 export function mount() {
   const form = $('#setup-form');
   if (!form) return;
   const mode = form.dataset.mode;
+  if (mode === 'daily') {
+    wireIdentity(form);
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      startDaily(form, new FormData(form), form.querySelector('button[type=submit]'));
+    });
+    return;
+  }
   const refresh = () => {
     const fd = new FormData(form);
     $('#start-summary').textContent = summary(mode, String(fd.get('topic') || 'all'), Number(fd.get('count')));

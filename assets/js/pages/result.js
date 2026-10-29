@@ -7,7 +7,7 @@ import { esc, bn, duration, bnDate, $, $$, toast } from '../lib/dom.js';
 import { state, updateHistory } from '../lib/store.js';
 import { attemptPoints } from '../shared/scoring.js';
 import { celebrate, beep } from '../lib/fx.js';
-import { MODE_INFO, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
+import { MODE_INFO, modeInfo, pageHead, scoreRing, leaderboard, loadLeaderboards, empty } from '../components.js';
 import { startSession } from '../quiz.js';
 import { sendScore, flush } from '../lib/outbox.js';
 import { explainBlock } from './play.js';
@@ -17,7 +17,20 @@ const L = 'ABCD';
 let filter = 'all';
 let lastShown = null;
 
+function dailyStatus(h) {
+  const link = `<a class="text-link" href="#daily/${esc(h.day)}">আজকের ফলাফল ও সবার অবস্থান →</a>`;
+  if (!h.player?.playerId) return '<p class="notice" id="save-status">⚠️ নাম save না থাকায় এই Daily Quiz-এর score শুধু এই phone-এ আছে।</p>';
+  const map = {
+    saving: '<p class="notice" id="save-status">⏳ Daily Quiz-এর score পাঠানো হচ্ছে…</p>',
+    saved: `<p class="notice good" id="save-status">✅ Daily Quiz-এ যোগ হয়েছে${h.dailyRank?.rank ? ` · আজ <b>#${bn(h.dailyRank.rank)}</b> (${bn(h.dailyRank.players)} জনের মধ্যে)` : ''}। ${link}</p>`,
+    local: `<p class="notice warn" id="save-status">📴 Score এই phone-এ জমা আছে—নেট এলে নিজে থেকেই যাবে। <button class="link-btn" data-action="retry-save" data-id="${esc(h.id)}">এখনই পাঠাও</button></p>`,
+    failed: `<p class="notice warn" id="save-status">⚠️ ${esc(h.saveError || 'Server এই score নেয়নি।')} ${link}</p>`,
+  };
+  return map[h.saved] || '';
+}
+
 function saveStatus(h) {
+  if (h.kind === 'daily') return dailyStatus(h);
   if (h.kind !== 'topic' || h.mode === 'practice') return '';
   if (!h.player?.playerId) {
     // The name was not saved when this test started; once it is (a later test), send this score too.
@@ -82,7 +95,7 @@ export function render([id]) {
   const h = id ? state.history.find(x => x.id === id) : state.history[0];
   if (h && lastShown !== h.id) filter = 'all';
   if (!h) return `<div class="container narrow section">${empty('কোনো ফলাফল পাওয়া যায়নি।', '<a class="btn" href="#start/fun">নতুন Quiz শুরু করো</a>')}</div>`;
-  const info = MODE_INFO[h.mode] || MODE_INFO.practice;
+  const info = modeInfo(h);
   const pct = h.total ? Math.round((h.correct / h.total) * 100) : 0;
   const [title, line] = verdict(pct);
   const answers = h.answers || [];
@@ -104,7 +117,9 @@ export function render([id]) {
       </div>
       <div class="result-actions">
         ${wrongIds.length ? `<button class="btn" data-action="retry-wrong" data-id="${esc(h.id)}">ভুলগুলো আবার (${bn(wrongIds.length)})</button>` : ''}
-        <a class="btn ghost" href="#start/${esc(h.mode)}/${esc(['daily', 'retry'].includes(h.kind) ? 'all' : h.topic)}">${h.mode === 'exam' ? 'আরেকটি Test' : h.mode === 'fun' ? 'আবার খেলো' : 'আবার practice'}</a>
+        ${h.kind === 'daily'
+          ? `<a class="btn ghost" href="#daily/${esc(h.day)}">📅 Daily Quiz-এর তালিকা</a>`
+          : `<a class="btn ghost" href="#start/${esc(h.mode)}/${esc(h.kind === 'retry' ? 'all' : h.topic)}">${h.mode === 'exam' ? 'আরেকটি Test' : h.mode === 'fun' ? 'আবার খেলো' : 'আবার practice'}</a>`}
         <a class="btn ghost" href="#review">উত্তরপত্র দেখো ↓</a>
         <button class="link-btn" data-action="share" data-id="${esc(h.id)}">Share করো</button>
       </div>
@@ -153,7 +168,7 @@ export function onAction(action, el) {
     updateHistory(h.id, { player: state.player });
     sendScore(h.id);
   } else if (action === 'share' && h) {
-    const text = `আমি "ক্যাম্পাসের পথে"-তে ${h.title} ${MODE_INFO[h.mode]?.label || ''}-এ ${h.correct}/${h.total} সঠিক করেছি${h.mode === 'fun' ? ` (${h.score} points)` : ''}! তুমি পারবে? 🎯`;
+    const text = `আমি "ক্যাম্পাসের পথে"-তে ${h.title} ${h.kind === 'daily' ? '' : MODE_INFO[h.mode]?.label || ''}-এ ${h.correct}/${h.total} সঠিক করেছি${h.mode === 'fun' ? ` (${h.score} points)` : ''}! তুমি পারবে? 🎯`;
     const url = location.origin + location.pathname;
     if (navigator.share) navigator.share({ text, url }).catch(() => {});
     else navigator.clipboard?.writeText(`${text} ${url}`).then(() => toast('📋 Copy হয়েছে—যেকোনো জায়গায় paste করো'), () => toast(text));

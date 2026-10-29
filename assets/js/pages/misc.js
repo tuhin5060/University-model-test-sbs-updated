@@ -27,7 +27,7 @@ function loginCard() {
 }
 
 function myScores() {
-  const ranked = state.history.filter(x => x.mode === 'fun' || x.mode === 'exam');
+  const ranked = state.history.filter(x => (x.mode === 'fun' || x.mode === 'exam') && x.kind !== 'daily'); // Daily Quiz has its own page (#daily)
   if (!ranked.length && !state.player?.playerId) {
     return loginCard() + empty('এখনো কোনো test দাওনি। একটা দিলেই তোমার score এখানে দেখাবে।', '<a class="btn t-fun" href="#start/fun">🎮 Fun Quiz</a> <a class="btn" href="#start/exam">⏱️ Model Test</a>');
   }
@@ -157,6 +157,7 @@ export const leaderboardPage = {
       <section class="section-tight">
         <h2 class="h3">তোমার score</h2>
         ${myScores()}
+        <p><a class="text-link" href="#daily">📅 Daily Quiz-এর ফলাফল—তারিখ অনুযায়ী →</a></p>
       </section>
       <section class="section-tight">
         <h2 class="h3">Leaderboard</h2>

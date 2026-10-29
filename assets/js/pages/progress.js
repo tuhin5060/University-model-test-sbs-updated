@@ -4,7 +4,7 @@ import { TOPICS } from '../../../data/questions/meta.js';
 import { UNIVERSITIES } from '../../../data/universities.js';
 import { esc, bn, bnDate, duration, toast, ask } from '../lib/dom.js';
 import { state, storageOK, mistakeIds, dailyStreak, replaceState, resetState, validBackup } from '../lib/store.js';
-import { pageHead, MODE_INFO, topicAccuracy, empty } from '../components.js';
+import { pageHead, modeInfo, topicAccuracy, empty } from '../components.js';
 
 export function render() {
   const h = state.history;
@@ -44,7 +44,7 @@ export function render() {
     <section class="section">
       <div class="section-head"><h2>🕘 সাম্প্রতিক ফলাফল</h2></div>
       ${h.length ? `<div class="history">${h.slice(0, 20).map(x => {
-        const m = MODE_INFO[x.mode] || MODE_INFO.practice;
+        const m = modeInfo(x);
         return `<a class="history-row" href="#result/${esc(x.id)}"><span class="h-icon" aria-hidden="true">${m.icon}</span><span><b>${esc(x.title)}</b><small>${esc(m.label)} · ${bnDate(x.finished)} · ${duration(x.timeSec)}</small></span><span class="h-score">${x.mode === 'fun' ? `${bn(x.score)} pts` : `${bn(x.correct)}/${bn(x.total)}`}${x.saved === 'saved' ? ' <small title="Leaderboard-এ save">🏆</small>' : ''}</span></a>`;
       }).join('')}</div>` : empty('প্রথম test শেষ করলে এখানে দেখাবে।')}
     </section>

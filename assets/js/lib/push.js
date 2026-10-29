@@ -1,4 +1,5 @@
-// Browser notifications: daily 8 PM reminder and new-topic news (server: server/routes/push.js).
+// Browser notifications: the morning Daily Quiz note, an 8 PM reminder if it is still
+// not taken, and new-topic news (server: server/routes/push.js).
 // The on/off control (<div data-push>) appears on the home page; after a test a
 // small card offers it once a week until the student answers.
 
@@ -61,8 +62,8 @@ export async function refreshPush() {
 }
 
 const LINES = {
-  off: '🔔 <button class="link-btn" data-action="push-on">রাত ৮টার reminder চালু করো</button>',
-  on: '🔔 রাত ৮টার reminder চালু আছে · <button class="link-btn" data-action="push-test">পরীক্ষা করো</button> · <button class="link-btn" data-action="push-off">বন্ধ করো</button>',
+  off: '🔔 <button class="link-btn" data-action="push-on">প্রতিদিন সকালে Daily Quiz-এর reminder চালু করো</button>',
+  on: '🔔 Reminder চালু আছে (সকালে Daily Quiz, রাত ৮টায় বাকি থাকলে) · <button class="link-btn" data-action="push-test">পরীক্ষা করো</button> · <button class="link-btn" data-action="push-off">বন্ধ করো</button>',
   denied: '🔕 এই browser-এ notification বন্ধ করা আছে। চালু করতে: address bar-এর 🔒 → Notifications → Allow।',
   'ios-install': '📱 iPhone-এ reminder পেতে: Share বাটন → “Add to Home Screen”, তারপর সেখান থেকে site খুলে চালু করো।',
 };
@@ -85,7 +86,7 @@ export async function maybeAskPush() {
   if ((await pushState()) !== 'off' || Notification.permission !== 'default') return;
   document.body.insertAdjacentHTML('beforeend', `<div class="push-ask" role="dialog" aria-label="Notification">
     <span class="push-ask-icon" aria-hidden="true">🔔</span>
-    <div><b>প্রতিদিন রাত ৮টায় মনে করিয়ে দেব?</b><small>Practice-এর reminder আর নতুন topic এলে খবর পাবে।</small></div>
+    <div><b>প্রতিদিন সকালে আজকের Daily Quiz-এর খবর দেব?</b><small>রাত ৮টায় বাকি থাকলে মনে করিয়ে দেব, নতুন topic এলেও জানাব।</small></div>
     <div class="push-ask-actions"><button class="btn small" data-action="push-on">চালু করো</button><button class="link-btn" data-action="push-later">এখন না</button></div>
   </div>`);
 }
@@ -104,7 +105,7 @@ export async function onPushAction(action, el) {
       state.prefs = { ...state.prefs, pushAsked: Date.now() };
       save();
       closeAsk();
-      toast((await enable()) ? '✅ চালু হয়েছে—প্রতিদিন রাত ৮টায় মনে করিয়ে দেব।' : '🔕 অনুমতি দেওয়া হয়নি। পরে হোম পেজ থেকে চালু করতে পারবে।');
+      toast((await enable()) ? '✅ চালু হয়েছে—প্রতিদিন সকালে Daily Quiz-এর খবর পাবে।' : '🔕 অনুমতি দেওয়া হয়নি। পরে হোম পেজ থেকে চালু করতে পারবে।');
     } else if (action === 'push-off') {
       await disable();
       toast('🔕 Reminder বন্ধ করা হলো।');

@@ -8,7 +8,8 @@ import { onRequest as cfPush } from '../functions/api/push.js';
 import * as vercelProfile from '../api/profile.js';
 import * as vercelScores from '../api/scores.js';
 import { cron as cronEntry } from '../server/routes/push.js';
-import { runDaily, vapidHeader, validEndpoint } from '../server/routes/push.js';
+import { runDaily, runMorning, MORNING, vapidHeader, validEndpoint } from '../server/routes/push.js';
+import * as vercelDaily from '../api/daily.js';
 import { QUESTIONS } from '../data/questions/index.js';
 
 const db = await createLocalDb();
@@ -82,16 +83,23 @@ test('test push: sends one signed push, refuses a second within 30 s', async () 
   assert.equal((await call({ query: { message: '1', endpoint: EP(1) } })).body.message.title, '✅ Notification চালু আছে');
 });
 
-test('daily job: skips students who practised today, removes expired subscriptions, announces new topics', async () => {
+test('evening job: skips students who took today\'s Daily Quiz, removes expired subscriptions, announces new topics', async () => {
   const join = async name => (await vercelProfile.POST(new Request('https://site.test/api/profile', { method: 'POST', body: JSON.stringify({ name }) })).then(r => r.json())).player.playerId;
   const busy = await join('Busy Student');
   const lazy = await join('Lazy Student');
-  const qs = QUESTIONS.filter(q => q.topicId === 'tense').slice(0, 3);
-  const res = await vercelScores.POST(new Request('https://site.test/api/scores', {
+  // Busy took today's Daily Quiz; Lazy only played a Fun Quiz, so Lazy is still reminded.
+  const { ids, day } = await vercelDaily.GET(new Request('https://site.test/api/daily')).then(r => r.json());
+  const res = await vercelDaily.POST(new Request('https://site.test/api/daily', {
     method: 'POST', headers: { cookie: `campus_player=${busy}` },
-    body: JSON.stringify({ playerId: busy, attemptId: 'push-1', mode: 'fun', topic: 'tense', answers: qs.map(q => ({ id: q.id, choice: q.a, sec: 2 })) }),
+    body: JSON.stringify({ playerId: busy, attemptId: 'push-1', day, answers: ids.map(id => ({ id, choice: 0 })) }),
   }));
   assert.equal(res.status, 201);
+  const qs = QUESTIONS.filter(q => q.topicId === 'tense').slice(0, 3);
+  const fun = await vercelScores.POST(new Request('https://site.test/api/scores', {
+    method: 'POST', headers: { cookie: `campus_player=${lazy}` },
+    body: JSON.stringify({ playerId: lazy, attemptId: 'push-2', mode: 'fun', topic: 'tense', answers: qs.map(q => ({ id: q.id, choice: q.a, sec: 2 })) }),
+  }));
+  assert.equal(fun.status, 201);
   await db.query('DELETE FROM push_subs');
   for (const [n, player] of [[2, busy], [3, lazy], [4, null]]) {
     await db.query('INSERT INTO push_subs (endpoint, player_id) VALUES ($1, $2)', [EP(n), player]);
@@ -101,7 +109,8 @@ test('daily job: skips students who practised today, removes expired subscriptio
   const fetchFn = async url => { hits.push(url); return new Response(null, { status: url === EP(4) ? 410 : 201 }); };
   const topics = [{ id: 'tense', title: 'Tense', count: 50 }];
   const first = await runDaily(db, env, { fetchFn, topics });
-  assert.deepEqual(hits.sort(), [EP(3), EP(4)], 'the student who practised today is skipped');
+  assert.deepEqual(hits.sort(), [EP(3), EP(4)], 'the student who took today\'s Daily Quiz is skipped');
+  assert.equal(first.message.url, '/#daily');
   assert.deepEqual([first.sent, first.gone, first.skipped], [1, 1, 1]);
   assert.equal((await db.query('SELECT count(*)::int AS n FROM push_subs WHERE endpoint = $1', [EP(4)]))[0].n, 0, 'expired subscription removed');
   assert.notEqual(first.message.title, '🆕 নতুন topic যোগ হয়েছে', 'first run only remembers the topics');
@@ -113,6 +122,20 @@ test('daily job: skips students who practised today, removes expired subscriptio
   assert.equal(second.message.url, '/#start/fun/idioms');
   assert.deepEqual(hits.sort(), [EP(2), EP(3)], 'news goes to everyone');
   assert.equal((await call({ query: { message: '1' } })).body.message.title, '🆕 নতুন topic যোগ হয়েছে');
+});
+
+test('morning job: today\'s Daily Quiz is made and every subscriber hears about it', async () => {
+  await db.query('DELETE FROM push_subs');
+  for (const n of [5, 6]) await db.query('INSERT INTO push_subs (endpoint) VALUES ($1)', [EP(n)]);
+  const hits = [];
+  const fetchFn = async url => { hits.push(url); return new Response(null, { status: 201 }); };
+  const r = await runMorning(db, env, { fetchFn });
+  assert.deepEqual(hits.sort(), [EP(5), EP(6)]);
+  assert.deepEqual([r.sent, r.skipped], [2, 0]);
+  assert.equal(r.message.url, '/#daily');
+  assert.equal((await call({ query: { message: '1' } })).body.message.title, MORNING.title);
+  assert.equal((await db.query('SELECT count(*)::int AS n FROM daily_sets'))[0].n, 1, 'today\'s set exists');
+  await assert.rejects(runMorning(db, {}, { fetchFn }), /VAPID/);
 });
 
 test('cron entry needs the secret', async () => {

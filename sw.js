@@ -7,11 +7,11 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = '18054a68b158';
+const VERSION = 'd37066e39c28';
 const PRECACHE = [
   './',
-  'assets/css/styles.css?v=2.16.1',
-  'assets/js/main.js?v=2.16.1',
+  'assets/css/styles.css?v=2.17.0',
+  'assets/js/main.js?v=2.17.0',
   'assets/js/components.js',
   'assets/js/lib/api.js',
   'assets/js/lib/bank.js',
@@ -27,6 +27,7 @@ const PRECACHE = [
   'assets/js/lib/store.js',
   'assets/js/pages/admin.js',
   'assets/js/pages/community.js',
+  'assets/js/pages/daily.js',
   'assets/js/pages/home.js',
   'assets/js/pages/misc.js',
   'assets/js/pages/play.js',
@@ -37,6 +38,7 @@ const PRECACHE = [
   'assets/js/pages/universities.js',
   'assets/js/pages/vocab.js',
   'assets/js/quiz.js',
+  'assets/js/shared/daily.js',
   'assets/js/shared/names.js',
   'assets/js/shared/scoring.js',
   'assets/js/shared/source.js',

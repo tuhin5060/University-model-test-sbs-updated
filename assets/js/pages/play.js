@@ -5,7 +5,7 @@ import { esc, bn, clock, $, $$, toast, ask } from '../lib/dom.js';
 import { state } from '../lib/store.js';
 import { beep, celebrate, shake, soundOn, setSound } from '../lib/fx.js';
 import { multiplier } from '../shared/scoring.js';
-import { MODE_INFO, empty } from '../components.js';
+import { modeInfo, empty } from '../components.js';
 import * as quiz from '../quiz.js';
 
 const L = 'ABCD';
@@ -77,7 +77,7 @@ export function render() {
   const qs = quiz.sessionQuestions(s);
   const i = s.index || 0;
   const q = qs[i];
-  const info = MODE_INFO[s.mode];
+  const info = modeInfo(s);
   const done = quiz.isDone(s, q.id);
   const progress = s.mode === 'exam' ? Object.keys(s.answers).length / qs.length : (i + (done ? 1 : 0)) / qs.length;
   const last = i === qs.length - 1;

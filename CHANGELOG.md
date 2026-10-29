@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.17.0 — Daily Quiz
+* New third quiz type next to Fun Quiz and Model Test: **Daily Quiz** — the same 20
+  questions for everyone each day (Bangladesh date), 12 minutes, −0.25 per wrong answer,
+  one ranked try per student per day. Started 29 October 2026.
+* Questions come only from real past admission exams (📌 reference): 10 a day from CU and
+  DU, 10 from the other universities. Each half rotates without repeats until all of it has
+  been used, then a new round starts (today: 171 CU/DU and 342 other past-year questions,
+  so no repeats for about 17 and 34 days; more past-year questions make the rounds longer).
+  Each day's set is locked in the database the first time it is opened.
+* Home page: a Daily Quiz card at the top ("আজকের কুইজে অংশ নাও") with today's
+  participants, and your marks and position once you have taken it.
+* New Daily Quiz page (`#daily`, bottom bar "Daily"): round date buttons for every day; tap
+  one to see that day's result, its top 20 and all 20 questions with answers and Bangla
+  explanations (today's questions stay hidden until you have taken it). Past days can be
+  practised again (not ranked).
+* Notifications: every morning (~7 AM) "today's Daily Quiz is ready" to every subscriber;
+  the 8 PM reminder now goes only to those who have not taken today's quiz.
+* A new highest score on the day's quiz shows the top-score popup to everyone online.
+* Daily Quiz tables are in the admin backup and the Cloudflare D1 migration script.
+
 ## 2.16.1 — audit fixes: references, sign-in guessing, internal files
 * Exam references: 10 real references were hidden because their institution was not in
   the list (KU, IU, MBSTU, CVASU, MAT, Primary Teacher, Sonali Bank). All 513 questions

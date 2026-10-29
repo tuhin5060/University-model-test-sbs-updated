@@ -7,12 +7,12 @@
 // has (attemptId) and a sign-up it already made (newId), so sending twice is safe.
 
 import { state, updateHistory } from './store.js';
-import { submitScore, saveProfile, clearBoardCache, noteProblem } from './api.js';
+import { submitScore, submitDaily, saveProfile, clearBoardCache, noteProblem } from './api.js';
 import { finishPendingSignUp } from './identity.js';
 import { markUnknown } from './cloud.js';
 import { bn } from './dom.js';
 
-const RANKED = h => h.kind === 'topic' && ['fun', 'exam'].includes(h.mode) && h.answers && h.player?.playerId;
+const RANKED = h => ((h.kind === 'topic' && ['fun', 'exam'].includes(h.mode)) || (h.kind === 'daily' && h.day)) && h.answers && h.player?.playerId;
 // 'saving' that never finished (the page was closed mid-request) is tried again after a minute.
 const waiting = h => RANKED(h) && (h.saved === 'local' || (h.saved === 'saving' && Date.now() - (h.sentAt || 0) > 60_000));
 
@@ -48,6 +48,20 @@ export async function sendScore(id, retried = false) {
   updateHistory(id, { saved: 'saving', sentAt: Date.now() });
   tell(id);
   try {
+    if (h.kind === 'daily') {
+      // Daily Quiz: its own table and board (server/routes/daily.js), one ranked try a day.
+      const res = await submitDaily({
+        playerId: h.player.playerId,
+        attemptId: h.id,
+        day: h.day,
+        timeSec: h.timeSec,
+        answers: h.answers.map(({ id: qid, choice }) => ({ id: qid, choice })),
+      });
+      updateHistory(id, { saved: 'saved', serverScore: res.entry?.score, dailyRank: res.rank || null, saveError: undefined });
+      tell(id);
+      paint();
+      return;
+    }
     const res = await submitScore({
       playerId: h.player.playerId,
       attemptId: h.id,

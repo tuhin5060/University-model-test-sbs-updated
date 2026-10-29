@@ -72,6 +72,16 @@ export async function submitScore(payload) {
   return call('/api/scores', { method: 'POST', body: JSON.stringify(payload) });
 }
 
+/** Daily Quiz of a day (default today): { today, day, ids, participants, board, mine, days }. */
+export async function fetchDaily(day = '') {
+  return call(`/api/daily${day ? `?day=${encodeURIComponent(day)}` : ''}`);
+}
+
+/** One Daily Quiz answer sheet → { entry, rank } (409 code 'already' when that day was taken). */
+export async function submitDaily(payload) {
+  return call('/api/daily', { method: 'POST', body: JSON.stringify(payload) });
+}
+
 /** This student's tests, marks and leaderboard position (null stats when not signed up). */
 export async function fetchMyStats() {
   return call('/api/scores?me=1');

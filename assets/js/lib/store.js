@@ -124,9 +124,10 @@ export function recordAttempt(entry, answers) {
     }
   }
   if (entry.kind === 'daily') {
-    const d = today();
+    // Daily Quiz days in a row (the quiz's own date; done[day] = correct answers that day).
+    const d = entry.day || today();
     if (state.daily.last !== d) {
-      const y = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+      const y = new Date(Date.parse(`${d}T00:00:00Z`) - 86400000).toISOString().slice(0, 10);
       state.daily.streak = state.daily.last === y ? state.daily.streak + 1 : 1;
       state.daily.best = Math.max(state.daily.best || 0, state.daily.streak);
       state.daily.last = d;

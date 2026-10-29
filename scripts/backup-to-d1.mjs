@@ -68,6 +68,21 @@ export const D1_SCHEMA = [
     last_sent_at TEXT
   )`,
   'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS daily_sets (day TEXT PRIMARY KEY, ids TEXT NOT NULL, meta TEXT NOT NULL DEFAULT \'{}\', created_at TEXT NOT NULL DEFAULT (strftime(\'%Y-%m-%dT%H:%M:%fZ\', \'now\')))',
+  `CREATE TABLE IF NOT EXISTS daily_attempts (
+    day TEXT NOT NULL REFERENCES daily_sets(day),
+    player_id TEXT NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    attempt_id TEXT NOT NULL UNIQUE,
+    score REAL NOT NULL,
+    marks REAL NOT NULL,
+    correct INTEGER NOT NULL,
+    wrong INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    time_sec INTEGER NOT NULL DEFAULT 0,
+    answers TEXT NOT NULL,
+    at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    PRIMARY KEY (day, player_id)
+  )`,
   `CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     kind TEXT NOT NULL,
@@ -84,6 +99,8 @@ export const D1_TABLES = {
   threads: ['id', 'author_id', 'topic', 'title', 'body', 'tags', 'question_id', 'resolved', 'solution_id', 'replies', 'created_at', 'active_at'],
   replies: ['id', 'thread_id', 'author_id', 'body', 'created_at'],
   push_subs: ['endpoint', 'player_id', 'created_at', 'last_sent_at'],
+  daily_sets: ['day', 'ids', 'meta', 'created_at'],
+  daily_attempts: ['day', 'player_id', 'attempt_id', 'score', 'marks', 'correct', 'wrong', 'total', 'time_sec', 'answers', 'at'],
   settings: ['key', 'value'],
 };
 

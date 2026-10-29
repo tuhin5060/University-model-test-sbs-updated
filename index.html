@@ -35,7 +35,7 @@
   <!-- Fonts load without blocking: if Google Fonts is slow, the page shows at once in the phone's own Bangla font. -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" media="print" id="font-css">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/css/styles.css?v=2.16.1">
+  <link rel="stylesheet" href="assets/css/styles.css?v=2.17.0">
   <link rel="preload" as="image" href="assets/img/cu-gate-1113.webp" imagesrcset="assets/img/cu-gate-480.webp 480w, assets/img/cu-gate-768.webp 768w, assets/img/cu-gate-1113.webp 1113w" imagesizes="(min-width: 900px) 560px, 100vw" fetchpriority="high">
   <script>
     try { var t = localStorage.getItem('campus-theme') || 'auto'; document.documentElement.dataset.theme = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t; } catch (e) {}
@@ -43,7 +43,7 @@
     var f = document.getElementById('font-css');
     if (f) { if (f.sheet) f.media = 'all'; else f.addEventListener('load', function () { f.media = 'all'; }); }
   </script>
-  <script type="module" src="assets/js/main.js?v=2.16.1"></script>
+  <script type="module" src="assets/js/main.js?v=2.17.0"></script>
   <script>
     // If the app has not started after 12 s (very weak connection), say so and offer a retry.
     setTimeout(function () {
@@ -69,6 +69,7 @@
   <link rel="modulepreload" href="assets/js/lib/push.js">
   <link rel="modulepreload" href="assets/js/lib/store.js">
   <link rel="modulepreload" href="assets/js/pages/community.js">
+  <link rel="modulepreload" href="assets/js/pages/daily.js">
   <link rel="modulepreload" href="assets/js/pages/home.js">
   <link rel="modulepreload" href="assets/js/pages/misc.js">
   <link rel="modulepreload" href="assets/js/pages/play.js">
@@ -79,6 +80,7 @@
   <link rel="modulepreload" href="assets/js/pages/universities.js">
   <link rel="modulepreload" href="assets/js/pages/vocab.js">
   <link rel="modulepreload" href="assets/js/quiz.js">
+  <link rel="modulepreload" href="assets/js/shared/daily.js">
   <link rel="modulepreload" href="assets/js/shared/names.js">
   <link rel="modulepreload" href="assets/js/shared/scoring.js">
   <link rel="modulepreload" href="assets/js/shared/source.js">
@@ -107,6 +109,7 @@
         <a href="#home" data-nav="home">হোম</a>
         <a href="#start/fun" data-nav="start/fun">🎮 Fun Quiz</a>
         <a href="#start/exam" data-nav="start/exam">⏱️ Model Test</a>
+        <a href="#daily" data-nav="daily">📅 Daily Quiz</a>
         <a href="#tips" data-nav="tips">Tips & Tricks</a>
         <a href="#vocab" data-nav="vocab">📖 শব্দতালিকা</a>
         <a href="#community" data-nav="community">💬 কমিউনিটি</a>
@@ -200,9 +203,9 @@
     <a href="#home" data-nav="home"><span aria-hidden="true">🏠</span>হোম</a>
     <a href="#start/fun" data-nav="start/fun"><span aria-hidden="true">🎮</span>Fun</a>
     <a href="#start/exam" data-nav="start/exam"><span aria-hidden="true">⏱️</span>Test</a>
+    <a href="#daily" data-nav="daily"><span aria-hidden="true">📅</span>Daily</a>
     <a href="#community" data-nav="community"><span aria-hidden="true">💬</span>কমিউনিটি</a>
     <a href="#leaderboard" data-nav="leaderboard"><span aria-hidden="true">🏆</span>Score</a>
-    <a href="#tips" data-nav="tips"><span aria-hidden="true">💡</span>Tips</a>
   </nav>
 
   <dialog id="search-dialog" aria-label="খুঁজুন">

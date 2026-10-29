@@ -19,7 +19,7 @@ Cloudflare Pages copy — both deploy from `main` and share one Neon database.
 | 💬 **Community** (`#community`) | Ask a question under a topic (with up to 5 tags, or straight from a question in the answer sheet), reply to others, filter by status / topic / tag / search. The asker marks the thread — or one reply — as ✅ solved. An admin deletes a thread or reply with the admin password. The newest threads also show on the home page. |
 | 🔔 **Reminders** | Browser notifications (Chrome / Edge / Android; iPhone after “Add to Home Screen”): a daily 8 PM (Bangladesh) practice reminder — skipped for students who already took a test that day — and news when a new topic is added. Offered in a small card after a test and on the home page (on / test / off). |
 | 🔁 **My mistakes** | Wrong answers are collected automatically; two correct answers later remove them. |
-| 📅 **Daily challenge** | The same 5 questions for everyone each day, with a 🔥 day streak. |
+| 📅 **Daily Quiz** | The same 20 past-year questions (10 CU/DU + 10 other universities) for everyone each day, 12 minutes, −0.25 per wrong, one ranked try a day, a page with every day's result, board and answers, and a morning push reminder. |
 | 💡 **Tips & Tricks** | 13 posts (CU English roadmap, MCQ strategy, Article & Tense cheat-sheets, routines, exam-day checklist …) with "practice this topic" buttons inside posts. |
 | 🏛️ **Universities** | CU spotlight with photo gallery, detailed profiles (CU, DU, RU, JU, CUET, BUET, KUET, RUET), 10 more universities, an official link directory, admission resources and a personal checklist. |
 | 🪪 **Name + roll** | Every student gets a unique roll (001, 002 …) shown as `Name.007`. The same name + roll on another phone brings back scores and progress. A taken roll is refused with a free one suggested. |
@@ -169,7 +169,7 @@ for tests.)
   barely reaches the database. All SQL is parameterised; all text is escaped
   when shown; secrets live only in the host settings.
 * Only topic-based Fun Quiz and Model Test results are ranked; mistakes practice,
-  retries and the daily challenge are personal.
+  and retries are personal; the Daily Quiz has its own daily board.
 * Practice history, mistakes, stats and settings live in localStorage and are
   backed up as a private snapshot (`progress` table) for the student.
 

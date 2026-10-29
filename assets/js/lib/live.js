@@ -63,8 +63,9 @@ function announce(events) {
   const e = events.filter(x => x.kind === 'top' && !x.mine).pop();
   if (!e) return;
   const m = MODE_INFO[e.mode] || MODE_INFO.fun;
-  const score = e.mode === 'exam' ? `${bn(e.score)}%` : `${bn(e.score)} points`;
-  popup(`<span aria-hidden="true">🏆</span><span><b>${esc(e.tag)}</b> ${esc(m.label)}-এ <i>${esc(topicTitle(e.topic))}</i> topic-এ সর্বোচ্চ ${score} পেয়েছে!</span>`);
+  const score = e.mode === 'fun' ? `${bn(e.score)} points` : `${bn(e.score)}%`;
+  const where = e.mode === 'daily' ? 'আজকের <i>Daily Quiz</i>-এ' : `${esc(m.label)}-এ <i>${esc(topicTitle(e.topic))}</i> topic-এ`;
+  popup(`<span aria-hidden="true">🏆</span><span><b>${esc(e.tag)}</b> ${where} সর্বোচ্চ ${score} পেয়েছে!</span>`);
 }
 
 async function beat() {

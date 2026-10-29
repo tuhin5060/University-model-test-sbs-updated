@@ -4,7 +4,7 @@
 import { getBank, loadBank } from './lib/bank.js';
 import { scoreAttempt, funPoints, EXAM_PACE, FUN_LIMIT, EXAM_NEGATIVE, MAX_QUESTIONS } from './shared/scoring.js';
 import { state, save, recordAttempt, updateHistory, mistakeIds } from './lib/store.js';
-import { shuffle, seeded, today, uid, toast, navigate, ask } from './lib/dom.js';
+import { shuffle, uid, toast, navigate, ask } from './lib/dom.js';
 import { sendScore, flush } from './lib/outbox.js';
 import { topicTitle } from './components.js';
 
@@ -23,16 +23,10 @@ export function poolFor(topic) {
   return Q().filter(q => getBank().inTopic(q, topic));
 }
 
-export function dailyIds(n = 5) {
-  return shuffle(Q(), seeded('daily-' + today())).slice(0, n).map(q => q.id);
-}
-
-/** The daily challenge is 5 questions in 2 minutes (as the home card says). */
-export const DAILY_SECONDS = 120;
-
 /**
  * Start a new session and open the play screen.
- * opts: { mode, topic, count, settings, kind, ids, title, player }
+ * opts: { mode, topic, count, settings, kind, ids, title, player, day }
+ * (Daily Quiz: mode 'exam', kind 'daily', day = its Bangladesh date, ids = that day's set.)
  */
 export async function startSession(opts) {
   await loadBank();
@@ -61,8 +55,9 @@ export async function startSession(opts) {
     started: now,
     settings,
     player: opts.player || null,
-    // Model Test and the daily challenge count down; other practice shows the time taken.
-    deadline: mode === 'exam' ? now + ids.length * EXAM_PACE[settings.pace] * 1000 : opts.kind === 'daily' ? now + DAILY_SECONDS * 1000 : null,
+    day: opts.day || null,
+    // Model Test (and the Daily Quiz, which runs as one) counts down; practice shows the time taken.
+    deadline: mode === 'exam' ? now + ids.length * EXAM_PACE[settings.pace] * 1000 : null,
     fun: mode === 'fun'
       ? { score: 0, streak: 0, best: 0, fifty: 1, freeze: 1, hidden: {}, frozen: false, timeouts: [], points: {}, qStart: now, qDeadline: now + settings.perQuestion * 1000 }
       : null,
@@ -210,9 +205,10 @@ export function finish({ auto = false } = {}) {
     finished,
     auto,
     player: s.player,
+    day: s.day || undefined,
     saved: 'none',
   };
-  const ranked = ['fun', 'exam'].includes(s.mode) && s.kind === 'topic' && s.player?.playerId && result.total > 0;
+  const ranked = s.player?.playerId && result.total > 0 && ((['fun', 'exam'].includes(s.mode) && s.kind === 'topic') || (s.kind === 'daily' && s.day));
   if (ranked) entry.saved = 'local';
   state.session = null;
   recordAttempt(entry, reached);

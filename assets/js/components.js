@@ -13,13 +13,16 @@ export const isMe = tag => !!state.player?.roll && tag === publicTag(state.playe
 /** The name to show for a row: your own full name to you, the public tag to everyone else. */
 export const shownTag = r => (r.me || isMe(r.tag) ? state.player.tag || r.tag : r.tag || 'Student');
 export const topicTitle = id =>
-  id === 'all' ? 'সব topic (মিশ্র)' : id === 'mistakes' ? 'আমার ভুলগুলো' : id === 'daily' ? 'আজকের চ্যালেঞ্জ' : GROUPS[id]?.title || topicById(id)?.title || id;
+  id === 'all' ? 'সব topic (মিশ্র)' : id === 'mistakes' ? 'আমার ভুলগুলো' : id === 'daily' ? 'Daily Quiz' : GROUPS[id]?.title || topicById(id)?.title || id;
 
 export const MODE_INFO = {
   fun: { icon: '🎮', label: 'Fun Quiz', bn: 'খেলতে খেলতে শেখা', color: 'fun' },
   exam: { icon: '⏱️', label: 'Model Test', bn: 'আসল পরীক্ষার মতো', color: 'exam' },
   practice: { icon: '📖', label: 'Practice', bn: 'ধীরে, বুঝে শেখা', color: 'practice' },
+  daily: { icon: '📅', label: 'Daily Quiz', bn: 'প্রতিদিন সবার জন্য একই ২০টি প্রশ্ন', color: 'daily' },
 };
+/** Mode info for a session or result: a Daily Quiz runs as a Model Test but shows as Daily Quiz. */
+export const modeInfo = x => (x?.kind === 'daily' ? MODE_INFO.daily : MODE_INFO[x?.mode] || MODE_INFO.practice);
 
 export function pageHead(title, desc = '', eyebrow = '', crumbs = []) {
   const trail = crumbs.length

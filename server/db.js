@@ -86,6 +86,28 @@ export const SCHEMA = [
   // Rate limits (server/ratelimit.js): one row per counted request, kept for a day.
   "CREATE TABLE IF NOT EXISTS hits (key text NOT NULL, at timestamptz NOT NULL DEFAULT now())",
   'CREATE INDEX IF NOT EXISTS hits_key ON hits (key, at)',
+  // Added in 2.17: Daily Quiz — each day's 20 questions (locked once made) and one ranked try per student per day.
+  `CREATE TABLE IF NOT EXISTS daily_sets (
+    day date PRIMARY KEY,
+    ids jsonb NOT NULL,
+    meta jsonb NOT NULL DEFAULT '{}',
+    created_at timestamptz NOT NULL DEFAULT now()
+  )`,
+  `CREATE TABLE IF NOT EXISTS daily_attempts (
+    day date NOT NULL REFERENCES daily_sets(day),
+    player_id uuid NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    attempt_id text NOT NULL UNIQUE,
+    score real NOT NULL,
+    marks real NOT NULL,
+    correct integer NOT NULL,
+    wrong integer NOT NULL,
+    total integer NOT NULL,
+    time_sec integer NOT NULL DEFAULT 0,
+    answers jsonb NOT NULL,
+    at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (day, player_id)
+  )`,
+  'CREATE INDEX IF NOT EXISTS daily_attempts_board ON daily_attempts (day, score DESC)',
   `CREATE TABLE IF NOT EXISTS events (
     id bigserial PRIMARY KEY,
     kind text NOT NULL,
