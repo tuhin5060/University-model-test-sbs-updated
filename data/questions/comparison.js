@@ -167,7 +167,7 @@ export default {
       q: "____ more you read, ____ more you learn.",
       options: ["No article, the","The, the","The, no article","No article, no article"],
       answer: "B",
-      explainBn: "দুটি comparative একসাথে এলে The + comparative, the + comparative: The more…, the more…। তাই No article, the, The, no article, No article, no article এখানে ভুল।",
+      explainBn: "দুটি comparative একসাথে এলে The + comparative, the + comparative: The more…, the more…। তাই A, C ও D ভুল—দুই জায়গাতেই the লাগবে।",
       source: "DU-H 2024–25",
     },
     {
@@ -219,9 +219,9 @@ export default {
     },
     {
       q: "The clearer your thought is, the ____ your writing becomes.",
-      options: ["good","worse","better","purer"],
+      options: ["good","worse","better","best"],
       answer: "C",
-      explainBn: "The clearer…, the better… — good-এর comparative better। তাই good, worse, purer এখানে ভুল।",
+      explainBn: "The clearer…, the better… — good-এর comparative better। good positive, best superlative, আর worse অর্থে উল্টো; তাই এগুলো ভুল।",
     },
     {
       q: "____ 1000 species of fish have been identified.",
@@ -249,9 +249,9 @@ export default {
     },
     {
       q: "Select the correct option.",
-      options: ["Your answers are better than Mr. Paper.","Your answers are better than Mr. Paper’s.","Your answers are better than those of Mr. Paper.","Your answers are better than answered by Mr. Paper."],
+      options: ["Your answers are better than Mr. Paper.","Your answers are better than Mr. Paper answers.","Your answers are better than those of Mr. Paper.","Your answers are better than answered by Mr. Paper."],
       answer: "C",
-      explainBn: "উত্তরের সাথে উত্তরের তুলনা করতে হয়: those of Mr. Paper। A-তে answers-এর সাথে মানুষের তুলনা, D-এর গঠন ভুল; B (Mr. Paper’s)-ও চলে, তবে those of সবচেয়ে স্পষ্ট।",
+      explainBn: "উত্তরের সাথে উত্তরের তুলনা করতে হয়: those of Mr. Paper। A-তে answers-এর সাথে মানুষের তুলনা, B-তে possessive (’s) নেই, D-এর গঠন ভুল।",
     },
     {
       q: "This is the ____ version.",
@@ -297,7 +297,7 @@ export default {
     },
     {
       q: "Choose the grammatically incorrect sentence.",
-      options: ["Afzal is my elder brother.","He is the eldest man of this village.","He is two years younger to me.","Rajib is five years older than me."],
+      options: ["Afzal is my elder brother.","He is the oldest man of this village.","He is two years younger to me.","Rajib is five years older than me."],
       answer: "C",
       explainBn: "younger-এর পরে than বসে, to নয় (senior/junior-এর পরে to)। তাই অন্য option (A, B, D) এই নিয়মে বসে না।",
     },

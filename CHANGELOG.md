@@ -13,6 +13,10 @@
 * Source fixes: a duplicated option ("gusted"), a missing "to" in "strong ___ to carry",
   "short test" → "short rest", "underlined word" stems now name the word, and
   "arrived late despite the traffic" → "because of".
+* Review of the new questions: five practice items had a second correct option
+  ("cannot smoke", "purer", "Mr. Paper’s", "the eldest man of this village" and a
+  calendar hint that made "mustn't have" logical) — those options were replaced so each
+  question has exactly one answer; one merged reference was listed twice.
 * Test fix: the admin usage test no longer fails during the first hour after midnight in
   Bangladesh (its "earlier visit today" fell on the previous day).
 

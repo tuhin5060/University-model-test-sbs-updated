@@ -474,13 +474,13 @@ export default {
       options: ["Mind","Can","Shall","Need"],
       answer: "D",
       explainBn: "need modal (need not go) ও main verb (I need help) দুইভাবেই বসে। তাই Mind, Can, Shall এখানে ভুল।",
-      source: "DU-HEC 2023–24; DU HEC 2023–24",
+      source: "DU-HEC 2023–24",
     },
     {
       q: "It’s a hospital. You ____ smoke.",
-      options: ["cannot","need not","may not","must not"],
+      options: ["would not","need not","may not","must not"],
       answer: "D",
-      explainBn: "নিষেধ বোঝাতে must not। তাই cannot, need not, may not এখানে ভুল।",
+      explainBn: "নিষেধ বোঝাতে must not। would not ইচ্ছা বোঝায়, need not মানে দরকার নেই, may not অনুমতি না থাকার নরম রূপ; তাই এগুলো ভুল।",
     },
     {
       q: "How ____ you break the rule?",
@@ -541,7 +541,7 @@ export default {
       q: "Which of the following are semi-modals?",
       options: ["can, could","need, dare","will, would","must, should"],
       answer: "B",
-      explainBn: "need ও dare কখনো modal, কখনো main verb, তাই semi-modal। তাই can, could, will, would, must, should এখানে ভুল।",
+      explainBn: "need ও dare কখনো modal, কখনো main verb, তাই semi-modal। তাই A (can, could), C (will, would) ও D (must, should) ভুল—এগুলো সবসময় modal।",
       source: "IU B Unit 2018–19",
     },
     {
@@ -565,7 +565,7 @@ export default {
       explainBn: "বাধ্যতামূলক (compulsory) বোঝাতে must। তাই might, could, may এখানে ভুল।",
     },
     {
-      q: "She ____ have forgotten the appointment; her calendar still shows it.",
+      q: "She ____ have forgotten the appointment; she has not arrived yet.",
       options: ["mustn't","ought","need","might"],
       answer: "D",
       explainBn: "অতীতের সম্ভাবনা: might have + V3। তাই mustn't, ought, need এখানে ভুল।",

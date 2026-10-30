@@ -202,7 +202,7 @@ export default {
       q: "Rasel is not only talented but also handsome. What are the parts of speech of “talented” and “handsome”?",
       options: ["adverb, noun","adjective, noun","verb, adjective","adjective, adjective"],
       answer: "D",
-      explainBn: "talented ও handsome দুটোই Rasel-কে বর্ণনা করে, তাই দুটোই adjective। তাই adverb, noun, adjective, noun, verb, adjective এখানে ভুল।",
+      explainBn: "talented ও handsome দুটোই Rasel-কে বর্ণনা করে, তাই দুটোই adjective। তাই A, B ও C ভুল—handsome noun বা talented verb নয়।",
       source: "B Unit 2018–19",
     },
     {
