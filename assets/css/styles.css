@@ -1226,3 +1226,20 @@ details.rules ul { margin: 10px 0 2px; padding-left: 20px; display: grid; gap: 6
   .hero-stats b { font-size: 1.05rem; }
   .hero-stats span { font-size: .8rem; }
 }
+/* Phones: the site name stays on one line next to the header buttons. */
+@media (max-width: 959px) {
+  .header-inner { gap: 8px; }
+  .brand { gap: 8px; min-width: 0; }
+  .brand-mark { width: 36px; height: 36px; }
+  .brand-text { white-space: nowrap; font-size: 1.05rem; }
+  .header-tools { gap: 6px; }
+  .header-tools .icon-btn { width: 38px; height: 38px; font-size: 1.05rem; }
+}
+@media (max-width: 379px) {
+  .brand-text small { display: none; }
+  .brand-text { font-size: .98rem; }
+  .header-tools { gap: 4px; }
+  .header-tools .icon-btn { width: 36px; height: 36px; }
+  /* no room for a fourth button: universities stay one tap away on the home page and footer */
+  .header-tools a[href="#universities"] { display: none; }
+}

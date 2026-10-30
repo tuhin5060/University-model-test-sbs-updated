@@ -35,7 +35,7 @@
   <!-- Fonts load without blocking: if Google Fonts is slow, the page shows at once in the phone's own Bangla font. -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" media="print" id="font-css">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/css/styles.css?v=2.21.0">
+  <link rel="stylesheet" href="assets/css/styles.css?v=2.22.0">
   <link rel="preload" as="image" href="assets/img/cu-gate-1113.webp" imagesrcset="assets/img/cu-gate-480.webp 480w, assets/img/cu-gate-768.webp 768w, assets/img/cu-gate-1113.webp 1113w" imagesizes="(min-width: 900px) 560px, 100vw" fetchpriority="high">
   <script>
     try { var t = localStorage.getItem('campus-theme') || 'auto'; document.documentElement.dataset.theme = t === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t; } catch (e) {}
@@ -43,7 +43,7 @@
     var f = document.getElementById('font-css');
     if (f) { if (f.sheet) f.media = 'all'; else f.addEventListener('load', function () { f.media = 'all'; }); }
   </script>
-  <script type="module" src="assets/js/main.js?v=2.21.0"></script>
+  <script type="module" src="assets/js/main.js?v=2.22.0"></script>
   <script>
     // If the app has not started after 12 s (very weak connection), say so and offer a retry.
     setTimeout(function () {
@@ -118,6 +118,7 @@
       </nav>
       <div class="header-tools">
         <button class="icon-btn" data-action="search" aria-label="খুঁজুন (/)">🔍</button>
+        <a class="icon-btn only-mobile" href="#tips" data-nav="tips" aria-label="Tips & Tricks" title="Tips & Tricks">💡</a>
         <a class="icon-btn only-mobile" href="#universities" data-nav="universities" aria-label="বিশ্ববিদ্যালয়">🏛️</a>
         <button class="icon-btn" id="theme-btn" data-action="theme" aria-label="Theme">🌓</button>
       </div>
@@ -125,9 +126,17 @@
   </header>
 
   <main id="main" tabindex="-1">
-    <section class="container section">
-      <h1>ক্যাম্পাসের পথে — বিশ্ববিদ্যালয় ভর্তি প্রস্তুতি</h1>
-      <p>English MCQ Fun Quiz, Model Test, Tips & Tricks ও বিশ্ববিদ্যালয়ের official links। লোড হচ্ছে…</p>
+    <!-- seo-home:start -->
+    <section class="container section seo-home">
+      <h1>ক্যাম্পাসের পথে — বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English প্রস্তুতি</h1>
+      <p>চবি, ঢাবি, জাবি, রাবি-সহ বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English অংশের ২,৪৮৭+ MCQ—প্রতিটির সঠিক উত্তর ও সহজ বাংলা ব্যাখ্যাসহ। বিনামূল্যে অনলাইন Model Test (প্রতি প্রশ্নে ৩৬ সেকেন্ড, ভুলে −০.২৫), Fun Quiz আর প্রতিদিনের Daily Quiz।</p>
+      <h2 class="h3">Grammar MCQ</h2>
+      <ul class="seo-links"><li><a href="/mcq/tense/">Tense MCQ <small>(৫০টি)</small></a></li><li><a href="/mcq/sequence-of-tense/">Sequence of Tense MCQ <small>(৫০টি)</small></a></li><li><a href="/mcq/article/">Article MCQ <small>(৭৮টি)</small></a></li><li><a href="/mcq/noun/">Noun MCQ <small>(৪২টি)</small></a></li><li><a href="/mcq/number/">Number MCQ <small>(৪২টি)</small></a></li><li><a href="/mcq/gender/">Gender MCQ <small>(৪২টি)</small></a></li><li><a href="/mcq/conditional-sentences/">Conditional Sentences MCQ <small>(১১০টি)</small></a></li><li><a href="/mcq/hope-wish/">Hope &amp; Wish MCQ <small>(৪৯টি)</small></a></li><li><a href="/mcq/mixed-english/">Mixed English MCQ <small>(৪৯টি)</small></a></li><li><a href="/mcq/adverb/">Adverb MCQ <small>(১০৮টি)</small></a></li><li><a href="/mcq/modal-verb/">Modal Verb MCQ <small>(৮৮টি)</small></a></li><li><a href="/mcq/causative-verb/">Causative Verb MCQ <small>(৬৫টি)</small></a></li><li><a href="/mcq/subjunctive-verb/">Subjunctive MCQ <small>(৭৬টি)</small></a></li><li><a href="/mcq/adjective/">Adjective MCQ <small>(৮৪টি)</small></a></li><li><a href="/mcq/comparison/">Comparison (Degree) MCQ <small>(৯০টি)</small></a></li><li><a href="/mcq/conjunction/">Conjunction MCQ <small>(৯টি)</small></a></li></ul>
+      <h2 class="h3">Vocabulary ও Memorising MCQ</h2>
+      <ul class="seo-links"><li><a href="/mcq/vocab-synonym/">Vocabulary: Synonym MCQ <small>(৫৩৮টি)</small></a></li><li><a href="/mcq/vocab-antonym/">Vocabulary: Antonym MCQ <small>(৩৩০টি)</small></a></li><li><a href="/mcq/vocab-meaning/">Vocabulary: Word Meaning MCQ <small>(১২২টি)</small></a></li><li><a href="/mcq/vocab-bcs/">BCS Synonym &amp; Antonym MCQ <small>(৬৭টি)</small></a></li><li><a href="/mcq/phrase-idioms/">Phrase &amp; Idioms MCQ <small>(১৯৮টি)</small></a></li><li><a href="/mcq/appropriate-preposition/">Appropriate Preposition MCQ <small>(২০০টি)</small></a></li></ul>
+      <h2 class="h3">ভর্তি প্রস্তুতির Tips & Tricks</h2>
+      <ul class="seo-links"><li><a href="/tips/cu-du-admission-english-important-topics/">চবি ও ঢাবি ভর্তি পরীক্ষার English: আগের প্রশ্নে কোন topic বেশি এসেছে</a></li><li><a href="/tips/degree-of-comparison-rules/">Degree of Comparison-এর নিয়ম: ভর্তি পরীক্ষার ১০টি জরুরি rule (উদাহরণসহ)</a></li><li><a href="/tips/modal-verb-rules/">Modal Verb-এর ব্যবহার: can, must, need, had better, used to—সহজ নিয়ম</a></li><li><a href="/tips/causative-verb-rules/">Causative Verb: have, get, make, let, help—এক পাতায় নিয়ম</a></li><li><a href="/tips/subjunctive-mood-rules/">Subjunctive: suggest/insist that + base verb, wish, as if, It is time—সহজ নিয়ম</a></li><li><a href="/tips/conditional-sentence-rules/">Conditional Sentence-এর নিয়ম: If-এর ৪ ধরন, Were I, Had I, Should you</a></li><li><a href="/tips/adjective-adverb-linking-verb/">Adjective না Adverb? Linking verb (look, seem, taste) চেনার সহজ কৌশল</a></li><li><a href="/tips/because-of-no-sooner-hardly-rules/">because না because of? No sooner…than, Hardly…when—সঠিক জোড়া</a></li></ul>
+      <p><a href="/mcq/">সব MCQ topic</a> · <a href="/tips/">সব লেখা</a> · <a href="/universities/">বিশ্ববিদ্যালয়ের official links</a></p>
       <noscript>
         <p class="notice">Quiz চালাতে JavaScript চালু করুন। Official links:
           <a href="https://admission.cu.ac.bd/">চবি Admission</a> ·
@@ -135,6 +144,7 @@
           <a href="https://admission.eis.du.ac.bd/">ঢাবি Admission</a></p>
       </noscript>
     </section>
+    <!-- seo-home:end -->
   </main>
 
   <footer class="site-footer">

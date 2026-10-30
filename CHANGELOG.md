@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.22.0 — search engines: readable home page, real sitemap dates, 8 new guides
+* Home page HTML now carries a real intro, links to all 22 topic pages and the latest
+  Tips & Tricks before the app starts (it used to say only "লোড হচ্ছে…"), so Google can read
+  it without running JavaScript. The app replaces it as soon as it loads.
+* Sitemap dates are real: `data/seo-dates.json` keeps a fingerprint per page and the date
+  only moves when that page's content changes (a version bump alone does not count).
+  Topic and article JSON-LD carry the same `dateModified`.
+* Topic pages: keyword title ("… MCQ — ভর্তি পরীক্ষার N টি প্রশ্ন, উত্তর ও বাংলা ব্যাখ্যা")
+  and links to the guides that teach that topic.
+* 8 new Tips & Tricks guides: CU/DU past-question topics (counted from the bank),
+  Degree of Comparison, Modal, Causative, Subjunctive, Conditional, Adjective vs Adverb,
+  because of / no sooner … than.
+* Phones: 💡 Tips & Tricks button back in the header; the site name stays on one line
+  (on screens under 380 px the 🏛️ button is hidden to make room).
+
 ## 2.21.0 — calmer layout on desktop and phones
 * Desktop: the top menu and the site name stay on one line at every width (menu items
   used to break into two lines); menu emojis removed there for a cleaner bar.

@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { wanted, stale } from '../scripts/seo.mjs';
+import { wanted, stale, dated, buildPages } from '../scripts/seo.mjs';
 import { TOPICS, QUESTIONS } from '../data/questions/index.js';
 import { POSTS } from '../data/posts.js';
 
@@ -32,4 +32,19 @@ test('search pages run no inline script (the CSP only allows our own files there
     const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>/g)].filter(m => !m[1].includes('application/ld+json'));
     assert.equal(inline.length, 0, file);
   }
+});
+
+test('home page HTML has readable text and a link to every topic before the app starts', () => {
+  const main = read('index.html').split('<main')[1].split('</main>')[0];
+  assert.match(main, /<h1>[^<]*ভর্তি পরীক্ষার English প্রস্তুতি<\/h1>/);
+  for (const t of TOPICS) assert.ok(main.includes(`href="/mcq/${t.id}/"`), t.id);
+});
+
+test('sitemap dates stay put while a page is unchanged and move when its content changes', () => {
+  const pages = buildPages();
+  const { dates } = dated(pages);
+  for (const p of dated(pages, dates).pages) assert.equal(p.lastmod, dates[p.url].date, p.url);
+  const edited = dated([{ ...pages[0], html: pages[0].html + '<!-- edit -->' }], dates).dates[pages[0].url];
+  assert.notEqual(edited.fp, dates[pages[0].url].fp);
+  assert.match(edited.date, /^\d{4}-\d{2}-\d{2}$/);
 });

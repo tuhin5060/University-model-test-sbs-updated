@@ -4,7 +4,7 @@
 > এই পুরো file-টা (বা GitHub link) তাকে দাও আর বলো "Read HANDOFF.md first and follow it."
 > Admin password বা database URL কখনো কোনো chat-এ বা file-এ দেবে না—ওগুলো শুধু Vercel-এ থাকে।
 
-Last updated: 2026-10-31 · version **2.21.0** (calmer layout).
+Last updated: 2026-10-31 · version **2.22.0** (SEO + guides).
 Keep §4 up to date after each change.
 
 ## 1. What this is
@@ -102,7 +102,7 @@ New API routes must also be added to `ROUTES` in `scripts/serve.mjs` (local dev 
 Vercel Hobby allows only about 12 functions per deployment; `api/` now has 11 files — before adding
 another endpoint, add an action to an existing route instead.
 
-## 4. Current state (2026-10-31, v2.21.0)
+## 4. Current state (2026-10-31, v2.22.0)
 - 2,487 questions in 22 topics (Grammar + Memorising), 1,049-word vocabulary list.
   v2.20 added 231 grammar questions (Comparison, Adjective, Adverb, Modal, Subjunctive,
   Causative, Hope & Wish, Conditional) and the new **Conjunction** topic.
@@ -157,8 +157,14 @@ another endpoint, add an action to an existing route instead.
 
 ### SEO in place
 - Google Search Console verified (meta tag + `google79aa884cbe996390.html`).
+- Home `index.html` has a static intro + links to every topic page and the latest posts
+  inside `#main` (between `seo-home` markers, written by `scripts/seo.mjs`); the app replaces it.
+- Sitemap `lastmod` comes from `data/seo-dates.json` (content fingerprint per page, date moves
+  only on a real content change). Commit it with the other `npm run sync` output.
+- 24 Tips & Tricks posts (8 grammar/CU-DU guides added 2026-10-31); topic pages link to the
+  guides that contain `[[quiz:<topic>]]`.
 - 22 static topic pages `/mcq/<topic>/` with questions, answers and Bangla explanations,
-  `/tips/<slug>/` articles, `/universities/`; 42-URL `sitemap.xml`; `robots.txt` blocks only internal paths.
+  `/tips/<slug>/` articles, `/universities/`; 50-URL `sitemap.xml`; `robots.txt` blocks only internal paths.
 - Canonical URLs, Open Graph/Twitter cards, one `WebSite`+`Organization` JSON-LD on home,
   `BreadcrumbList` + `Quiz` JSON-LD on topic pages; old domain 301 → main domain.
 

@@ -6,11 +6,14 @@
 //   tips/  tips/<slug>/    the Tips & Tricks posts
 //   universities/          university profiles with official links
 //   sitemap.xml            every page above + the home page
-//   index.html             footer links to these pages (between seo-links markers)
+//   index.html             footer links to these pages (between seo-links markers) and a
+//                          readable home intro inside #main (between seo-home markers)
+//   data/seo-dates.json    when each page's content last changed (sitemap lastmod)
 // Generated from data/ — never edit the output by hand.
 //   node scripts/seo.mjs          → rewrite everything
 //   node scripts/seo.mjs --check  → exit 1 if anything is out of date
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { TOPICS, QUESTIONS, GROUPS } from '../data/questions/index.js';
 import { POSTS } from '../data/posts.js';
@@ -25,6 +28,11 @@ const BASE = SITE.url.replace(/\/$/, '');
 const VERSION = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
 const LINKS_START = '<!-- seo-links:start -->';
 const LINKS_END = '<!-- seo-links:end -->';
+const HOME_START = '<!-- seo-home:start -->';
+const HOME_END = '<!-- seo-home:end -->';
+const DATES_FILE = 'data/seo-dates.json';
+// Stands for a page's last-changed date until the page's fingerprint is known.
+const LASTMOD = '__LASTMOD__';
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 const OUT_DIRS = ['mcq', 'tips', 'universities'];
 
@@ -104,7 +112,7 @@ ${body}
 function topicPage(t) {
   const qs = questionsOf(t.id);
   const url = `/mcq/${t.id}/`;
-  const title = `${t.title} MCQ — উত্তর ও বাংলা ব্যাখ্যাসহ ${bn(qs.length)}টি প্রশ্ন | ${SITE.name}`;
+  const title = `${t.title} MCQ — ভর্তি পরীক্ষার ${bn(qs.length)}টি প্রশ্ন, উত্তর ও বাংলা ব্যাখ্যা | ${SITE.name}`;
   const description = `বিশ্ববিদ্যালয় ভর্তি পরীক্ষার ${t.title} MCQ: ${bn(qs.length)}টি প্রশ্ন, সঠিক উত্তর ও সহজ বাংলা ব্যাখ্যা। ${t.bn ? `${t.bn}। ` : ''}বিনামূল্যে অনলাইনে Model Test দাও।`;
   const items = qs.map((q, i) => `      <li class="seo-q">
         <p class="seo-q-text"><b>${bn(i + 1)}.</b> ${esc(q.q)}${examRef(q.source) ? ` <span class="src-tag">📌 ${esc(examRef(q.source))}</span>` : ''}</p>
@@ -114,6 +122,7 @@ function topicPage(t) {
         </details>
       </li>`);
   const others = TOPICS.filter(x => x.id !== t.id && x.group === t.group);
+  const guides = posts.filter(p => String(p.body).includes(`[[quiz:${t.id}]]`));
   return {
     file: `mcq/${t.id}/index.html`,
     url,
@@ -131,7 +140,11 @@ function topicPage(t) {
     </header>
     <ol class="seo-qs">
 ${items.join('\n')}
-    </ol>
+    </ol>${guides.length ? `
+    <section class="section-tight">
+      <h2 class="h3">📖 ${esc(t.title)}-এর নিয়ম পড়ো</h2>
+      <ul class="seo-links">${guides.map(p => `<li><a href="/tips/${p.slug}/">${esc(p.title)}</a></li>`).join('')}</ul>
+    </section>` : ''}
     <section class="section-tight">
       <h2 class="h3">আরও ${esc(GROUPS[t.group]?.short || '')} topic</h2>
       <ul class="seo-links">${others.map(x => `<li><a href="/mcq/${x.id}/">${esc(x.icon)} ${esc(x.title)} MCQ</a></li>`).join('')}</ul>
@@ -144,6 +157,7 @@ ${items.join('\n')}
         inLanguage: ['bn', 'en'],
         educationalLevel: 'University admission',
         numberOfQuestions: qs.length,
+        dateModified: LASTMOD,
         url: BASE + url,
         provider: { '@type': 'Organization', name: SITE.name, url: SITE.url },
       }],
@@ -212,7 +226,7 @@ function tipPage(p) {
         headline: p.title,
         description: p.summary,
         datePublished: p.date,
-        dateModified: p.date,
+        dateModified: LASTMOD,
         inLanguage: 'bn',
         mainEntityOfPage: BASE + url,
         image: `${BASE}/assets/img/og-image.jpg`,
@@ -273,8 +287,33 @@ export function buildPages() {
   return [mcqIndex(), ...TOPICS.map(topicPage), tipsIndex(), ...posts.map(tipPage), universitiesPage()];
 }
 
-export function sitemap(pages = buildPages()) {
-  const urls = [{ url: '/', lastmod: lastPostDate }, ...pages];
+const dhakaToday = () => new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10);
+/** Content fingerprint: ignores the ?v= cache-buster, so a version bump alone is not a change. */
+const fingerprint = html => createHash('sha1').update(html.split(`?v=${VERSION}`).join('')).digest('hex').slice(0, 16);
+
+/**
+ * Give every page the date its content last changed: kept from data/seo-dates.json while the
+ * fingerprint is the same, today (Bangladesh) when it changed, the page's own date when new.
+ */
+export function dated(pages, saved = readDates()) {
+  const dates = {};
+  const out = pages.map(p => {
+    const fp = fingerprint(p.html);
+    const lastmod = saved[p.url]?.fp === fp ? saved[p.url].date : saved[p.url] ? dhakaToday() : p.lastmod;
+    dates[p.url] = { fp, date: lastmod };
+    return { ...p, lastmod, html: p.html.split(LASTMOD).join(lastmod) };
+  });
+  return { pages: out, dates };
+}
+
+function readDates() {
+  const f = path.join(root, DATES_FILE);
+  return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {};
+}
+
+export function sitemap(pages = dated(buildPages()).pages) {
+  const newest = pages.map(p => p.lastmod).sort().at(-1) || lastPostDate;
+  const urls = [{ url: '/', lastmod: newest }, ...pages];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(p => `  <url><loc>${BASE}${p.url}</loc><lastmod>${p.lastmod}</lastmod></url>`).join('\n')}
@@ -296,6 +335,33 @@ export function withFooterLinks(html) {
   return html.slice(0, a) + block + html.slice(b + LINKS_END.length);
 }
 
+/** A readable intro for search engines inside #main; the app replaces it as soon as it starts. */
+export function withHomeContent(html) {
+  const a = html.indexOf(HOME_START), b = html.indexOf(HOME_END);
+  if (a < 0 || b < 0) throw new Error(`index.html needs ${HOME_START} … ${HOME_END} markers`);
+  const group = g => TOPICS.filter(t => t.group === g).map(t => `<li><a href="/mcq/${t.id}/">${esc(t.title)} MCQ <small>(${bn(t.count)}টি)</small></a></li>`).join('');
+  const block = `${HOME_START}
+    <section class="container section seo-home">
+      <h1>${esc(SITE.name)} — বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English প্রস্তুতি</h1>
+      <p>চবি, ঢাবি, জাবি, রাবি-সহ বিশ্ববিদ্যালয় ভর্তি পরীক্ষার English অংশের ${bn(QUESTIONS.length)}+ MCQ—প্রতিটির সঠিক উত্তর ও সহজ বাংলা ব্যাখ্যাসহ। বিনামূল্যে অনলাইন Model Test (প্রতি প্রশ্নে ৩৬ সেকেন্ড, ভুলে −০.২৫), Fun Quiz আর প্রতিদিনের Daily Quiz।</p>
+      <h2 class="h3">Grammar MCQ</h2>
+      <ul class="seo-links">${group('grammar')}</ul>
+      <h2 class="h3">Vocabulary ও Memorising MCQ</h2>
+      <ul class="seo-links">${group('memorising')}</ul>
+      <h2 class="h3">ভর্তি প্রস্তুতির Tips & Tricks</h2>
+      <ul class="seo-links">${posts.slice(0, 8).map(p => `<li><a href="/tips/${p.slug}/">${esc(p.title)}</a></li>`).join('')}</ul>
+      <p><a href="/mcq/">সব MCQ topic</a> · <a href="/tips/">সব লেখা</a> · <a href="/universities/">বিশ্ববিদ্যালয়ের official links</a></p>
+      <noscript>
+        <p class="notice">Quiz চালাতে JavaScript চালু করুন। Official links:
+          <a href="https://admission.cu.ac.bd/">চবি Admission</a> ·
+          <a href="https://cu.ac.bd/">cu.ac.bd</a> ·
+          <a href="https://admission.eis.du.ac.bd/">ঢাবি Admission</a></p>
+      </noscript>
+    </section>
+    ${HOME_END}`;
+  return html.slice(0, a) + block + html.slice(b + HOME_END.length);
+}
+
 /** Topic list and counts for the pages, without the ~1.3 MB question bank (assets/js/lib/bank.js loads that when needed). */
 export function metaModule() {
   return `// GENERATED by scripts/seo.mjs (npm run sync) from data/questions/ — do not edit.
@@ -309,10 +375,11 @@ export const VOCAB_COUNT = ${VOCAB.length};
 
 /** Every generated file → its wanted content. */
 export function wanted() {
-  const pages = buildPages();
+  const { pages, dates } = dated(buildPages());
   const files = new Map(pages.map(p => [p.file, p.html]));
   files.set('sitemap.xml', sitemap(pages));
-  files.set('index.html', withFooterLinks(fs.readFileSync(path.join(root, 'index.html'), 'utf8')));
+  files.set(DATES_FILE, `${JSON.stringify(dates, null, 2)}\n`);
+  files.set('index.html', withHomeContent(withFooterLinks(fs.readFileSync(path.join(root, 'index.html'), 'utf8'))));
   files.set('data/questions/meta.js', metaModule());
   return files;
 }
@@ -351,6 +418,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true });
       fs.writeFileSync(path.join(root, f), files.get(f));
     }
-    console.log(`seo: ${files.size - 3} pages, sitemap.xml (${files.size - 2} URLs), ${changed.length} updated${old.length ? `, ${old.length} removed` : ''}`);
+    console.log(`seo: ${files.size - 4} pages, sitemap.xml (${files.size - 3} URLs), ${changed.length} updated${old.length ? `, ${old.length} removed` : ''}`);
   }
 }

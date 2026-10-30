@@ -11,6 +11,357 @@
 
 export const POSTS = [
   {
+    slug: 'cu-du-admission-english-important-topics',
+    title: 'চবি ও ঢাবি ভর্তি পরীক্ষার English: আগের প্রশ্নে কোন topic বেশি এসেছে',
+    category: 'CU English',
+    emoji: '📊',
+    featured: true,
+    date: '2026-10-31',
+    minutes: 5,
+    summary: 'আমাদের question bank-এ চবি ও ঢাবির ১৭০টির বেশি আগের প্রশ্ন আছে। কোন grammar topic থেকে কতগুলো এসেছে, আর সেই হিসাবে প্রস্তুতি কোথা থেকে শুরু করবে।',
+    body: `
+চবি (চট্টগ্রাম বিশ্ববিদ্যালয়) আর ঢাবি (ঢাকা বিশ্ববিদ্যালয়) ভর্তি পরীক্ষার English অংশে কোন topic বেশি আসে—এটা জানলে প্রস্তুতির সময় অনেক বাঁচে। ক্যাম্পাসের পথে-র question bank-এ যেসব প্রশ্নের সঙ্গে চবি বা ঢাবির নাম ও বছর লেখা আছে, সেগুলো topic ধরে গুনে নিচের হিসাবটা বানানো।
+
+> এটা শুধু আমাদের bank-এ থাকা প্রশ্নের হিসাব, পুরো পরীক্ষার সরকারি পরিসংখ্যান নয়। তবু কোন অংশে জোর দেবে, তার ভালো ইঙ্গিত দেয়।
+
+## চবি (CU): যেসব topic থেকে বেশি প্রশ্ন
+1. **Conditional Sentences** — ১৬টি
+2. **Article** — ১৫টি
+3. **Subjunctive** — ১১টি
+4. **Comparison (Degree)** ও **Causative Verb** — ৭টি করে
+5. **Adverb** ও **Tense** — ৬টি করে
+
+[[quiz:conditional-sentences]]
+
+## ঢাবি (DU): যেসব topic থেকে বেশি প্রশ্ন
+1. **Conditional Sentences**, **Article** ও **Modal Verb** — ১৬টি করে
+2. **Adverb** — ১৫টি
+3. **Comparison (Degree)** ও **Noun** — ৬টি করে
+
+[[quiz:article]]
+
+## এই হিসাব থেকে কী শিখবে?
+- **Conditional আর Article** দুই বিশ্ববিদ্যালয়েই সবার উপরে। এ দুটো আগে শেষ করো।
+- চবিতে **Subjunctive আর Causative** (suggest that he go, had him do, got it done) বেশি দেখা যায়।
+- ঢাবিতে **Modal Verb আর Adverb** (need not, had better, used to; hardly, enough) বেশি।
+- **Comparison (Degree)** দুই জায়গাতেই নিয়মিত আসে—than, the more…the more, as…as মনে রাখো।
+
+## প্রতিদিনের সহজ পরিকল্পনা
+1. প্রথম সপ্তাহে Conditional, Article আর Comparison-এর নিয়ম পড়ো, প্রতিদিন একটি topic-এ Fun Quiz খেলো।
+2. দ্বিতীয় সপ্তাহে Modal, Causative আর Subjunctive।
+3. প্রতিদিন **Daily Quiz** দাও—সেখানে প্রতিদিন চবি-ঢাবির ১০টি আর অন্য বিশ্ববিদ্যালয়ের ১০টি আগের প্রশ্ন থাকে।
+4. সপ্তাহে একদিন পুরো **Model Test** দাও (প্রতি প্রশ্নে ৩৬ সেকেন্ড, ভুলে −০.২৫)।
+
+[[exam]]
+
+> প্রতিটি প্রশ্নের পাশে 📌 চিহ্নে বিশ্ববিদ্যালয় ও বছর দেখা যায়। ভুল হওয়া প্রশ্ন “আমার ভুলগুলো”-তে জমা থাকে—পরীক্ষার আগে ওগুলোই আবার দেখো।
+`,
+  },
+  {
+    slug: 'degree-of-comparison-rules',
+    title: 'Degree of Comparison-এর নিয়ম: ভর্তি পরীক্ষার ১০টি জরুরি rule (উদাহরণসহ)',
+    category: 'English',
+    emoji: '⚖️',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 6,
+    summary: 'Positive, Comparative, Superlative, the more…the more, as…as, twice as many, that of/those of—ভর্তি পরীক্ষায় যেসব comparison-এর প্রশ্ন বারবার আসে, সহজ বাংলায় নিয়ম আর উদাহরণ।',
+    body: `
+Comparison বা Degree of Comparison ভর্তি পরীক্ষার English-এ প্রায় প্রতি বছর আসে। নিচের ১০টি নিয়ম জানলে বেশিরভাগ প্রশ্ন কয়েক সেকেন্ডে করা যায়।
+
+## ১. than থাকলে comparative
+**This river is wider than it was.** than-এর আগে সবসময় comparative (wider, better, more useful)।
+
+## ২. more আর -er একসাথে নয়
+more simpler, more worse, most narrowest—সব ভুল। simpler, worse, narrowest লেখো।
+
+## ৩. দুজনের মধ্যে comparative, তিন বা বেশির মধ্যে superlative
+- Of the two sisters, Sara is **the taller**.
+- Of the three proposals, the third is **the most practical**.
+
+## ৪. Irregular রূপগুলো মুখস্থ
+- good/well → better → best
+- bad → worse → worst (worser বলে কিছু নেই)
+- little → less → least
+- far → farther/further → farthest/furthest
+
+## ৫. The more…, the more…
+দুটি ঘটনা একসাথে বাড়ে-কমে বোঝাতে দুই অংশেই **the + comparative**:
+**The more you read, the more you learn.** / **The sooner we leave, the earlier we arrive.**
+
+## ৬. as…as আর not so…as
+- সমান বোঝাতে: **as tall as**
+- কম বোঝাতে: **not so beautiful as** (বা not as…as)
+- verb-এর পরে adverb: He speaks **as fluently as** his sister.
+
+## ৭. twice / three times / half + as many / as much
+- countable (desks, employees): **twice as many** desks as…
+- uncountable (water, money): **three times as much** water as…
+
+## ৮. একই জিনিসের সাথে তুলনা: that of / those of
+- The price of this laptop is lower than **that of** the desktop. (price-এর বদলে that)
+- The designs of the new uniforms are simpler than **those of** the old ones. (plural)
+- His car runs faster than **Mary’s** (= Mary’s car)।
+
+## ৯. one of the + superlative + plural noun
+**Dhaka is one of the busiest cities in Asia.** city নয়, cities।
+
+## ১০. যাদের তুলনা হয় না
+perfect, unique, complete, round—এদের আগে more/most বসে না। “a most perfect judge” নয়, **a perfect judge**।
+
+> মনে রাখার কৌশল: প্রশ্নে than দেখলেই comparative, “of all / among / in the class” দেখলেই superlative, আর দুটো “the” দেখলে the more…the more।
+
+[[quiz:comparison]]
+`,
+  },
+  {
+    slug: 'modal-verb-rules',
+    title: 'Modal Verb-এর ব্যবহার: can, must, need, had better, used to—সহজ নিয়ম',
+    category: 'English',
+    emoji: '🎯',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 6,
+    summary: 'must not আর need not-এর পার্থক্য, must have + V3, had better, would rather, be used to + verb-ing—ভর্তি পরীক্ষার Modal Verb প্রশ্নের নিয়ম আর ফাঁদ।',
+    body: `
+Modal verb-এর প্রশ্নে সবচেয়ে বড় নিয়ম একটাই: **modal-এর পরে সবসময় verb-এর base form** (to ছাড়া)। can go, must study, should see—can to go বা must studied ভুল।
+
+## ১. must not বনাম need not
+- **must not** = নিষেধ। You **must not** smoke in the hospital.
+- **need not** = দরকার নেই। You **need not** hurry; we have plenty of time.
+- need not-এর পরে s বা to বসে না: She **need not** wash (needs not / need not to ভুল)।
+
+## ২. অতীত সম্পর্কে অনুমান: modal + have + V3
+- দৃঢ় অনুমান: She **must have left** early.
+- সম্ভাবনা: She **might have forgotten**.
+- উচিত ছিল কিন্তু করোনি: You **should have told** me.
+- দরকার ছিল না কিন্তু করেছ: You **needn’t have bought** tickets.
+
+## ৩. had better (পরামর্শ বা সতর্কতা)
+had better + base verb: You **had better see** a doctor. (had better to see / seen ভুল)
+
+## ৪. would rather (পছন্দ)
+- I **would rather** go by bus.
+- I would rather starve **than beg**. (than-এর পরেও base verb)
+
+## ৫. used to বনাম be used to
+- **used to + base verb** = অতীতের অভ্যাস: My father **used to live** in Gazipur.
+- **be used to + verb-ing** = অভ্যস্ত: She **is used to getting** up late.
+
+## ৬. had to = অতীতের বাধ্যবাধকতা
+The car broke down and we **had to** get a taxi.
+
+## ৭. need আর dare: দুই রূপেই চলে
+need ও dare কখনো modal (How **dare** he do that!), কখনো main verb (I need help)। তাই এদের semi-modal বলে।
+
+## ৮. modal + passive
+modal + be + V3: These differences **must be removed**.
+
+> ফাঁদ চেনার কৌশল: option-এ “to” বা verb-এর -ed/-s রূপ modal-এর ঠিক পরে থাকলে সেটা প্রায় নিশ্চিতভাবে ভুল।
+
+[[quiz:modal-verb]]
+`,
+  },
+  {
+    slug: 'causative-verb-rules',
+    title: 'Causative Verb: have, get, make, let, help—এক পাতায় নিয়ম',
+    category: 'English',
+    emoji: '🔧',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 4,
+    summary: 'কাউকে দিয়ে কাজ করানো বোঝাতে make/let/have + person + V1, get + person + to-verb, have/get + জিনিস + V3—ভর্তি পরীক্ষার Causative Verb প্রশ্নের সহজ ছক।',
+    body: `
+Causative verb দিয়ে বোঝানো হয় কাজটা নিজে না করে **অন্যকে দিয়ে করানো**। ভর্তি পরীক্ষায় এর প্রশ্ন প্রায় সবসময় এই চারটি ছকের একটি।
+
+## ছক ১: make / let / have + ব্যক্তি + base verb
+- They **made him repeat** the speech.
+- Her father didn’t **let her go**.
+- The manager **had the assistant prepare** the minutes.
+এখানে verb-এর আগে **to বসে না**।
+
+## ছক ২: get + ব্যক্তি + to + verb
+- She **got the technician to fix** the printer.
+- I will **get an electrician to mend** the heating.
+
+## ছক ৩: have / get + জিনিস + V3 (কাজটা কেউ করে দিয়েছে)
+- I **had my bicycle repaired**.
+- It costs Tk 500 to **have a tooth filled**.
+- He **got his leg broken** in an accident.
+
+## ছক ৪: make-এর passive-এ to ফিরে আসে
+- Active: They made us **run**.
+- Passive: We were made **to run**.
+
+## help: দুই রূপই ঠিক
+help + object + base verb বা to-verb—দুটোই চলে: She helped me **carry / to carry** the bag। পরীক্ষায় যেটা option-এ আছে সেটাই নাও।
+
+> মনে রাখো: পরের শব্দটা মানুষ হলে V1 (get হলে to + V1), জিনিস হলে V3।
+
+[[quiz:causative-verb]]
+`,
+  },
+  {
+    slug: 'subjunctive-mood-rules',
+    title: 'Subjunctive: suggest/insist that + base verb, wish, as if, It is time—সহজ নিয়ম',
+    category: 'English',
+    emoji: '📜',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 5,
+    summary: 'The doctor suggested that he take rest—takes কেন নয়? suggest, recommend, insist, important that-এর পরে base verb, আর wish, as if, would rather, It is time-এর পরে past form।',
+    body: `
+Subjunctive-এর প্রশ্ন দেখতে কঠিন লাগে, কিন্তু নিয়ম মাত্র দুটি ভাগে।
+
+## ভাগ ১: “that”-এর পরে base verb (mandative subjunctive)
+এই শব্দগুলোর পরে that এলে subject যা-ই হোক, verb-এর **base form** বসে—s, -ed, will কিছুই না:
+
+- verb: **suggest, recommend, insist, demand, request, order, urge, propose, require, advise**
+- adjective: **important, necessary, essential, advisable, vital**
+
+উদাহরণ:
+- The doctor suggested that he **take** a rest. (takes / took নয়)
+- It is necessary that she **find** the books.
+- We urge that the boy **leave** now.
+- Passive হলে **be + V3**: They requested that the meeting **be postponed**.
+- Negative হলে **not + base verb**: The doctor suggested that she **not smoke**.
+
+> British English-এ “should take”-ও চলে, তবে পরীক্ষায় সাধারণত শুধু base verb-টাই সঠিক উত্তর।
+
+## ভাগ ২: অবাস্তব কল্পনায় past form
+- **wish**: I wish I **knew** the answer. / I wish she **were** here.
+- **If only**: If only I **had** more time!
+- **as if / as though**: He talks as if he **were** the owner.
+- **would rather + অন্য subject**: I would rather you **kept** it secret.
+- **It is time**: It is time we **went** home.
+- **If I were you**: সব subject-এর সাথে were।
+
+## দ্রুত চেনার কৌশল
+1. প্রশ্নে suggest/insist/important that দেখলে → base verb খোঁজো।
+2. wish/as if/it is time দেখলে → past form বা were খোঁজো।
+
+[[quiz:subjunctive-verb]]
+`,
+  },
+  {
+    slug: 'conditional-sentence-rules',
+    title: 'Conditional Sentence-এর নিয়ম: If-এর ৪ ধরন, Were I, Had I, Should you',
+    category: 'English',
+    emoji: '🔀',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 5,
+    summary: 'চবি ও ঢাবির আগের প্রশ্নে সবচেয়ে বেশি আসা topic Conditional। If-clause আর result clause-এর tense মিলানোর ৪টি ছক, inversion আর unless—সহজ বাংলায়।',
+    body: `
+আমাদের question bank-এ চবি ও ঢাবি দুই জায়গাতেই আগের প্রশ্নের সবচেয়ে বড় অংশ এসেছে Conditional থেকে। নিচের ছকগুলো মুখস্থ থাকলে বেশিরভাগ প্রশ্ন সহজ।
+
+## ১. Zero conditional (চিরসত্য)
+If + present, present: If you heat ice, it **melts**.
+
+## ২. First conditional (সম্ভাব্য ভবিষ্যৎ)
+If + present, **will** + V1: If it rains, we **will stay** home.
+
+## ৩. Second conditional (বর্তমানের অবাস্তব কল্পনা)
+If + past, **would** + V1: If I **were** rich, I **would buy** a car.
+সব subject-এর সাথে **were**: If I were you…
+
+## ৪. Third conditional (অতীতের অবাস্তব)
+If + had + V3, **would have** + V3: If he **had worked** hard, he **would have passed**.
+
+## If বাদ দিয়ে inversion
+- Were I rich… = If I were rich…
+- Had he worked hard… = If he had worked hard…
+- Should you need help… = If you should need help…
+
+## Unless = If…not
+Unless you work hard, you will fail. (Unless-এর সাথে আবার not বসে না)
+
+## ফাঁদ
+- If-clause-এ সাধারণত will বসে না: If it **will rain** ভুল।
+- result-এ would have থাকলে if-এ অবশ্যই had + V3।
+
+> কৌশল: আগে result clause-এর verb দেখো—will, would, না would have? তা দেখেই if-clause-এর tense ঠিক করো।
+
+[[quiz:conditional-sentences]]
+`,
+  },
+  {
+    slug: 'adjective-adverb-linking-verb',
+    title: 'Adjective না Adverb? Linking verb (look, seem, taste) চেনার সহজ কৌশল',
+    category: 'English',
+    emoji: '🧭',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 4,
+    summary: 'The soup tastes sweet, কিন্তু The chef tasted it carefully—কেন? hard/hardly, late/lately, fast, enough, so/such—ভর্তি পরীক্ষার Adjective-Adverb প্রশ্নের নিয়ম।',
+    body: `
+Adjective noun-কে বর্ণনা করে, adverb verb/adjective-কে। পরীক্ষার প্রশ্নে আসল পরীক্ষা হলো **verb-টা action না অবস্থা**।
+
+## ১. Linking verb-এর পরে adjective
+be, seem, appear, become, remain, look, sound, smell, taste, feel—এগুলো যখন অবস্থা বোঝায়, পরে **adjective**:
+- The milk smells **sour**.
+- The audience remained **silent**.
+- He looked **exhausted**.
+
+## ২. একই verb action হলে adverb
+- The chef tasted the soup **carefully**. (chef চেখে দেখছে—action)
+- The painter looked **thoughtfully** at the portrait. (তাকানো—action)
+
+## ৩. যেসব শব্দে ফাঁদ বেশি
+- **hard** = কঠোর পরিশ্রমে, **hardly** = প্রায় না।
+- **late** = দেরিতে, **lately** = সম্প্রতি।
+- **fast** নিজেই adverb—fastly বলে কিছু নেই।
+- friendly, lovely, motherly -ly দিয়ে শেষ হলেও **adjective**।
+
+## ৪. enough-এর জায়গা
+- adjective/adverb-এর **পরে**: old **enough**, carefully **enough**
+- noun-এর **আগে**: **enough** chairs
+
+## ৫. so আর such
+- so + adjective: The roads were **so icy** that…
+- such + (a/an) + adjective + noun: It was **such an interesting** lecture that…
+- uncountable noun: **such useful advice**
+
+## ৬. Compound adjective-এ singular
+a **three-hour** journey, a **five-star** hotel, an **eight-century-old** temple—hour/star/century singular, সাথে hyphen।
+
+[[quiz:adverb]]
+
+[[quiz:adjective]]
+`,
+  },
+  {
+    slug: 'because-of-no-sooner-hardly-rules',
+    title: 'because না because of? No sooner…than, Hardly…when—সঠিক জোড়া',
+    category: 'English',
+    emoji: '🔗',
+    featured: false,
+    date: '2026-10-31',
+    minutes: 3,
+    summary: 'because-এর পরে পুরো clause, because of / due to-এর পরে noun। No sooner-এর সাথে than, Hardly ও Scarcely-এর সাথে when—উদাহরণসহ ছোট নিয়ম।',
+    body: `
+এই দুটো নিয়ম ছোট, কিন্তু ভর্তি পরীক্ষায় প্রায়ই ভুল হয়।
+
+## because বনাম because of / due to
+- **because + subject + verb**: The match was postponed **because it was raining**.
+- **because of / due to + noun**: The concert was postponed **because of the heavy rain**. / The train was late **due to a signal failure**.
+- despite of বলে কিছু নেই—**despite** বা **in spite of**।
+
+## No sooner…than
+- No sooner শুরুতে থাকলে **inversion**: No sooner **had** she sat down **than** the lights went out.
+- than-এর জায়গায় when বা that ভুল।
+
+## Hardly / Scarcely…when
+- **Hardly had** we reached home **when** the storm began.
+- **Scarcely had** the meeting started **when** the alarm sounded.
+- এখানে than ভুল।
+
+> মনে রাখার কৌশল: “No sooner” তুলনার মতো শোনায়, তাই than; “Hardly/Scarcely” সময় বোঝায়, তাই when।
+
+[[quiz:conjunction]]
+`,
+  },
+  {
     slug: 'online-admission-model-test',
     title: 'অনলাইনে ফ্রি বিশ্ববিদ্যালয় ভর্তি Model Test: কোথায়, কীভাবে দেবে (২০২৬)',
     category: 'শুরুর কথা',
