@@ -1,4 +1,4 @@
-// Hope & Wish — 43 questions.
+// Hope & Wish — 49 questions.
 // To add a question, copy one { … } block, paste it at the end of the list and edit it.
 // answer: "A" | "B" | "C" | "D". explainBn / units are optional. See CONTENT_GUIDE.md.
 export default {
@@ -370,6 +370,24 @@ export default {
       answer: "C",
       explainBn: "অবাস্তব বর্তমান অবস্থায় as if-এর পরে irrealis were ব্যবহার করা যায়।",
       source: "RU-A 2023–24",
+    },
+    {
+      q: "I wish she ____ here to explain the result.",
+      options: ["is","has been","will be","were"],
+      answer: "D",
+      explainBn: "বর্তমানের অবাস্তব ইচ্ছায় wish + were। তাই is, has been, will be এখানে ভুল।",
+    },
+    {
+      q: "She wishes she ____ more time to prepare.",
+      options: ["has","will have","having","had"],
+      answer: "D",
+      explainBn: "বর্তমানের অবাস্তব ইচ্ছা: wish + past form — she had more time। তাই has, will have, having এখানে ভুল।",
+    },
+    {
+      q: "If only I ____ the answer now!",
+      options: ["knew","know","will know","have know"],
+      answer: "A",
+      explainBn: "If only + past form বর্তমানের অবাস্তব ইচ্ছা বোঝায়: If only I knew। তাই know, will know, have know এখানে ভুল।",
     },
   ],
 };

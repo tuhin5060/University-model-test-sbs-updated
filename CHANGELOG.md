@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.20.0 — 231 new grammar questions, new Conjunction topic
+* 231 new questions, each with a Bangla explanation that also says why the other options
+  are wrong: Comparison +68, Adjective +58, Adverb +28, Modal Verb +27, Subjunctive +20,
+  Causative Verb +17, Hope & Wish +3, Conditional Sentences +1.
+* New topic **Conjunction** (9): because / because of / due to, no sooner … than,
+  hardly / scarcely … when.
+* 56 of the new questions carry a real 📌 exam reference from the source (now 569 in all);
+  self-test and TOEFL-style practice questions have none.
+* 84 uploaded questions were already in the bank (same or slightly reworded) and were not
+  added again; those already had a Bangla explanation and reference.
+* Source fixes: a duplicated option ("gusted"), a missing "to" in "strong ___ to carry",
+  "short test" → "short rest", "underlined word" stems now name the word, and
+  "arrived late despite the traffic" → "because of".
+* Test fix: the admin usage test no longer fails during the first hour after midnight in
+  Bangladesh (its "earlier visit today" fell on the previous day).
+
 ## 2.19.0 — admin: who is online, who used how long
 * New admin tab **🟢 ব্যবহার**:
   * **এখন অনলাইনে** — everyone with the site open right now: full name, roll and college

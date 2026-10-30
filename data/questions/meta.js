@@ -76,7 +76,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "If-clause ও result clause-এর tense মিলিয়ে real, unreal এবং third conditional চিনে নাও।",
-    "count": 109
+    "count": 110
   },
   {
     "id": "hope-wish",
@@ -87,7 +87,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "Hope-এর পরে সময় অনুযায়ী tense বসে; wish-এর পরে present unreal wish-এ past simple, আর past regret-এ could have + V3 ব্যবহার হয়।",
-    "count": 46
+    "count": 49
   },
   {
     "id": "mixed-english",
@@ -109,7 +109,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "শব্দটি বাক্যে কোন শব্দকে modify করছে দেখো—verb, adjective বা অন্য adverb হলে সেটি adverb।",
-    "count": 80
+    "count": 108
   },
   {
     "id": "modal-verb",
@@ -120,7 +120,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "Modal-এর পরে সবসময় base verb বসে; অতীতের অনুমান/সমালোচনায় modal + have + V3।",
-    "count": 61
+    "count": 88
   },
   {
     "id": "causative-verb",
@@ -131,7 +131,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "make/let/have + ব্যক্তি + base verb; get + ব্যক্তি + to-verb; have/get + বস্তু + V3।",
-    "count": 48
+    "count": 65
   },
   {
     "id": "subjunctive-verb",
@@ -142,7 +142,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "suggest, insist, request, necessary, essential that-এর পরে subject যাই হোক, verb-এর base form বসে।",
-    "count": 56
+    "count": 76
   },
   {
     "id": "adjective",
@@ -153,7 +153,7 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "শব্দটি noun-এর গুণ/সংখ্যা/অবস্থা বোঝালে adjective—-ly দেখে adverb ভেবো না (friendly, homely)।",
-    "count": 26
+    "count": 84
   },
   {
     "id": "comparison",
@@ -164,7 +164,18 @@ export const TOPICS = [
     "subject": "English",
     "group": "grammar",
     "tipBn": "দুজনের মধ্যে comparative (the better of the two), তিন বা বেশির মধ্যে superlative।",
-    "count": 22
+    "count": 90
+  },
+  {
+    "id": "conjunction",
+    "title": "Conjunction",
+    "bn": "because / because of, no sooner … than",
+    "icon": "🔗",
+    "color": "#a16207",
+    "subject": "English",
+    "group": "grammar",
+    "tipBn": "noun বা phrase-এর আগে because of / due to, পুরো clause-এর আগে because; No sooner … than, Hardly / Scarcely … when।",
+    "count": 9
   },
   {
     "id": "vocab-synonym",
@@ -249,5 +260,5 @@ export const GROUPS = {
     "bn": "Vocabulary, Synonym-Antonym ও Preposition মিলিয়ে"
   }
 };
-export const QUESTION_COUNT = 2256;
+export const QUESTION_COUNT = 2487;
 export const VOCAB_COUNT = 1049;

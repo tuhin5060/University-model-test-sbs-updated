@@ -1,4 +1,4 @@
-// Subjunctive — 42 questions.
+// Subjunctive — 76 questions.
 // To add a question, copy one { … } block, paste it at the end of the list and edit it.
 // answer: "A" | "B" | "C" | "D". explainBn / units are optional. See CONTENT_GUIDE.md.
 export default {
@@ -412,6 +412,129 @@ export default {
       answer: "B",
       explainBn: "Suggested that-এর পরে প্রস্তাব বোঝালে subject + base verb হয়।",
       source: "JU-E 2007–08",
+    },
+    {
+      q: "After the assassination attempt, President Reagan’s doctor suggested that he ____ a short rest at Camp David.",
+      options: ["will take","took","would take","take"],
+      answer: "D",
+      explainBn: "suggest that-এর পরে base verb: he take। তাই will take, took, would take এখানে ভুল।",
+      source: "CU 2010–11",
+    },
+    {
+      q: "The teacher ordered that her student ____ experience with ESP.",
+      options: ["write a composition on his","to write composition about his","wrote some compositions of his","had written any composition for his"],
+      answer: "A",
+      explainBn: "order that-এর পরে subject + base verb: write। তাই অন্য option (B, C, D) এই নিয়মে বসে না।",
+    },
+    {
+      q: "I suggested that he ____ as soon as possible.",
+      options: ["go to the doctor","goes to the doctor","went to the doctor","none of the above"],
+      answer: "A",
+      explainBn: "suggest that-এর পরে base verb: go। তাই goes to the doctor, went to the doctor, none of the above এখানে ভুল।",
+    },
+    {
+      q: "The students went to the Principal and requested that the examinations ____ postponed.",
+      options: ["were","are","be","will be"],
+      answer: "C",
+      explainBn: "subjunctive-এর passive: be + V3 — be postponed। তাই were, are, will be এখানে ভুল।",
+    },
+    {
+      q: "It is advisable ____.",
+      options: ["that a drastic measure be adopted","a drastic measure to be adopted","that to adopt a drastic measure","that needs drastic measure"],
+      answer: "A",
+      explainBn: "advisable that-এর পরে subjunctive passive: be adopted। তাই অন্য option (B, C, D) এই নিয়মে বসে না।",
+      source: "CU C Unit 2024–25",
+    },
+    {
+      q: "A teacher always prefers that her every single student ____.",
+      options: ["shall speak the truth","speaks the truth","will speak the truth","speak the truth"],
+      answer: "D",
+      explainBn: "prefer that-এর পরে subject + base verb: speak। তাই shall speak the truth, speaks the truth, will speak the truth এখানে ভুল।",
+      source: "BSMRSTU D Unit 2015–16",
+    },
+    {
+      q: "The professor recommended that every student ____ the article.",
+      options: ["read","reads","reading","has read"],
+      answer: "A",
+      explainBn: "recommend that-এর পরে base verb: every student read (reads নয়)। তাই reads, reading, has read এখানে ভুল।",
+    },
+    {
+      q: "It is essential that each application ____ complete.",
+      options: ["being","be","is","was"],
+      answer: "B",
+      explainBn: "essential that-এর পরে be: each application be complete। তাই being, is, was এখানে ভুল।",
+    },
+    {
+      q: "The committee demanded that the results ____ published immediately.",
+      options: ["were","being","be","are"],
+      answer: "C",
+      explainBn: "demand that-এর পরে passive subjunctive: be published। তাই were, being, are এখানে ভুল।",
+    },
+    {
+      q: "We suggest that he ____ the instructions again.",
+      options: ["reviews","reviewed","reviewing","review"],
+      answer: "D",
+      explainBn: "suggest that-এর পরে base verb: he review (reviews নয়)। তাই reviews, reviewed, reviewing এখানে ভুল।",
+    },
+    {
+      q: "The doctor insisted that the patient ____ in bed.",
+      options: ["remain","remains","remained","remaining"],
+      answer: "A",
+      explainBn: "insist that-এর পরে base verb: the patient remain। তাই remains, remained, remaining এখানে ভুল।",
+    },
+    {
+      q: "It is important that she ____ informed of the change.",
+      options: ["being","be","is","was"],
+      answer: "B",
+      explainBn: "important that-এর পরে be + V3: she be informed। তাই being, is, was এখানে ভুল।",
+    },
+    {
+      q: "They requested that the meeting ____ postponed.",
+      options: ["was","being","be","is"],
+      answer: "C",
+      explainBn: "request that-এর পরে be + V3: be postponed। তাই was, being, is এখানে ভুল।",
+    },
+    {
+      q: "The principal ordered that nobody ____ the hall.",
+      options: ["leaves","left","leaving","leave"],
+      answer: "D",
+      explainBn: "order that-এর পরে base verb: nobody leave। তাই leaves, left, leaving এখানে ভুল।",
+    },
+    {
+      q: "The board proposed that the project ____ revised.",
+      options: ["be","is","was","being"],
+      answer: "A",
+      explainBn: "propose that-এর পরে be + V3: be revised। তাই is, was, being এখানে ভুল।",
+    },
+    {
+      q: "It is necessary that every candidate ____ on time.",
+      options: ["arriving","arrive","arrives","arrived"],
+      answer: "B",
+      explainBn: "necessary that-এর পরে base verb: every candidate arrive। তাই arriving, arrives, arrived এখানে ভুল।",
+    },
+    {
+      q: "It is time we ____ home.",
+      options: ["went","go","have gone","will go"],
+      answer: "A",
+      explainBn: "It is time + subject + past form: It is time we went (এখনই যাওয়া উচিত)। তাই go, have gone, will go এখানে ভুল।",
+    },
+    {
+      q: "He speaks as if he ____ the owner of the building.",
+      options: ["has been","were","is being","will be"],
+      answer: "B",
+      explainBn: "as if-এর পরে অবাস্তব কল্পনায় were। তাই has been, is being, will be এখানে ভুল।",
+    },
+    {
+      q: "I would rather you ____ the details confidential.",
+      options: ["will keep","have keep","kept","keep"],
+      answer: "C",
+      explainBn: "would rather + অন্য subject + past form: I would rather you kept। তাই will keep, have keep, keep এখানে ভুল।",
+    },
+    {
+      q: "Suppose he ____ to reject the invitation. What would you do?",
+      options: ["has been","were","is","will be"],
+      answer: "B",
+      explainBn: "Suppose + subject + were to + verb কাল্পনিক ভবিষ্যৎ বোঝায়। তাই has been, is, will be এখানে ভুল।",
     },
   ],
 };

@@ -4,7 +4,7 @@
 > এই পুরো file-টা (বা GitHub link) তাকে দাও আর বলো "Read HANDOFF.md first and follow it."
 > Admin password বা database URL কখনো কোনো chat-এ বা file-এ দেবে না—ওগুলো শুধু Vercel-এ থাকে।
 
-Last updated: 2026-10-29 · version **2.17.0** (Daily Quiz).
+Last updated: 2026-10-31 · version **2.20.0** (new grammar questions).
 Keep §4 up to date after each change.
 
 ## 1. What this is
@@ -102,15 +102,17 @@ New API routes must also be added to `ROUTES` in `scripts/serve.mjs` (local dev 
 Vercel Hobby allows only about 12 functions per deployment; `api/` now has 11 files — before adding
 another endpoint, add an action to an existing route instead.
 
-## 4. Current state (2026-10-30, v2.19.0)
-- 2,256 questions in 21 topics (Grammar + Memorising), 1,049-word vocabulary list.
+## 4. Current state (2026-10-31, v2.20.0)
+- 2,487 questions in 22 topics (Grammar + Memorising), 1,049-word vocabulary list.
+  v2.20 added 231 grammar questions (Comparison, Adjective, Adverb, Modal, Subjunctive,
+  Causative, Hope & Wish, Conditional) and the new **Conjunction** topic.
 - **Daily Quiz** (since 2026-10-29): 20 questions a day = 10 CU/DU + 10 other universities, all
-  with a real 📌 reference (513 such questions: 171 CU/DU, 342 others). Each half rotates with no
-  repeats until used up (≈17 and ≈34 days), then a new round. A day's set is locked in
+  with a real 📌 reference (569 such questions: 178 CU/DU, 391 others). Each half rotates with no
+  repeats until used up (≈18 and ≈39 days), then a new round. A day's set is locked in
   `daily_sets` when first opened (GET `/api/daily` or the morning cron). One ranked try per
   student per day (`daily_attempts`, PK day+player). Rules: Model Test (36 s/q, −0.25).
   More CU/DU past-year questions in the topic files make the rotation longer automatically.
-- 513 questions show a 📌 reference; 1,743 have none in the data and are intentionally empty
+- 569 questions show a 📌 reference; 1,918 have none in the data and are intentionally empty
   (mostly Synonym, Antonym, Meaning, Idioms, Preposition, Tense).
 - Login = full name + roll (no password). Leaderboard shows only `LastName.roll` + college.
 - Admin dashboard (`#admin`, link at the bottom of every page; v2.18–2.19), six tabs, all via
@@ -152,8 +154,8 @@ another endpoint, add an action to an existing route instead.
 
 ### SEO in place
 - Google Search Console verified (meta tag + `google79aa884cbe996390.html`).
-- 21 static topic pages `/mcq/<topic>/` with questions, answers and Bangla explanations,
-  `/tips/<slug>/` articles, `/universities/`; 41-URL `sitemap.xml`; `robots.txt` blocks only internal paths.
+- 22 static topic pages `/mcq/<topic>/` with questions, answers and Bangla explanations,
+  `/tips/<slug>/` articles, `/universities/`; 42-URL `sitemap.xml`; `robots.txt` blocks only internal paths.
 - Canonical URLs, Open Graph/Twitter cards, one `WebSite`+`Organization` JSON-LD on home,
   `BreadcrumbList` + `Quiz` JSON-LD on topic pages; old domain 301 → main domain.
 

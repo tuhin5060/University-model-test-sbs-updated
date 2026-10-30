@@ -23,6 +23,7 @@ import causativeVerb from './causative-verb.js';
 import subjunctiveVerb from './subjunctive-verb.js';
 import adjective from './adjective.js';
 import comparison from './comparison.js';
+import conjunction from './conjunction.js';
 // Memorising
 import vocabSynonym from './vocab-synonym.js';
 import vocabAntonym from './vocab-antonym.js';
@@ -47,6 +48,7 @@ export const TOPICS_RAW = [
   subjunctiveVerb,
   adjective,
   comparison,
+  conjunction,
   vocabSynonym,
   vocabAntonym,
   vocabMeaning,

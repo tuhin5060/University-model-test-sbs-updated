@@ -1,4 +1,4 @@
-// Conditional Sentences — 42 questions.
+// Conditional Sentences — 110 questions.
 // To add a question, copy one { … } block, paste it at the end of the list and edit it.
 // answer: "A" | "B" | "C" | "D". explainBn / units are optional. See CONTENT_GUIDE.md.
 export default {
@@ -807,6 +807,12 @@ export default {
       answer: "C",
       explainBn: "বর্তমান শর্তের ভবিষ্যৎ প্রতিশ্রুতি: I’ll give।",
       source: "CVASU 2010–11",
+    },
+    {
+      q: "If I ____ you, I would review the evidence again.",
+      options: ["was being","have been","were","am"],
+      answer: "C",
+      explainBn: "বর্তমানের অবাস্তব কল্পনায় if-clause-এ সব subject-এর সাথে were: If I were you। তাই was being, have been, am এখানে ভুল।",
     },
   ],
 };

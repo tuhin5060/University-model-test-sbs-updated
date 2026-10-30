@@ -24,8 +24,11 @@ test('admin: wrong password refused; usage per student with full name, minutes a
   const sid = 'a1'.repeat(10);
   for (let i = 0; i < 3; i++) assert.equal((await visitors.POST(req('/api/visitors', { sid }, rahim))).status, 200);
   await visitors.POST(req('/api/visitors', { sid: 'b2'.repeat(10) })); // a visitor without a name
-  // An earlier visit today (more than 5 minutes ago) is a separate session.
-  await db.query("INSERT INTO usage_sessions (sid, player_id, started_at, last_at, beats) VALUES ($1, $2, now() - interval '50 minutes', now() - interval '40 minutes', 10)", [sid, rahim]);
+  // An earlier visit today (more than 5 minutes ago) is a separate session. Shortly after
+  // midnight in Bangladesh "50 minutes ago" is yesterday, so never start before today's midnight.
+  await db.query(`INSERT INTO usage_sessions (sid, player_id, started_at, last_at, beats)
+    SELECT $1, $2, t, least(t + interval '10 minutes', now()), 10
+    FROM (SELECT greatest(now() - interval '50 minutes', date_trunc('day', now() AT TIME ZONE 'Asia/Dhaka') AT TIME ZONE 'Asia/Dhaka') AS t) x`, [sid, rahim]);
 
   assert.equal((await admin.POST(req('/api/admin', { password: 'wrong' }))).status, 403);
   const res = await admin.POST(req('/api/admin', { password: 'Test Pass 99' }));

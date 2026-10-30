@@ -7,11 +7,11 @@
 // The block between the markers is written by `node scripts/preload.mjs`.
 
 // precache:start
-const VERSION = 'faaf0826a549';
+const VERSION = '511d0587b565';
 const PRECACHE = [
   './',
-  'assets/css/styles.css?v=2.19.0',
-  'assets/js/main.js?v=2.19.0',
+  'assets/css/styles.css?v=2.20.0',
+  'assets/js/main.js?v=2.20.0',
   'assets/js/components.js',
   'assets/js/lib/api.js',
   'assets/js/lib/bank.js',
@@ -51,6 +51,7 @@ const PRECACHE = [
   'data/questions/causative-verb.js',
   'data/questions/comparison.js',
   'data/questions/conditional-sentences.js',
+  'data/questions/conjunction.js',
   'data/questions/gender.js',
   'data/questions/hope-wish.js',
   'data/questions/index.js',

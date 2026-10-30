@@ -1,4 +1,4 @@
-// Causative Verb — 42 questions.
+// Causative Verb — 65 questions.
 // To add a question, copy one { … } block, paste it at the end of the list and edit it.
 // answer: "A" | "B" | "C" | "D". explainBn / units are optional. See CONTENT_GUIDE.md.
 export default {
@@ -356,6 +356,109 @@ export default {
       answer: "D",
       explainBn: "Active causative make + person + base verb; to লাগে না।",
       source: "RU-B 2008–09",
+    },
+    {
+      q: "Choose the correct sentence.",
+      options: ["He’s had his hair cut really shortly.","He’s had his hair cut really short.","He’s had cut his hair really short.","He’s had cut his hair short really."],
+      answer: "B",
+      explainBn: "had his hair cut + short (চুল কেমন হলো); shortly এখানে ভুল। তাই অন্য option (A, C, D) এই নিয়মে বসে না।",
+      source: "C Unit 2020–21",
+    },
+    {
+      q: "Select the correct version of ‘He got his leg (break).’",
+      options: ["He gets his leg broken.","He got his leg broken.","He is getting his leg break.","He had got his leg breaking."],
+      answer: "B",
+      explainBn: "get + object + V3: got his leg broken। তাই He gets his leg broken., He is getting his leg break., He had got his leg breaking. এখানে ভুল।",
+    },
+    {
+      q: "The supervisor made the interns ____ the report.",
+      options: ["rewritten","rewrite","to rewrite","rewriting"],
+      answer: "B",
+      explainBn: "make + object + base verb (to ছাড়া): made the interns rewrite। তাই rewritten, to rewrite, rewriting এখানে ভুল।",
+    },
+    {
+      q: "The loud noise made the baby ____.",
+      options: ["cried","crying to","cry","to cry"],
+      answer: "C",
+      explainBn: "make + object + base verb: made the baby cry। তাই cried, crying to, to cry এখানে ভুল।",
+    },
+    {
+      q: "The students were made ____ the passage again.",
+      options: ["read","reading","reads","to read"],
+      answer: "D",
+      explainBn: "make-এর passive হলে to বসে: were made to read। তাই read, reading, reads এখানে ভুল।",
+    },
+    {
+      q: "The coach made us ____ additional laps.",
+      options: ["run","to run","ran","running to"],
+      answer: "A",
+      explainBn: "make + object + base verb: made us run। তাই to run, ran, running to এখানে ভুল।",
+    },
+    {
+      q: "The guard did not let visitors ____ the room.",
+      options: ["entering to","enter","to enter","entered"],
+      answer: "B",
+      explainBn: "let + object + base verb (to ছাড়া): let visitors enter। তাই entering to, to enter, entered এখানে ভুল।",
+    },
+    {
+      q: "Her parents let her ____ for the scholarship.",
+      options: ["applied","applying to","apply","to apply"],
+      answer: "C",
+      explainBn: "let + object + base verb: let her apply। তাই applied, applying to, to apply এখানে ভুল।",
+    },
+    {
+      q: "Please let me ____ the instructions first.",
+      options: ["to finish","finished","finishing to","finish"],
+      answer: "D",
+      explainBn: "let me + base verb: let me finish। তাই to finish, finished, finishing to এখানে ভুল।",
+    },
+    {
+      q: "I had my bicycle ____ yesterday.",
+      options: ["repaired","repair","to repair","repairing"],
+      answer: "A",
+      explainBn: "have + জিনিস + V3: had my bicycle repaired (সারিয়ে নিলাম)। তাই repair, to repair, repairing এখানে ভুল।",
+    },
+    {
+      q: "The manager had the assistant ____ the minutes.",
+      options: ["preparing to","prepare","to prepare","prepared"],
+      answer: "B",
+      explainBn: "have + person + base verb: had the assistant prepare। তাই preparing to, to prepare, prepared এখানে ভুল।",
+    },
+    {
+      q: "We will have the documents ____ by a lawyer.",
+      options: ["to review","reviewing","reviewed","review"],
+      answer: "C",
+      explainBn: "have + জিনিস + V3: have the documents reviewed। তাই to review, reviewing, review এখানে ভুল।",
+    },
+    {
+      q: "She got the technician ____ the printer.",
+      options: ["fix","fixed","fixing to","to fix"],
+      answer: "D",
+      explainBn: "get + person + to + base verb: got the technician to fix। তাই fix, fixed, fixing to এখানে ভুল।",
+    },
+    {
+      q: "They got the windows ____ before the inspection.",
+      options: ["cleaned","clean","to clean","cleaning to"],
+      answer: "A",
+      explainBn: "get + জিনিস + V3: got the windows cleaned। তাই clean, to clean, cleaning to এখানে ভুল।",
+    },
+    {
+      q: "He got his colleague ____ the presentation slides.",
+      options: ["checking to","to check","check","checked"],
+      answer: "B",
+      explainBn: "get + person + to + base verb: got his colleague to check। তাই checking to, check, checked এখানে ভুল।",
+    },
+    {
+      q: "The mentor helped the student ____ the problem.",
+      options: ["solving to","to solved","solve","solved"],
+      answer: "C",
+      explainBn: "help + object + base verb (বা to + verb): helped the student solve। তাই solving to, to solved, solved এখানে ভুল।",
+    },
+    {
+      q: "The volunteers helped us ____ the equipment.",
+      options: ["carried","carrying to","to carried","carry"],
+      answer: "D",
+      explainBn: "help + object + base verb: helped us carry। তাই carried, carrying to, to carried এখানে ভুল।",
     },
   ],
 };
