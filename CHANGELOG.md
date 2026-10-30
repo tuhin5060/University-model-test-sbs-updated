@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.21.0 — calmer layout on desktop and phones
+* Desktop: the top menu and the site name stay on one line at every width (menu items
+  used to break into two lines); menu emojis removed there for a cleaner bar.
+* Home: "আজকের টিপ" sits at the top of its card instead of floating in empty space.
+* Phones: topic cards are compact one-line rows (icon · name + one-line description ·
+  question count), so the home page is about 1,200 px shorter; Fun Quiz / Model Test
+  cards and the hero number chips are smaller.
+
 ## 2.20.0 — 231 new grammar questions, new Conjunction topic
 * 231 new questions, each with a Bangla explanation that also says why the other options
   are wrong: Comparison +68, Adjective +58, Adverb +28, Modal Verb +27, Subjunctive +20,

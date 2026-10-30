@@ -4,7 +4,7 @@
 > এই পুরো file-টা (বা GitHub link) তাকে দাও আর বলো "Read HANDOFF.md first and follow it."
 > Admin password বা database URL কখনো কোনো chat-এ বা file-এ দেবে না—ওগুলো শুধু Vercel-এ থাকে।
 
-Last updated: 2026-10-31 · version **2.20.0** (new grammar questions).
+Last updated: 2026-10-31 · version **2.21.0** (calmer layout).
 Keep §4 up to date after each change.
 
 ## 1. What this is
@@ -102,10 +102,13 @@ New API routes must also be added to `ROUTES` in `scripts/serve.mjs` (local dev 
 Vercel Hobby allows only about 12 functions per deployment; `api/` now has 11 files — before adding
 another endpoint, add an action to an existing route instead.
 
-## 4. Current state (2026-10-31, v2.20.0)
+## 4. Current state (2026-10-31, v2.21.0)
 - 2,487 questions in 22 topics (Grammar + Memorising), 1,049-word vocabulary list.
   v2.20 added 231 grammar questions (Comparison, Adjective, Adverb, Modal, Subjunctive,
   Causative, Hope & Wish, Conditional) and the new **Conjunction** topic.
+- Layout (v2.21): desktop top menu is text-only and never wraps; on phones topic cards
+  are compact one-line rows. Rules are in the "2.21: calmer layout" block at the end of
+  `assets/css/styles.css`.
 - **Daily Quiz** (since 2026-10-29): 20 questions a day = 10 CU/DU + 10 other universities, all
   with a real 📌 reference (569 such questions: 178 CU/DU, 391 others). Each half rotates with no
   repeats until used up (≈18 and ≈39 days), then a new round. A day's set is locked in
