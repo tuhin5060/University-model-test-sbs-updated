@@ -54,7 +54,7 @@ const adminCall = async (body, password = 'TestPass99') => {
 };
 
 test('admin actions all need the password', async () => {
-  for (const action of ['students', 'daily', 'settings', 'save-settings', 'push']) {
+  for (const action of ['students', 'usage', 'daily', 'settings', 'save-settings', 'push']) {
     assert.equal((await adminCall({ action }, 'nope')).status, 403, action);
   }
   assert.equal((await adminCall({ action: 'drop-tables' })).status, 400);
@@ -108,4 +108,28 @@ test('settings: site notice goes out with the heartbeat; links are checked; morn
 test('push now: refused without notification keys, needs a title and text', async () => {
   const r = await adminCall({ action: 'push', title: 'Hi', body: 'Hello', url: '#daily' });
   assert.equal(r.status, 503, 'no VAPID key in this test environment');
+});
+
+test('usage: who is online now, minutes per person on a day, one student per day and visit', async () => {
+  const roll = (await (await profile.POST(req('/api/profile', { name: 'Karim Online', college: 'Dhaka College' }))).json()).player;
+  const sid = 'c7'.repeat(10);
+  for (let i = 0; i < 2; i++) await visitors.POST(req('/api/visitors', { sid }, roll.playerId));
+  // Yesterday: a 25-minute visit.
+  await db.query("INSERT INTO usage_sessions (sid, player_id, started_at, last_at, beats) VALUES ($1, $2, now() - interval '1 day', now() - interval '1 day' + interval '25 minutes', 25)", [sid, roll.playerId]);
+  const { status, body } = await adminCall({ action: 'usage', roll: String(roll.roll).padStart(3, '0') });
+  assert.equal(status, 200);
+  const live = body.online.find(o => o.name === 'Karim Online');
+  assert.ok(live, 'signed-in student shows by full name in "online now"');
+  assert.equal(live.minutes, 2);
+  assert.equal(live.college, 'Dhaka College');
+  assert.ok(body.online.some(o => o.name === null), 'visitors without a name are listed too');
+  assert.equal(body.people.find(p => p.name === 'Karim Online').minutes, 2, 'today only (yesterday not counted)');
+  assert.ok(body.anon.visitors >= 1);
+  assert.ok(body.days.length >= 1);
+  assert.equal(body.student.name, 'Karim Online');
+  assert.equal(body.student.minutes, 27);
+  assert.equal(body.student.days.length, 2, 'today and yesterday');
+  assert.equal(body.student.visits.length, 2);
+  const missing = await adminCall({ action: 'usage', roll: '999' });
+  assert.equal(missing.body.student, null);
 });

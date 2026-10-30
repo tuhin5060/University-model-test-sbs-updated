@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.19.0 — admin: who is online, who used how long
+* New admin tab **🟢 ব্যবহার**:
+  * **এখন অনলাইনে** — everyone with the site open right now: full name, roll and college
+    (or "নাম ছাড়া visitor"), since when and how many minutes on this visit, today's total.
+    Refreshes itself every 30 seconds.
+  * **কে কতক্ষণ ব্যবহার করেছে** — pick any of the last 30 days: every student's minutes,
+    number of visits and first–last time that day, plus visitors without a name.
+  * Tap a name (here or "⏱️ কোন দিন কতক্ষণ" on a student card): that student's minutes on
+    each day and every visit with from–to times.
+* Signing in sends a heartbeat at once, so the admin sees the name within seconds.
+
 ## 2.18.0 — cleaner Score page, nicer Daily Quiz, stronger admin
 * Score page reorganised (same data, every score unchanged): one card with your total
   points, position, Fun / Model Test points and Daily streak, then today's top scorer

@@ -140,6 +140,11 @@ function schedule() {
   timer = setInterval(beat, BEAT_MS);
 }
 
+/** One heartbeat now (e.g. right after signing in, so the admin page shows the name at once). */
+export function beatNow() {
+  if (document.visibilityState === 'visible') beat();
+}
+
 export function startLive() {
   schedule();
   document.addEventListener('visibilitychange', schedule);

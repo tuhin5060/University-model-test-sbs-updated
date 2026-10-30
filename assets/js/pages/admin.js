@@ -3,7 +3,7 @@
 // password (ADMIN_PASSWORD, set only in Vercel) on every request. The password typed here is
 // kept only for this tab (sessionStorage) and is never part of the site's code or repository.
 //
-// Tabs: 📊 সারাংশ · 👩‍🎓 শিক্ষার্থী · 📅 Daily Quiz · 📢 Notice ও Notification · 💾 Data
+// Tabs: 📊 সারাংশ · 🟢 ব্যবহার · 👩‍🎓 শিক্ষার্থী · 📅 Daily Quiz · 📢 Notice ও Notification · 💾 Data
 import { esc, bn, $, toast, ask } from '../lib/dom.js';
 import { pageHead } from '../components.js';
 
@@ -12,6 +12,9 @@ let days = 7;
 let tab = 'overview';
 let dailyDay = '';
 let search = '';
+let usageDay = '';
+let usageRoll = '';
+let liveTimer = null;
 
 const pass = {
   get: () => { try { return sessionStorage.getItem(KEY) || ''; } catch { return ''; } },
@@ -27,6 +30,7 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 
 const TABS = [
   ['overview', '📊', 'সারাংশ'],
+  ['usage', '🟢', 'ব্যবহার'],
   ['students', '👩‍🎓', 'শিক্ষার্থী'],
   ['daily', '📅', 'Daily Quiz'],
   ['notice', '📢', 'Notice'],
@@ -104,12 +108,14 @@ function wireShell(box) {
   show(box);
 }
 
-const VIEWS = { overview, students, daily, notice, data };
+const VIEWS = { overview, usage, students, daily, notice, data };
 
 async function show(box) {
   const view = $('#adm-view', box);
   if (!view) return;
   view.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
+  clearInterval(liveTimer);
+  view.onclick = null;
   try {
     await VIEWS[tab](view);
   } catch (err) {
@@ -169,6 +175,79 @@ async function overview(view) {
   view.querySelectorAll('[data-days]').forEach(b => b.addEventListener('click', () => { days = Number(b.dataset.days); overview(view).catch(e => toast(e.message)); }));
 }
 
+// ---- 🟢 usage: online now, who used how long on a day, one student's days ----------
+
+const rollBtn = r => (r.name ? `<button type="button" class="link-btn adm-who" data-roll="${roll(r.roll)}">${esc(r.name)} <small class="muted">.${roll(r.roll)}</small></button>` : '<span class="muted">নাম ছাড়া visitor</span>');
+
+function onlineList(list) {
+  if (!list.length) return '<p class="empty">এই মুহূর্তে কেউ অনলাইনে নেই।</p>';
+  const named = list.filter(o => o.name).length;
+  return `<p class="muted small">${bn(list.length)} জন · ${bn(named)} জন নাম দিয়ে · ${bn(list.length - named)} জন নাম ছাড়া</p>
+    <ul class="adm-live">${list.map(o => `<li>
+      <span class="adm-dot" aria-hidden="true"></span>
+      <span class="adm-live-who">${rollBtn(o)}${o.college ? `<small>🏫 ${esc(o.college)}</small>` : ''}</span>
+      <span class="adm-live-time"><b>${mins(o.minutes)}</b><small>${o.from ? `${time(o.from)} থেকে` : ''}${o.minutes_today > o.minutes ? ` · আজ মোট ${mins(o.minutes_today)}` : ''}</small></span>
+    </li>`).join('')}</ul>`;
+}
+
+function studentBox(st) {
+  if (st === undefined) return '';
+  if (!st) return `<div class="card adm-student"><p class="empty">Roll ${esc(usageRoll)}-এর কাউকে পাওয়া যায়নি।</p></div>`;
+  const max = Math.max(1, ...st.days.map(x => x.minutes));
+  return `<div class="card adm-student" id="adm-student">
+    <div class="adm-student-head"><div><b>${esc(st.name)}</b> <span class="adm-roll">.${roll(st.roll)}</span><small class="muted">🏫 ${esc(st.college || 'কলেজ দেয়নি')} · যোগ ${when(st.created_at)}</small></div>
+      <button type="button" class="btn small ghost" data-close-student>✕</button></div>
+    <p>মোট ব্যবহার (৬০ দিনে): <b>${mins(st.minutes)}</b> · ${bn(st.days.length)} দিন · ${bn(st.visits.length)} বার</p>
+    <h3 class="h3">📅 দিন অনুযায়ী</h3>
+    ${st.days.length ? `<div class="adm-chart">${st.days.map(x => `<div class="adm-day">
+      <span class="adm-date">${esc(dayLabel(x.day))}</span>
+      <span class="adm-bar"><i style="width:${Math.max(3, Math.round((x.minutes / max) * 100))}%"></i></span>
+      <span class="adm-nums"><b>${mins(x.minutes)}</b> · ${bn(x.sessions)} বার</span></div>`).join('')}</div>` : '<p class="empty">কোনো ব্যবহার নেই।</p>'}
+    <details class="adm-more"><summary>🕒 প্রতিটি visit (কখন থেকে কখন) · ${bn(st.visits.length)}টি</summary>
+      <div class="table-wrap"><table class="dir admin-table"><thead><tr><th>দিন</th><th>থেকে</th><th>পর্যন্ত</th><th>সময়</th></tr></thead>
+      <tbody>${st.visits.map(v => `<tr><td>${esc(dayLabel(new Date(v.from).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' })))}</td><td>${time(v.from)}</td><td>${time(v.to)}</td><td>${mins(v.minutes)}</td></tr>`).join('')}</tbody></table></div>
+    </details>
+  </div>`;
+}
+
+async function usage(view) {
+  const d = await api({ action: 'usage', day: usageDay, roll: usageRoll });
+  const total = d.people.reduce((n, r) => n + r.minutes, 0) + d.anon.minutes;
+  const today = d.days[0]?.day;
+  view.innerHTML = `${studentBox(usageRoll ? d.student : undefined)}
+    <section class="card adm-online">
+      <div class="adm-online-head"><h2 class="h3">🟢 এখন অনলাইনে</h2><small class="muted" data-live-note>প্রতি ৩০ সেকেন্ডে নিজে থেকে আপডেট হয়</small></div>
+      <div id="adm-online">${onlineList(d.online)}</div>
+    </section>
+    <h2 class="h3">⏱️ কে কতক্ষণ ব্যবহার করেছে</h2>
+    <div class="field"><label class="label" for="adm-uday">দিন</label>
+      <select id="adm-uday">${(d.days.some(x => x.day === d.day) ? d.days : [{ day: d.day, students: 0, visitors: 0, minutes: 0 }, ...d.days]).map(x => `<option value="${x.day}" ${x.day === d.day ? 'selected' : ''}>${x.day === today ? 'আজ · ' : ''}${esc(dayLabel(x.day))} · ${bn(x.visitors)} visitor · ${mins(x.minutes)}</option>`).join('')}</select></div>
+    <div class="adm-stats">
+      <div class="adm-stat"><b>${bn(d.people.length)}</b><small>নাম দিয়ে ব্যবহার</small></div>
+      <div class="adm-stat"><b>${bn(d.anon.visitors)}</b><small>নাম ছাড়া visitor</small></div>
+      <div class="adm-stat"><b>${mins(total)}</b><small>সবার মোট সময়</small></div>
+    </div>
+    ${d.people.length ? `<div class="table-wrap"><table class="dir admin-table">
+      <thead><tr><th>#</th><th>নাম · Roll</th><th>সময়</th><th>বার</th><th>প্রথম–শেষ</th><th>কলেজ</th></tr></thead>
+      <tbody>${d.people.map((r, i) => `<tr><td>${bn(i + 1)}</td><td>${rollBtn(r)}</td><td><b>${mins(r.minutes)}</b></td><td>${bn(r.sessions)}</td><td>${time(r.first_at)} – ${time(r.last_at)}</td><td>${esc(r.college || '—')}</td></tr>`).join('')}</tbody>
+    </table></div>` : '<p class="empty">এই দিনে নাম দিয়ে কেউ ব্যবহার করেনি।</p>'}
+    <p class="muted small">নামে চাপ দিলে ওই শিক্ষার্থী কোন দিন কতক্ষণ ব্যবহার করেছে আর প্রতিটি visit দেখাবে। সময় গোনা হয় site খোলা ও স্ক্রিনে থাকা অবস্থায় (প্রতি মিনিটে একবার); “অনলাইনে” মানে শেষ আড়াই মিনিটের মধ্যে সাড়া পাওয়া গেছে।</p>`;
+  const open = r => { usageRoll = r; usage(view).then(() => $('#adm-student', view)?.scrollIntoView({ behavior: 'smooth', block: 'start' })).catch(e => toast(e.message)); };
+  view.onclick = e => {
+    const b = e.target.closest('[data-roll]');
+    if (b) open(b.dataset.roll);
+    if (e.target.closest('[data-close-student]')) { usageRoll = ''; $('#adm-student', view)?.remove(); }
+  };
+  $('#adm-uday', view).addEventListener('change', e => { usageDay = e.target.value; usage(view).catch(err => toast(err.message)); });
+  // Keep "online now" fresh while this tab is open.
+  clearInterval(liveTimer);
+  liveTimer = setInterval(async () => {
+    const box = $('#adm-online');
+    if (!box || tab !== 'usage') return clearInterval(liveTimer);
+    try { box.innerHTML = onlineList((await api({ action: 'usage', day: usageDay })).online); } catch { /* next try in 30 s */ }
+  }, 30000);
+}
+
 // ---- 👩‍🎓 students -----------------------------------------------------------------
 
 async function students(view) {
@@ -194,8 +273,18 @@ async function students(view) {
             <div><dt>ব্যবহার</dt><dd>${mins(r.minutes)}</dd></div>
           </dl>
           <p class="muted small">যোগ দিয়েছে ${when(r.created_at)} · শেষ দেখা ${when(r.last_seen_at)}</p>
+          <button type="button" class="btn small ghost" data-roll="${roll(r.roll)}">⏱️ কোন দিন কতক্ষণ</button>
         </article>`).join('')}</div>`
       : '<p class="empty">কাউকে পাওয়া যায়নি।</p>';
+  };
+  view.onclick = e => {
+    const b = e.target.closest('[data-roll]');
+    if (!b) return;
+    usageRoll = b.dataset.roll;
+    tab = 'usage';
+    const box = view.closest('#admin-box');
+    box.querySelectorAll('[data-adm-tab]').forEach(x => x.setAttribute('aria-selected', String(x.dataset.admTab === 'usage')));
+    show(box);
   };
   $('#adm-search', view).addEventListener('submit', e => {
     e.preventDefault();

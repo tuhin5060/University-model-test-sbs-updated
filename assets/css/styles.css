@@ -1175,3 +1175,22 @@ details.rules ul { margin: 10px 0 2px; padding-left: 20px; display: grid; gap: 6
 .dot-key.today { border-color: var(--info); border-style: dashed; }
 .daily-page .section-tight { margin-top: 22px; }
 @media (min-width: 900px) { .dq { padding: 22px 24px; } .dq-go { width: auto; justify-self: start; padding-inline: 28px; } .dq-link { text-align: left; } }
+
+/* ---- Admin: usage tab (v2.19) ---------------------------------------------------- */
+.adm-online { margin-bottom: 18px; border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+.adm-online-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
+.adm-online-head h2 { margin: 0; }
+.adm-live { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.adm-live li { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--surface-2); }
+.adm-dot { width: 10px; height: 10px; border-radius: 50%; background: #22a55a; box-shadow: 0 0 0 0 rgba(34, 165, 90, .6); animation: live 2s infinite; }
+.adm-live-who, .adm-live-time { display: grid; min-width: 0; }
+.adm-live-who small, .adm-live-time small { color: var(--muted); font-size: .78rem; }
+.adm-live-who small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-live-time { text-align: right; }
+.adm-who { padding: 0; text-align: left; font-weight: 700; color: var(--brand); }
+.adm-student { margin-bottom: 18px; border: 2px solid var(--brand); }
+.adm-student-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.adm-student-head small { display: block; }
+.adm-student-head b { font-size: 1.15rem; }
+@media (max-width: 640px) { .adm-tabs { grid-template-columns: repeat(3, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .adm-dot { animation: none; } }

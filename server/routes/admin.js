@@ -2,6 +2,8 @@
 // POST { password, action?, … } — every action checks the password first.
 //   (no action) → { summary, daily, students, sessions }  overview for the last `days` days
 //   'students' { q } → students matching a name / roll / college, with tests, points and use
+//   'usage' { day?, roll? } → who is online now, everyone's minutes on one day, the last 30 days;
+//                             with roll: that student's minutes per day and every visit
 //   'daily' { day? } → that day's Daily Quiz: questions, every participant (full names), all days
 //   'settings' → { notice, morning }            site notice + morning reminder text
 //   'save-settings' { notice?, morning? } → saves them (notice shows on every page)
@@ -104,6 +106,60 @@ async function students(db, q) {
   return { q: text, students: rows.map(r => ({ ...r, tag: `${r.name}.${roll(r.roll)}`, created_at: iso(r.created_at), last_seen_at: iso(r.last_seen_at) })) };
 }
 
+// One Bangladesh day of usage_sessions, by the day a visit started.
+const ON_DAY = `(u.started_at ${BD})::date = $1::date`;
+
+async function usage(db, day, r) {
+  const d = DAY_RE.test(day || '') ? day : dhakaDay();
+  const [online, people, [anon], days] = await db.batch([
+    // Every browser open right now, with the visit it is on (name if signed in).
+    [`SELECT s.name, s.roll, s.college, u.started_at, u.beats AS minutes, p.at,
+        (SELECT COALESCE(sum(x.beats), 0) FROM usage_sessions x WHERE x.sid = p.sid AND (x.started_at ${BD})::date = ${TODAY})::int AS minutes_today
+      FROM presence p
+      LEFT JOIN LATERAL (SELECT * FROM usage_sessions x WHERE x.sid = p.sid ORDER BY x.last_at DESC LIMIT 1) u ON true
+      LEFT JOIN students s ON s.id = u.player_id
+      WHERE p.at >= now() - interval '${ONLINE_SEC} seconds'
+      ORDER BY s.name IS NULL, u.started_at`],
+    // Everyone with a name on that day: total minutes, visits, first and last time.
+    [`SELECT s.name, s.roll, s.college, sum(u.beats)::int AS minutes, count(*)::int AS sessions,
+        min(u.started_at) AS first_at, max(u.last_at) AS last_at
+      FROM usage_sessions u JOIN students s ON s.id = u.player_id
+      WHERE ${ON_DAY} GROUP BY s.id ORDER BY minutes DESC, last_at DESC LIMIT 500`, [d]],
+    [`SELECT count(DISTINCT sid)::int AS visitors, COALESCE(sum(beats), 0)::int AS minutes
+      FROM usage_sessions u WHERE u.player_id IS NULL AND ${ON_DAY}`, [d]],
+    [`SELECT to_char((started_at ${BD})::date, 'YYYY-MM-DD') AS day, count(DISTINCT player_id)::int AS students,
+        count(DISTINCT sid)::int AS visitors, sum(beats)::int AS minutes
+      FROM usage_sessions WHERE started_at >= now() - interval '30 days' GROUP BY 1 ORDER BY 1 DESC`],
+  ]);
+  const out = {
+    day: d,
+    online: online.map(o => ({ name: o.name, roll: o.roll, college: o.college, from: iso(o.started_at), minutes: o.minutes || 0, minutes_today: o.minutes_today, seen: iso(o.at) })),
+    people: people.map(x => ({ ...x, first_at: iso(x.first_at), last_at: iso(x.last_at) })),
+    anon,
+    days,
+  };
+  const n = Number.parseInt(String(r ?? '').replace(/\D/g, ''), 10);
+  if (n > 0) out.student = await studentUsage(db, n);
+  return out;
+}
+
+/** One student (by roll): minutes on each of the last 30 days and every visit. */
+async function studentUsage(db, r) {
+  const [[s]] = await db.batch([['SELECT id, name, roll, college, created_at, last_seen_at FROM students WHERE roll = $1', [r]]]);
+  if (!s) return null;
+  const [perDay, visits] = await db.batch([
+    [`SELECT to_char((started_at ${BD})::date, 'YYYY-MM-DD') AS day, sum(beats)::int AS minutes, count(*)::int AS sessions
+      FROM usage_sessions WHERE player_id = $1 GROUP BY 1 ORDER BY 1 DESC LIMIT 60`, [s.id]],
+    ['SELECT started_at, last_at, beats FROM usage_sessions WHERE player_id = $1 ORDER BY started_at DESC LIMIT 100', [s.id]],
+  ]);
+  return {
+    name: s.name, roll: s.roll, college: s.college, created_at: iso(s.created_at), last_seen_at: iso(s.last_seen_at),
+    minutes: perDay.reduce((t, x) => t + x.minutes, 0),
+    days: perDay,
+    visits: visits.map(v => ({ from: iso(v.started_at), to: iso(v.last_at), minutes: v.beats })),
+  };
+}
+
 async function dailyDetail(db, day) {
   const d = DAY_RE.test(day || '') ? day : dhakaDay();
   const [sets, rows, days] = await db.batch([
@@ -169,6 +225,7 @@ export default route('admin', {
     let data;
     if (!action) data = await overview(db, days);
     else if (action === 'students') data = await students(db, body.q);
+    else if (action === 'usage') data = await usage(db, body.day, body.roll);
     else if (action === 'daily') data = await dailyDetail(db, body.day);
     else if (action === 'settings') data = await settings(db);
     else if (action === 'save-settings') data = await saveSettings(db, body);

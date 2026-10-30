@@ -15,6 +15,7 @@ import { playerFrom, syncCloud } from './cloud.js';
 import { showIdCard } from '../components.js';
 import { collegeField, wireCollege, readCollege } from './college.js';
 import { flush, hasUnsent } from './outbox.js';
+import { beatNow } from './live.js';
 
 export const rollText = n => String(n).padStart(3, '0');
 const cleanRoll = v => String(v || '').replace(/\D/g, '').slice(0, 5);
@@ -157,6 +158,7 @@ async function send(body, box, { quietNotFound = false } = {}) {
     const res = await saveWithRetry(body);
     state.player = playerFrom(res.player);
     save();
+    beatNow(); // the new sign-in cookie goes with the next heartbeat: "online now" shows the name
     if (res.created) await showIdCard(res.player);
     if (res.restored) {
       toast(`✅ আবার স্বাগতম, ${res.player.tag}! আগের score ও অগ্রগতি আনা হলো।`);

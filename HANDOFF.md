@@ -102,7 +102,7 @@ New API routes must also be added to `ROUTES` in `scripts/serve.mjs` (local dev 
 Vercel Hobby allows only about 12 functions per deployment; `api/` now has 11 files — before adding
 another endpoint, add an action to an existing route instead.
 
-## 4. Current state (2026-10-29, v2.18.0)
+## 4. Current state (2026-10-30, v2.19.0)
 - 2,256 questions in 21 topics (Grammar + Memorising), 1,049-word vocabulary list.
 - **Daily Quiz** (since 2026-10-29): 20 questions a day = 10 CU/DU + 10 other universities, all
   with a real 📌 reference (513 such questions: 171 CU/DU, 342 others). Each half rotates with no
@@ -113,10 +113,13 @@ another endpoint, add an action to an existing route instead.
 - 513 questions show a 📌 reference; 1,743 have none in the data and are intentionally empty
   (mostly Synonym, Antonym, Meaning, Idioms, Preposition, Tense).
 - Login = full name + roll (no password). Leaderboard shows only `LastName.roll` + college.
-- Admin dashboard (`#admin`, link at the bottom of every page; v2.18), five tabs, all via
+- Admin dashboard (`#admin`, link at the bottom of every page; v2.18–2.19), six tabs, all via
   POST `/api/admin` `{password, action}` (every action checks the password first):
   - 📊 সারাংশ: today / 7 / 30 days — online, visitors, signed-in users, minutes, sign-ups,
     tests, Daily Quiz takers, push subscribers; a bar per day; top students; today's sessions.
+  - 🟢 ব্যবহার (`usage` {day?, roll?}; v2.19): online now (presence ⨝ latest usage session ⨝
+    students) auto-refreshing every 30 s; per-student minutes for any of the last 30 days; with
+    `roll`, that student's minutes per day and every visit.
   - 👩‍🎓 শিক্ষার্থী (`students`): search by name, roll or college → full name, tests, points,
     accuracy, Daily days, minutes, joined / last seen.
   - 📅 Daily Quiz (`daily`): any day's 20 questions with answers + every participant (full names).
